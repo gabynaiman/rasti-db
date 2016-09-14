@@ -122,7 +122,7 @@ posts.first #=> Post
 posts.count #=> 1
 posts.query { where id: [1,2] } #=> [Post, ...]
 posts.query { where{id > 1}.limit(10).offset(20) } #=> [Post, ...]
-posts.query { graph(:user, :categories, 'comments.user')} #=> [Post(User, Categories, Comments([User])), ], ...]
+posts.query { graph(:user, :categories, 'comments.user')} #=> [Post(User, [Categories, ...], [Comments(User)]), ...]
 ```
 
 ## Contributing
