@@ -2,7 +2,7 @@ module Rasti
   module DB
     class Query
 
-      CHAINED_METHODS = [:where, :exclude, :and, :or, :order, :reverse_order, :limit, :offset, :distinct].freeze
+      CHAINED_METHODS = [:where, :exclude, :and, :or, :order, :reverse_order, :limit, :offset].freeze
 
       include Enumerable
 
@@ -46,6 +46,11 @@ module Rasti
         
         rows.map { |row| collection_class.model.new row }
       end
+
+      def to_s
+        "#<#{self.class.name}: \"#{dataset.sql}\">"
+      end
+      alias_method :inspect, :to_s
 
       private
 

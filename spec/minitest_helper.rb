@@ -18,6 +18,7 @@ end
 class Posts < Rasti::DB::Collection
   many_to_one :user
   many_to_many :categories
+  one_to_many :comments
 end
 
 class Comments < Rasti::DB::Collection
@@ -34,22 +35,28 @@ class Minitest::Spec
 
   let(:users) { Users.new db }
 
+  let(:posts) { Posts.new db }
+  
+  let(:comments) { Comments.new db }
+
+  let(:categories) { Categories.new db }
+
   let :db do
     db = Sequel.sqlite
 
     db.create_table :users do
       primary_key :id
-      String :name, null: false
+      String :name, null: false, unique: true
     end
 
     db.create_table :posts do
       primary_key :id
-      String :title, null: false
+      String :title, null: false, unique: true
       String :body, null: false
       foreign_key :user_id, :users, null: false, index: true
     end
 
-    db.create_table :comment do
+    db.create_table :comments do
       primary_key :id
       String :text, null: false
       foreign_key :user_id, :users, null: false, index: true
@@ -58,7 +65,7 @@ class Minitest::Spec
 
     db.create_table :categories do
       primary_key :id
-      String :name, null: false
+      String :name, null: false, unique: true
     end
 
     db.create_table :categories_posts do

@@ -2,6 +2,18 @@ module Rasti
   module DB
     class Model
 
+      class UninitializedAttributeError < StandardError
+
+        attr_reader :attribute
+
+        def initialize(attribute)
+          @attribute = attribute
+          super "Uninitialized attribute #{attribute}"
+        end
+
+      end
+
+
       class << self
 
         def [](*attributes)
@@ -25,11 +37,12 @@ module Rasti
           attributes << name
 
           define_method name do
-            attributes.key?(name) ? attributes[name] : raise("Attribute #{name} not initialized")
+            attributes.key?(name) ? attributes[name] : raise(UninitializedAttributeError, name)
           end
         end
 
       end
+
 
       def initialize(attributes)
         @attributes = attributes.select { |name,_| self.class.attributes.include? name }

@@ -3,8 +3,8 @@ require 'minitest_helper'
 describe 'Model' do
 
   def assert_attribute_not_initialized(model, attribute)
-    error = proc { model.send attribute }.must_raise RuntimeError
-    error.message.must_equal "Attribute #{attribute} not initialized"
+    error = proc { model.send attribute }.must_raise Rasti::DB::Model::UninitializedAttributeError
+    error.message.must_equal "Uninitialized attribute #{attribute}"
   end
 
   it 'Attributes' do
