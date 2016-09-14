@@ -28,5 +28,10 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'tins', '~> 1.6.0'
   spec.add_development_dependency 'coveralls', '~> 0.8'
   spec.add_development_dependency 'pry-nav', '~> 0.2'
-  spec.add_development_dependency 'sqlite3', '~> 1.3'
+
+  if RUBY_ENGINE == 'jruby'
+    spec.add_development_dependency 'jdbc-sqlite3', '~> 3.8'
+  else
+    spec.add_development_dependency 'sqlite3', '~> 1.3'
+  end
 end

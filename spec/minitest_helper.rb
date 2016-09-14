@@ -42,7 +42,9 @@ class Minitest::Spec
   let(:categories) { Categories.new db }
 
   let :db do
-    db = Sequel.sqlite
+    driver = (RUBY_ENGINE == 'jruby') ? 'jdbc:sqlite::memory:' : {adapter: :sqlite}
+    
+    db = Sequel.connect driver
 
     db.create_table :users do
       primary_key :id
