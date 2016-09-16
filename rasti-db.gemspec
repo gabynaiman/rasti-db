@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.summary       = 'Database collections and relations'
   spec.description   = 'Database collections and relations'
   spec.homepage      = 'https://github.com/gabynaiman/rasti-db'
-  spec.license       = "MIT"
+  spec.license       = 'MIT'
 
   spec.files         = `git ls-files -z`.split("\x0")
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
