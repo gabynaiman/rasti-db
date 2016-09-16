@@ -37,7 +37,7 @@ module Rasti
         end
 
         def target_collection_class
-          @target_collection_class ||= @options[:collection].is_a?(Class) ? @options[:collection] : constantize(@options[:collection] || camelize(pluralize(name)))
+          @target_collection_class ||= @options[:collection].is_a?(Class) ? @options[:collection] : Consty.get(@options[:collection] || camelize(pluralize(name)), self.class)
         end
 
         private

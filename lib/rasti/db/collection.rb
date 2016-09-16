@@ -15,7 +15,7 @@ module Rasti
         end
 
         def model
-          @model ||= constantize(singularize(name))
+          @model ||= Consty.get(demodulize(singularize(name)), self)
         end
 
         def relations

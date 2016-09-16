@@ -19,6 +19,10 @@ module Rasti
         def [](*attributes)
           Class.new(self) do
             attributes.each { |name| attribute name }
+
+            def self.inherited(subclass)
+              subclass.instance_variable_set :@attributes, attributes
+            end
           end
         end
 

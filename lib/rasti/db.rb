@@ -1,4 +1,5 @@
 require 'sequel'
+require 'consty'
 
 require_relative 'db/version'
 require_relative 'db/collection'
