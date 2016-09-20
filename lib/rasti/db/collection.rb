@@ -58,8 +58,9 @@ module Rasti
 
       end
 
-      def initialize(db)
+      def initialize(db, schema=nil)
         @db = db
+        @schema = schema
       end
 
       def insert(attributes)
@@ -98,10 +99,10 @@ module Rasti
 
       private
 
-      attr_reader :db
+      attr_reader :db, :schema
       
       def dataset
-        db[self.class.collection_name]
+        db[schema.nil? ? self.class.collection_name : "#{schema}__#{self.class.collection_name}".to_sym]
       end
 
     end
