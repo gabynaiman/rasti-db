@@ -26,13 +26,13 @@ Or install it yourself as:
 
 ## Usage
 
-### Databse connection
+### Database connection
 
 ```ruby
 DB = Sequel.connect ...
 ```
 
-### Databse schema
+### Database schema
 
 ```ruby
 DB.create_table :users do
