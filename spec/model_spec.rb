@@ -2,22 +2,26 @@ require 'minitest_helper'
 
 describe 'Model' do
 
-  def assert_attribute_not_initialized(model, attribute)
-    error = proc { model.send attribute }.must_raise Rasti::DB::Model::UninitializedAttributeError
-    error.message.must_equal "Uninitialized attribute #{attribute}"
-  end
-
   it 'Attributes' do
     post = Post.new id: 1, title: 'Title'
 
     post.id.must_equal 1
     post.title.must_equal 'Title'
 
-    assert_attribute_not_initialized post, :body
-    assert_attribute_not_initialized post, :user
-    assert_attribute_not_initialized post, :comments
+    [:body, :user, :comments].each do |attribute|
+      error = proc { post.send attribute }.must_raise Rasti::DB::Model::UninitializedAttributeError
+      error.message.must_equal "Uninitialized attribute #{attribute}"
+    end
 
     proc { post.invalid_method }.must_raise NoMethodError
+  end
+
+  it 'Inheritance' do
+    subclass = Class.new(User) do
+      attribute :additional_attribute
+    end
+
+    subclass.attributes.must_equal (User.attributes + [:additional_attribute])
   end
 
   describe 'To String' do

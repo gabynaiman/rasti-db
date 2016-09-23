@@ -21,7 +21,7 @@ module Rasti
             attributes.each { |name| attribute name }
 
             def self.inherited(subclass)
-              subclass.instance_variable_set :@attributes, attributes
+              subclass.instance_variable_set :@attributes, attributes.dup
             end
           end
         end
