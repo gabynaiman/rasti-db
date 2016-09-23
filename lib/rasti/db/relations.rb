@@ -4,9 +4,11 @@ module Rasti
 
       class << self
 
-        def graph_to(rows, relations, collection_class, db)
+        def graph_to(rows, relations, collection_class, db, schema=nil)
+          return if rows.empty?
+
           parse(relations).each do |relation, nested_relations|
-            collection_class.relations[relation].graph_to rows, db, nested_relations
+            collection_class.relations[relation].graph_to rows, db, schema, nested_relations
           end
         end
 
@@ -53,10 +55,10 @@ module Rasti
           @foreign_key ||= @options[:foreign_key] || source_collection_class.implicit_foreign_key_name
         end
 
-        def graph_to(rows, db, relations=[])
+        def graph_to(rows, db, schema=nil, relations=[])
           pks = rows.map { |row| row[source_collection_class.primary_key] }.uniq
 
-          target_collection = target_collection_class.new db
+          target_collection = target_collection_class.new db, schema
 
           relation_rows = target_collection.query do |q|
                             q = q.where foreign_key => pks
@@ -78,10 +80,10 @@ module Rasti
           @foreign_key ||= @options[:foreign_key] || target_collection_class.implicit_foreign_key_name
         end
 
-        def graph_to(rows, db, relations=[])
+        def graph_to(rows, db, schema=nil, relations=[])
           fks = rows.map { |row| row[foreign_key] }.uniq
 
-          target_collection = target_collection_class.new db
+          target_collection = target_collection_class.new db, schema
 
           relation_rows = target_collection.query do |q|
                             q = q.where source_collection_class.primary_key => fks
@@ -111,18 +113,20 @@ module Rasti
           @relation_collection_name ||= @options[:relation_collection_name] || [source_collection_class.collection_name, target_collection_class.collection_name].sort.join('_').to_sym
         end
 
-        def graph_to(rows, db, relations=[])
+        def graph_to(rows, db, schema=nil, relations=[])
           pks = rows.map { |row| row[source_collection_class.primary_key] }
 
-          target_collection = target_collection_class.new db
+          target_collection = target_collection_class.new db, schema
+
+          target_name = schema.nil? ? target_collection_class.collection_name : Sequel.qualify(schema, target_collection_class.collection_name)
+          relation_name = schema.nil? ? relation_collection_name : Sequel.qualify(schema, relation_collection_name)
 
           join_rows = target_collection.query do |q, ds|
-            ds.join(relation_collection_name, target_foreign_key => target_collection_class.primary_key)
-              .where("#{relation_collection_name}__#{source_foreign_key}".to_sym => pks)
-              .select(Sequel.lit("#{db.quote_identifier(target_collection_class.collection_name)}.*"), source_foreign_key)
+            ds.join(relation_name, target_foreign_key => target_collection_class.primary_key)
+              .where(Sequel.qualify(relation_name, source_foreign_key) => pks)
           end
 
-          Relations.graph_to join_rows, relations, target_collection_class, db
+          Relations.graph_to join_rows, relations, target_collection_class, db, schema
 
           relation_rows = join_rows.each_with_object(Hash.new { |h,k| h[k] = [] }) do |row, hash| 
             hash[row[source_foreign_key]] << target_collection_class.model.new(row)

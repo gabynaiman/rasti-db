@@ -92,7 +92,7 @@ module Rasti
       end
 
       def query(&block)
-        query = Query.new self.class, dataset
+        query = Query.new self.class, dataset, schema
         result = block.arity == 0 ? query.instance_eval(&block) : block.call(query, dataset)
         result.respond_to?(:all) ? result.all : result
       end

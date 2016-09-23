@@ -148,4 +148,78 @@ describe 'Collection' do
 
   end
 
+  describe 'Schemas' do
+
+    let :stub_db do
+      stubs = Proc.new do |sql|
+        case sql
+
+        when 'SELECT * FROM custom_schema.users', 
+             'SELECT * FROM custom_schema.users WHERE (id IN (2, 1))'
+          [
+            {id: 1},
+            {id: 2}
+          ]
+
+        when 'SELECT * FROM custom_schema.posts',
+             'SELECT * FROM custom_schema.posts WHERE (user_id IN (1, 2))'
+          [
+            {id: 3, user_id: 1},
+            {id: 4, user_id: 2}
+          ]
+
+        when 'SELECT * FROM custom_schema.comments WHERE (post_id IN (3, 4))'
+          [
+            {id: 5, user_id: 2, post_id: 3},
+            {id: 6, user_id: 1, post_id: 3},
+            {id: 7, user_id: 1, post_id: 4},
+            {id: 8, user_id: 2, post_id: 4}
+          ]
+
+        else
+          nil
+        end
+      end
+
+      Sequel.mock fetch: stubs
+    end
+
+    let(:stub_users) { Users.new stub_db, :custom_schema }
+    let(:stub_posts) { Posts.new stub_db, :custom_schema }
+
+    it 'Insert' do
+      stub_users.insert name: 'User 1'
+      stub_db.sqls.must_equal ["INSERT INTO custom_schema.users (name) VALUES ('User 1')"]
+    end
+
+    it 'Update' do
+      stub_users.update 1, name: 'Updated name'
+      stub_db.sqls.must_equal ["UPDATE custom_schema.users SET name = 'Updated name' WHERE (id = 1)"]
+    end
+
+    it 'Delete' do
+      stub_users.delete 1
+      stub_db.sqls.must_equal ['DELETE FROM custom_schema.users WHERE (id = 1)']
+    end
+
+    it 'Query' do
+      stub_users.query { where(id: [1,2]).limit(1).order(:name) }
+      stub_db.sqls.must_equal ['SELECT * FROM custom_schema.users WHERE (id IN (1, 2)) ORDER BY name LIMIT 1']
+    end
+
+    it 'Graph' do
+      stub_posts.query { graph :user, :categories, 'comments.user.posts.categories' }
+      stub_db.sqls.must_equal [
+        'SELECT * FROM custom_schema.posts',
+        'SELECT * FROM custom_schema.users WHERE (id IN (1, 2))',
+        'SELECT * FROM custom_schema.categories INNER JOIN custom_schema.categories_posts ON (custom_schema.categories_posts.category_id = custom_schema.categories.id) WHERE (custom_schema.categories_posts.post_id IN (3, 4))', 
+        'SELECT * FROM custom_schema.comments WHERE (post_id IN (3, 4))',
+        'SELECT * FROM custom_schema.users WHERE (id IN (2, 1))',
+        'SELECT * FROM custom_schema.posts WHERE (user_id IN (1, 2))',
+        'SELECT * FROM custom_schema.categories INNER JOIN custom_schema.categories_posts ON (custom_schema.categories_posts.category_id = custom_schema.categories.id) WHERE (custom_schema.categories_posts.post_id IN (3, 4))'
+      ]
+    end
+
+  end
+
 end

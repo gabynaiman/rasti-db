@@ -6,14 +6,15 @@ module Rasti
 
       include Enumerable
 
-      def initialize(collection_class, dataset)
+      def initialize(collection_class, dataset, schema=nil)
         @collection_class = collection_class
         @dataset = dataset
+        @schema = schema
       end
 
       CHAINED_METHODS.each do |method|
         define_method method do |*args, &block|
-          Query.new collection_class, dataset.send(method, *args, &block)
+          Query.new collection_class, dataset.send(method, *args, &block), schema
         end
       end
 
@@ -42,7 +43,7 @@ module Rasti
       def graph(*relations)
         rows = dataset.all
 
-        Relations.graph_to rows, relations, collection_class, dataset.db
+        Relations.graph_to rows, relations, collection_class, dataset.db, schema
         
         rows.map { |row| collection_class.model.new row }
       end
@@ -54,7 +55,7 @@ module Rasti
 
       private
 
-      attr_reader :collection_class, :dataset
+      attr_reader :collection_class, :dataset, :schema
 
     end
   end
