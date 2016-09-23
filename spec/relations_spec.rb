@@ -23,6 +23,14 @@ describe 'Relations' do
 
     end
 
+    it 'Type' do
+      relation = Rasti::DB::Relations::OneToMany.new :posts, Users
+
+      relation.one_to_many?.must_equal true
+      relation.many_to_one?.must_equal false
+      relation.many_to_many?.must_equal false
+    end
+
     it 'Graph' do
       user_id = db[:users].insert name: 'User 1'
       1.upto(2) { |i| db[:posts].insert user_id: user_id, title: "Post #{i}", body: '...' }
@@ -54,6 +62,14 @@ describe 'Relations' do
         relation.foreign_key.must_equal :publisher_id
       end
 
+    end
+
+    it 'Type' do
+      relation = Rasti::DB::Relations::ManyToOne.new :user, Posts
+
+      relation.one_to_many?.must_equal false
+      relation.many_to_one?.must_equal true
+      relation.many_to_many?.must_equal false
     end
 
     it 'Graph' do
@@ -93,6 +109,14 @@ describe 'Relations' do
         relation.relation_collection_name.must_equal :tags_articles
       end
 
+    end
+
+    it 'Type' do
+      relation = Rasti::DB::Relations::ManyToMany.new :categories, Posts
+
+      relation.one_to_many?.must_equal false
+      relation.many_to_one?.must_equal false
+      relation.many_to_many?.must_equal true
     end
 
     it 'Graph' do

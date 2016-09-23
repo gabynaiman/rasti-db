@@ -35,7 +35,20 @@ describe 'Collection' do
       db[:users][id: id][:name].must_equal 'User 1'
     end
 
-    it 'Insert many to many'
+    it 'Insert many to many' do
+      user_id = db[:users].insert name: 'User 1'
+
+      1.upto(2) do |i| 
+        db[:posts].insert user_id: user_id, title: "Post #{i}", body: '...'
+        db[:categories].insert name: "Category #{i}"
+      end
+
+      post_id = posts.insert user_id: user_id, title: 'Post title', body: '...', categories: [1,2]
+      category_id = categories.insert name: 'Category', posts: [1,2]
+
+      db[:categories_posts].where(post_id: post_id).map(:category_id).must_equal [1,2]
+      db[:categories_posts].where(category_id: category_id).map(:post_id).must_equal [1,2]
+    end
 
     it 'Insert batch'
 
@@ -49,7 +62,30 @@ describe 'Collection' do
       db[:users][id: id][:name].must_equal 'updated'
     end
 
-    it 'Update many to many'
+    it 'Update many to many' do
+      user_id = db[:users].insert name: 'User 1'
+
+      1.upto(3) do |i| 
+        db[:posts].insert user_id: user_id, title: "Post #{i}", body: '...'
+        db[:categories].insert name: "Category #{i}"
+      end
+
+      db[:categories_posts].insert post_id: 1, category_id: 1
+      db[:categories_posts].insert post_id: 1, category_id: 2
+      db[:categories_posts].insert post_id: 2, category_id: 2
+
+      db[:categories_posts].where(post_id: 1).map(:category_id).must_equal [1,2]
+
+      posts.update 1, categories: [2,3]
+
+      db[:categories_posts].where(post_id: 1).map(:category_id).must_equal [2,3]
+      
+      db[:categories_posts].where(category_id: 2).map(:post_id).must_equal [1,2]
+
+      categories.update 2, posts: [2,3]
+      
+      db[:categories_posts].where(category_id: 2).map(:post_id).must_equal [2,3]
+    end
 
     it 'Update batch'
 
@@ -64,8 +100,6 @@ describe 'Collection' do
     end
 
     it 'Delete batch'
-
-    it 'Delete cascade'
 
   end
 
@@ -181,7 +215,7 @@ describe 'Collection' do
         end
       end
 
-      Sequel.mock fetch: stubs
+      Sequel.mock fetch: stubs, autoid: 1
     end
 
     let(:stub_users) { Users.new stub_db, :custom_schema }
@@ -189,12 +223,32 @@ describe 'Collection' do
 
     it 'Insert' do
       stub_users.insert name: 'User 1'
-      stub_db.sqls.must_equal ["INSERT INTO custom_schema.users (name) VALUES ('User 1')"]
+      stub_db.sqls.must_equal [
+        'BEGIN',
+        "INSERT INTO custom_schema.users (name) VALUES ('User 1')",
+        'COMMIT'
+      ]
+    end
+
+    it 'Insert with many to many relation' do
+      stub_posts.insert user_id: 1, title: 'Post 1', body: '...', categories: [2,3]
+      stub_db.sqls.must_equal [
+        'BEGIN',
+        "INSERT INTO custom_schema.posts (user_id, title, body) VALUES (1, 'Post 1', '...')",
+        'DELETE FROM custom_schema.categories_posts WHERE (post_id = 1)',
+        'INSERT INTO custom_schema.categories_posts (post_id, category_id) VALUES (1, 2)',
+        'INSERT INTO custom_schema.categories_posts (post_id, category_id) VALUES (1, 3)',
+        'COMMIT'
+      ]
     end
 
     it 'Update' do
       stub_users.update 1, name: 'Updated name'
-      stub_db.sqls.must_equal ["UPDATE custom_schema.users SET name = 'Updated name' WHERE (id = 1)"]
+      stub_db.sqls.must_equal [
+        'BEGIN',
+        "UPDATE custom_schema.users SET name = 'Updated name' WHERE (id = 1)",
+        'COMMIT'
+      ]
     end
 
     it 'Delete' do

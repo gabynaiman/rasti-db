@@ -42,6 +42,18 @@ module Rasti
           @target_collection_class ||= @options[:collection].is_a?(Class) ? @options[:collection] : Consty.get(@options[:collection] || camelize(pluralize(name)), self.class)
         end
 
+        def one_to_many?
+          is_a? OneToMany
+        end
+
+        def many_to_one?
+          is_a? ManyToOne
+        end
+
+        def many_to_many?
+          is_a? ManyToMany
+        end
+
         private
 
         attr_reader :options
@@ -113,12 +125,16 @@ module Rasti
           @relation_collection_name ||= @options[:relation_collection_name] || [source_collection_class.collection_name, target_collection_class.collection_name].sort.join('_').to_sym
         end
 
+        def qualified_relation_collection_name(schema=nil)
+          schema.nil? ? relation_collection_name : Sequel.qualify(schema, relation_collection_name)
+        end
+
         def graph_to(rows, db, schema=nil, relations=[])
           pks = rows.map { |row| row[source_collection_class.primary_key] }
 
           target_collection = target_collection_class.new db, schema
 
-          relation_name = schema.nil? ? relation_collection_name : Sequel.qualify(schema, relation_collection_name)
+          relation_name = qualified_relation_collection_name schema
 
           join_rows = target_collection.query do |q, ds|
             ds.join(relation_name, target_foreign_key => target_collection_class.primary_key)

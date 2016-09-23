@@ -64,11 +64,21 @@ module Rasti
       end
 
       def insert(attributes)
-        dataset.insert attributes
+        db.transaction do
+          collection_attributes, relations_primary_keys = split_related_attributes attributes
+          primary_key = dataset.insert collection_attributes
+          save_relations primary_key, relations_primary_keys
+          primary_key
+        end
       end
 
       def update(primary_key, attributes)
-        dataset.where(self.class.primary_key => primary_key).update(attributes)
+        db.transaction do
+          collection_attributes, relations_primary_keys = split_related_attributes attributes
+          updated_count = dataset.where(self.class.primary_key => primary_key).update(collection_attributes) unless collection_attributes.empty?
+          save_relations primary_key, relations_primary_keys
+          updated_count
+        end
       end
 
       def delete(primary_key)
@@ -103,6 +113,32 @@ module Rasti
       
       def dataset
         db[schema.nil? ? self.class.collection_name : "#{schema}__#{self.class.collection_name}".to_sym]
+      end
+
+      def split_related_attributes(attributes)
+        relation_names = self.class.relations.values.select(&:many_to_many?).map(&:name)
+
+        collection_attributes = attributes.reject { |n,v| relation_names.include? n }
+        relations_ids = attributes.select { |n,v| relation_names.include? n }
+
+        [collection_attributes, relations_ids]
+      end
+      
+      def save_relations(primary_key, relations_primary_keys)
+        relations_primary_keys.each do |relation_name, primary_keys|
+          relation = self.class.relations[relation_name]
+          relation_collection_name = relation.qualified_relation_collection_name(schema)
+          
+          values = primary_keys.map do |rel_primary_key| 
+            {
+              relation.source_foreign_key => primary_key, 
+              relation.target_foreign_key => rel_primary_key
+            }
+          end
+          
+          db[relation_collection_name].where(relation.source_foreign_key => primary_key).delete
+          db[relation_collection_name].multi_insert values
+        end
       end
 
     end
