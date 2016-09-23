@@ -118,7 +118,6 @@ module Rasti
 
           target_collection = target_collection_class.new db, schema
 
-          target_name = schema.nil? ? target_collection_class.collection_name : Sequel.qualify(schema, target_collection_class.collection_name)
           relation_name = schema.nil? ? relation_collection_name : Sequel.qualify(schema, relation_collection_name)
 
           join_rows = target_collection.query do |q, ds|
