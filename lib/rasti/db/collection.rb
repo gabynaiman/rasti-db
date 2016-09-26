@@ -119,7 +119,7 @@ module Rasti
       attr_reader :db, :schema
       
       def dataset
-        db[schema.nil? ? self.class.collection_name : "#{schema}__#{self.class.collection_name}".to_sym]
+        db[schema.nil? ? self.class.collection_name : Sequel.qualify(schema, self.class.collection_name)]
       end
 
       def build_query(filter=nil, &block)
