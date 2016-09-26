@@ -3,6 +3,7 @@ require 'rasti-db'
 require 'minitest/autorun'
 require 'minitest/colorin'
 require 'pry-nav'
+require 'logger'
 
 User     = Rasti::DB::Model[:id, :name, :posts, :comments]
 Post     = Rasti::DB::Model[:id, :title, :body, :user_id, :user, :comments, :categories]

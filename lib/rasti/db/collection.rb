@@ -101,10 +101,17 @@ module Rasti
         query { first }
       end
 
-      def query(&block)
-        query = Query.new self.class, dataset, schema
-        result = block.arity == 0 ? query.instance_eval(&block) : block.call(query, dataset)
-        result.respond_to?(:all) ? result.all : result
+      def query(filter=nil, &block)
+        query = build_query filter, &block
+        query.respond_to?(:all) ? query.all : query
+      end
+
+      def exists?(filter=nil, &block)
+        build_query(filter, &block).count > 0
+      end
+
+      def detect(filter=nil, &block)
+        build_query(filter, &block).first
       end
 
       private
@@ -113,6 +120,15 @@ module Rasti
       
       def dataset
         db[schema.nil? ? self.class.collection_name : "#{schema}__#{self.class.collection_name}".to_sym]
+      end
+
+      def build_query(filter=nil, &block)
+        query = Query.new self.class, dataset, schema
+        if filter
+          query.where(filter)
+        else
+          block.arity == 0 ? query.instance_eval(&block) : block.call(query, dataset)
+        end
       end
 
       def split_related_attributes(attributes)

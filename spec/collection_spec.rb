@@ -129,6 +129,26 @@ describe 'Collection' do
       users.first.must_equal User.new(id: 1, name: 'User 1')
     end
 
+    it 'Exists' do
+      1.upto(10) { |i| db[:users].insert name: "User #{i}" }
+
+      users.exists?(id: 1).must_equal true
+      users.exists?(id: 0).must_equal false
+
+      users.exists? { where id: 1 }.must_equal true
+      users.exists? { where id: 0 }.must_equal false
+    end
+
+    it 'Detect' do
+      1.upto(10) { |i| db[:users].insert name: "User #{i}" }
+
+      users.detect(id: 1).must_equal User.new(id: 1, name: 'User 1')
+      users.detect(id: 0).must_equal nil
+
+      users.detect { where id: 1 }.must_equal User.new(id: 1, name: 'User 1')
+      users.detect { where id: 0 }.must_equal nil
+    end
+
     it 'Query' do
       1.upto(10) { |i| db[:users].insert name: "User #{i}" }
 
