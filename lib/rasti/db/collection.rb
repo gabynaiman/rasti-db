@@ -85,7 +85,7 @@ module Rasti
         dataset.where(self.class.primary_key => primary_key).delete
       end
 
-      def fetch(primary_key)
+      def find(primary_key)
         query { |q| q.where(self.class.primary_key => primary_key).first }
       end
 

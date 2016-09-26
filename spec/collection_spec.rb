@@ -105,10 +105,10 @@ describe 'Collection' do
 
   describe 'Queries' do
 
-    it 'Fetch' do
+    it 'Find' do
       id = db[:users].insert name: 'User 1'
       
-      users.fetch(id).must_equal User.new(id: id, name: 'User 1')
+      users.find(id).must_equal User.new(id: id, name: 'User 1')
     end
 
     it 'Count' do
@@ -155,9 +155,9 @@ describe 'Collection' do
 
       posts_graph.count.must_equal 1
 
-      posts_graph[0].user.must_equal users.fetch(1)
+      posts_graph[0].user.must_equal users.find(1)
 
-      posts_graph[0].categories.must_equal [categories.fetch(1)]
+      posts_graph[0].categories.must_equal [categories.find(1)]
 
       posts_graph[0].comments.count.must_equal 3
       posts_graph[0].comments.each_with_index do |comment, index|
