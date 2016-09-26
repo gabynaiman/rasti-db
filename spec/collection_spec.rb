@@ -50,7 +50,15 @@ describe 'Collection' do
       db[:categories_posts].where(category_id: category_id).map(:post_id).must_equal [1,2]
     end
 
-    it 'Insert batch'
+    it 'Bulk insert' do
+      users_attrs = 1.upto(2).map { |i| {name: "User #{i}"} }
+
+      ids = users.bulk_insert users_attrs, return: :primary_key
+
+      ids.must_equal [1,2]
+      db[:users][id: 1][:name].must_equal 'User 1'
+      db[:users][id: 2][:name].must_equal 'User 2'
+    end
 
     it 'Update' do
       id = db[:users].insert name: 'User 1'
@@ -87,7 +95,16 @@ describe 'Collection' do
       db[:categories_posts].where(category_id: 2).map(:post_id).must_equal [2,3]
     end
 
-    it 'Update batch'
+    it 'Bulk update' do
+      user_id = db[:users].insert name: 'User 1'
+      1.upto(3) { |i| db[:posts].insert user_id: user_id, title: "Post #{i}", body: '...' }
+
+      posts.bulk_update(body: 'Updated ...') { where id: [1,2] }
+
+      db[:posts][id: 1][:body].must_equal 'Updated ...'
+      db[:posts][id: 2][:body].must_equal 'Updated ...'
+      db[:posts][id: 3][:body].must_equal '...'
+    end
 
     it 'Delete' do
       id = db[:users].insert name: 'User 1'
@@ -99,7 +116,13 @@ describe 'Collection' do
       db[:users].count.must_equal 0
     end
 
-    it 'Delete batch'
+    it 'Bulk delete' do
+      1.upto(3) { |i| db[:users].insert name: "User #{i}" }
+
+      users.bulk_delete { where id: [1,2] }
+
+      db[:users].map(:id).must_equal [3]
+    end
 
   end
 

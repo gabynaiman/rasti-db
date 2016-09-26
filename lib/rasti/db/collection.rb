@@ -72,6 +72,10 @@ module Rasti
         end
       end
 
+      def bulk_insert(attributes, options={})
+        dataset.multi_insert attributes, options
+      end
+
       def update(primary_key, attributes)
         db.transaction do
           collection_attributes, relations_primary_keys = split_related_attributes attributes
@@ -81,8 +85,16 @@ module Rasti
         end
       end
 
+      def bulk_update(attributes, &block)
+        build_query(&block).instance_eval { dataset.update attributes }
+      end
+
       def delete(primary_key)
         dataset.where(self.class.primary_key => primary_key).delete
+      end
+
+      def bulk_delete(&block)
+        build_query(&block).instance_eval { dataset.delete }
       end
 
       def find(primary_key)
