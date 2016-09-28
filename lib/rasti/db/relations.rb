@@ -39,7 +39,7 @@ module Rasti
         end
 
         def target_collection_class
-          @target_collection_class ||= @options[:collection].is_a?(Class) ? @options[:collection] : Consty.get(@options[:collection] || camelize(pluralize(name)), self.class)
+          @target_collection_class ||= @options[:collection].is_a?(Class) ? @options[:collection] : Consty.get(@options[:collection] || camelize(pluralize(name)), source_collection_class)
         end
 
         def one_to_many?
