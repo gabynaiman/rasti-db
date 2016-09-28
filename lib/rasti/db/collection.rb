@@ -79,22 +79,25 @@ module Rasti
       def update(primary_key, attributes)
         db.transaction do
           collection_attributes, relations_primary_keys = split_related_attributes attributes
-          updated_count = dataset.where(self.class.primary_key => primary_key).update(collection_attributes) unless collection_attributes.empty?
+          dataset.where(self.class.primary_key => primary_key).update(collection_attributes) unless collection_attributes.empty?
           save_relations primary_key, relations_primary_keys
-          updated_count
+          nil
         end
       end
 
       def bulk_update(attributes, &block)
         build_query(&block).instance_eval { dataset.update attributes }
+        nil
       end
 
       def delete(primary_key)
         dataset.where(self.class.primary_key => primary_key).delete
+        nil
       end
 
       def bulk_delete(&block)
         build_query(&block).instance_eval { dataset.delete }
+        nil
       end
 
       def find(primary_key)
