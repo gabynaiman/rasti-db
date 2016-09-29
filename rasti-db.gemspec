@@ -36,6 +36,7 @@ Gem::Specification.new do |spec|
   end
 
   if RUBY_VERSION < '2'
+    spec.add_development_dependency 'term-ansicolor', '~> 1.3.0'
     spec.add_development_dependency 'tins', '~> 1.6.0'
     spec.add_development_dependency 'json', '~> 1.8'
   end
