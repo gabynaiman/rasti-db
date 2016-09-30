@@ -25,6 +25,14 @@ describe 'Collection' do
       collection_class.primary_key.must_equal :code
     end
 
+    it 'Lazy model name' do
+      collection_class = Class.new(Rasti::DB::Collection) do
+        set_model :User
+      end
+
+      collection_class.model.must_equal User
+    end
+
   end
 
   describe 'Insert, Update and Delete' do

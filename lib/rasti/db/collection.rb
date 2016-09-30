@@ -15,7 +15,13 @@ module Rasti
         end
 
         def model
-          @model ||= Consty.get(demodulize(singularize(name)), self)
+          if @model.is_a? Class
+            @model
+          elsif @model
+            @model = Consty.get @model, self
+          else
+            @model = Consty.get demodulize(singularize(name)), self
+          end
         end
 
         def relations
