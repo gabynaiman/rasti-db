@@ -55,6 +55,18 @@ module Rasti
 
       private
 
+      def method_missing(method, *args, &block)
+        if collection_class.queries.key?(method)
+          instance_exec *args, &collection_class.queries[method]
+        else
+          super
+        end
+      end
+
+      def respond_to_missing?(method, include_private=false)
+        collection_class.queries.key?(method) || super
+      end
+
       attr_reader :collection_class, :dataset, :schema
 
     end

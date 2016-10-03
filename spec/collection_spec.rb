@@ -188,6 +188,29 @@ describe 'Collection' do
       models.must_equal [2,1].map { |i| User.new(id: i, name: "User #{i}") }
     end
 
+    describe 'Named queries' do
+
+      before do
+        1.upto(2) { |i| db[:users].insert name: "User #{i}" }
+        1.upto(3) { |i| db[:posts].insert user_id: 1, title: "Post #{i}", body: '...' }
+        4.upto(5) { |i| db[:posts].insert user_id: 2, title: "Post #{i}", body: '...' }
+      end
+
+      it 'Global' do
+        posts.created_by(1).map(&:id).must_equal [1,2,3]
+        posts.created_by(2).map(&:id).must_equal [4,5]
+      end
+
+      it 'Chained' do
+        posts.created_by(1).entitled('Post 1').map(&:id).must_equal [1]
+      end
+
+      it 'Chained into query' do
+        posts.query { created_by(2).entitled('Post 4').map(&:id) }.must_equal [4]
+      end
+
+    end
+
     it 'Graph' do
       1.upto(3) do |i|
         db[:users].insert name: "User #{i}"

@@ -80,4 +80,18 @@ describe 'Query' do
     users_query.where(id: [1,2,3]).order(:name).to_s.must_equal '#<Rasti::DB::Query: "SELECT * FROM `users` WHERE (`id` IN (1, 2, 3)) ORDER BY `name`">'
   end
 
+  describe 'Named queries' do
+
+    it 'Respond to' do
+      posts_query.must_respond_to :created_by
+      posts_query.wont_respond_to :by_user
+    end
+
+    it 'Safe method missing' do
+      posts_query.created_by(1).first.must_equal Post.new(db[:posts][user_id: 1])
+      proc { posts_query.by_user(1) }.must_raise NoMethodError
+    end
+
+  end
+
 end

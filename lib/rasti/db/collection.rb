@@ -28,6 +28,10 @@ module Rasti
           @relations ||= {}
         end
 
+        def queries
+          @queries ||= {}
+        end
+
         def implicit_collection_name
           underscore(demodulize(name)).to_sym
         end
@@ -60,6 +64,14 @@ module Rasti
 
         def many_to_many(name, options={})
           relations[name] = Relations::ManyToMany.new name, self, options
+        end
+
+        def query(name, &block)
+          queries[name] = block
+          
+          define_method name do |*args|
+            Query.new(self.class, dataset, schema).instance_exec *args, &block
+          end
         end
 
       end
