@@ -70,7 +70,8 @@ module Rasti
           queries[name] = block
           
           define_method name do |*args|
-            Query.new(self.class, dataset, schema).instance_exec *args, &block
+            result = Query.new(self.class, dataset, schema).instance_exec *args, &block
+            result.respond_to?(:all) ? result.all : result
           end
         end
 
@@ -135,8 +136,8 @@ module Rasti
       end
 
       def query(filter=nil, &block)
-        query = build_query filter, &block
-        query.respond_to?(:all) ? query.all : query
+        result = build_query filter, &block
+        result.respond_to?(:all) ? result.all : result
       end
 
       def exists?(filter=nil, &block)

@@ -197,16 +197,19 @@ describe 'Collection' do
       end
 
       it 'Global' do
-        posts.created_by(1).map(&:id).must_equal [1,2,3]
-        posts.created_by(2).map(&:id).must_equal [4,5]
+        result_1 = posts.created_by(1)
+        result_1.must_be_instance_of Array
+        result_1.map(&:id).must_equal [1,2,3]
+        
+        result_2 = posts.created_by(2)
+        result_2.must_be_instance_of Array
+        result_2.map(&:id).must_equal [4,5]
       end
 
       it 'Chained' do
-        posts.created_by(1).entitled('Post 1').map(&:id).must_equal [1]
-      end
-
-      it 'Chained into query' do
-        posts.query { created_by(2).entitled('Post 4').map(&:id) }.must_equal [4]
+        result = posts.query { created_by(2).entitled('Post 4') }
+        result.must_be_instance_of Array
+        result.map(&:id).must_equal [4]
       end
 
     end
