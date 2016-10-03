@@ -87,6 +87,9 @@ class Posts < Rasti::DB::Collection
   many_to_one :user
   many_to_many :categories
   one_to_many :comments
+
+  query(:created_by) { |user_id| where user_id: user_id }
+  query(:entitled)   { |title| where title: title }
 end
 
 class Comments < Rasti::DB::Collection
@@ -117,12 +120,14 @@ end
 ### Queries
 
 ```ruby
-posts.all #=> [Post, ...]
-posts.first #=> Post
-posts.count #=> 1
-posts.query { where id: [1,2] } #=> [Post, ...]
-posts.query { where{id > 1}.limit(10).offset(20) } #=> [Post, ...]
-posts.query { graph(:user, :categories, 'comments.user')} #=> [Post(User, [Categories, ...], [Comments(User)]), ...]
+posts.all # => [Post, ...]
+posts.first # => Post
+posts.count # => 1
+posts.query { where id: [1,2] } # => [Post, ...]
+posts.query { where{id > 1}.limit(10).offset(20) } # => [Post, ...]
+posts.query { graph(:user, :categories, 'comments.user')} # => [Post(User, [Categories, ...], [Comments(User)]), ...]
+posts.created_by(1) # => [Post, ...]
+posts.query { created_by(1).entitled('...') } # => [Post, ...]
 ```
 
 ## Contributing
