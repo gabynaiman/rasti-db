@@ -66,8 +66,8 @@ module Rasti
           relations[name] = Relations::ManyToMany.new name, self, options
         end
 
-        def query(name, &block)
-          queries[name] = block
+        def query(name, query=nil, &block)
+          queries[name] = query || block
           
           define_method name do |*args|
             result = Query.new(self.class, dataset, schema).instance_exec *args, &block
