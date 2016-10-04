@@ -48,12 +48,21 @@ module Rasti
         rows.map { |row| collection_class.model.new row }
       end
 
+      def chainable(&block)
+        ds = instance_eval &block
+        Query.new collection_class, ds, schema
+      end
+
       def to_s
         "#<#{self.class.name}: \"#{dataset.sql}\">"
       end
       alias_method :inspect, :to_s
 
       private
+
+      def with_schema(identifier)
+        Sequel.qualify schema, identifier
+      end
 
       def method_missing(method, *args, &block)
         if collection_class.queries.key?(method)
