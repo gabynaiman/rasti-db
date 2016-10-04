@@ -21,7 +21,7 @@ class Posts < Rasti::DB::Collection
   many_to_many :categories
   one_to_many :comments
 
-  query :created_by, -> (user_id) { where user_id: user_id }
+  query :created_by, ->(user_id) { where user_id: user_id }
   
   query :entitled do |title| 
     where title: title
