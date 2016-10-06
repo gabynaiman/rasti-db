@@ -123,6 +123,10 @@ module Rasti
         query { |q| q.where(self.class.primary_key => primary_key).first }
       end
 
+      def find_graph(primary_key, *relations)
+        query { |q| q.where(self.class.primary_key => primary_key).graph(*relations).first }
+      end
+
       def count
         dataset.count
       end

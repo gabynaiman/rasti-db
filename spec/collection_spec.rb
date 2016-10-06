@@ -142,6 +142,13 @@ describe 'Collection' do
       users.find(id).must_equal User.new(id: id, name: 'User 1')
     end
 
+    it 'Find graph' do
+      user_id = db[:users].insert name: 'User 1'
+      db[:posts].insert user_id: user_id, title: 'Post 1', body: '...'
+
+      users.find_graph(user_id, :posts).must_equal User.new id: user_id, name: 'User 1', posts: posts.all
+    end
+
     it 'Count' do
       1.upto(10) { |i| db[:users].insert name: "User #{i}" }
 
