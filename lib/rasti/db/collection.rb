@@ -124,6 +124,7 @@ module Rasti
       end
 
       def find_graph(primary_key, *relations)
+        raise ArgumentError, 'must specify relations for graph' if relations.empty?
         query { |q| q.where(self.class.primary_key => primary_key).graph(*relations).first }
       end
 
