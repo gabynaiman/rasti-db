@@ -70,7 +70,7 @@ module Rasti
           queries[name] = query || block
           
           define_method name do |*args|
-            result = Query.new(self.class, dataset, schema).instance_exec *args, &self.class.queries[name]
+            result = Query.new(self.class, dataset, [], schema).instance_exec *args, &self.class.queries[name]
             result.respond_to?(:all) ? result.all : result
           end
         end
@@ -162,7 +162,7 @@ module Rasti
       end
 
       def build_query(filter=nil, &block)
-        query = Query.new self.class, dataset, schema
+        query = Query.new self.class, dataset, [], schema
         if filter
           query.where(filter)
         else

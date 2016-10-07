@@ -73,7 +73,7 @@ describe 'Query' do
   end
 
   it 'Graph' do
-    users_query.where(id: 1).graph(:posts).first.must_equal User.new(id: 1, name: 'User 1', posts: [Post.new(id: 2, user_id: 1, title: 'Another post', body: '...')])
+    users_query.graph(:posts).where(id: 1).first.must_equal User.new(id: 1, name: 'User 1', posts: [Post.new(id: 2, user_id: 1, title: 'Another post', body: '...')])
   end
 
   it 'To String' do

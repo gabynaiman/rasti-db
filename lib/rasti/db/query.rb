@@ -6,24 +6,30 @@ module Rasti
 
       include Enumerable
 
-      def initialize(collection_class, dataset, schema=nil)
+      def initialize(collection_class, dataset, relations=[], schema=nil)
         @collection_class = collection_class
         @dataset = dataset
+        @relations = relations
         @schema = schema
       end
 
       CHAINED_METHODS.each do |method|
         define_method method do |*args, &block|
-          Query.new collection_class, dataset.send(method, *args, &block), schema
+          Query.new collection_class, 
+                    dataset.send(method, *args, &block), 
+                    relations, 
+                    schema
         end
       end
 
       def all
-        dataset.all.map { |row| collection_class.model.new row }
+        with_relations(dataset.all).map do |row| 
+          collection_class.model.new row
+        end
       end
 
       def each(&block)
-        all.each(&block)
+        all.each &block
       end
 
       def count
@@ -31,26 +37,20 @@ module Rasti
       end
 
       def first
-        instance = dataset.first
+        instance = with_relations dataset.first
         instance ? collection_class.model.new(instance) : nil
       end
 
       def last
-        instance = dataset.last
+        instance = with_relations dataset.last
         instance ? collection_class.model.new(instance) : nil
       end
 
-      def graph(*relations)
-        rows = dataset.all
-
-        Relations.graph_to rows, relations, collection_class, dataset.db, schema
-        
-        rows.map { |row| collection_class.model.new row }
-      end
-
-      def chainable(&block)
-        ds = instance_eval &block
-        Query.new collection_class, ds, schema
+      def graph(*rels)
+        Query.new collection_class, 
+                  dataset, 
+                  (relations | rels), 
+                  schema
       end
 
       def to_s
@@ -59,6 +59,17 @@ module Rasti
       alias_method :inspect, :to_s
 
       private
+
+      def chainable(&block)
+        ds = instance_eval &block
+        Query.new collection_class, ds, schema
+      end
+
+      def with_relations(data)
+        rows = data.is_a?(Array) ? data : [data]
+        Relations.graph_to rows, relations, collection_class, dataset.db, schema
+        data
+      end
 
       def with_schema(identifier)
         Sequel.qualify schema, identifier
@@ -76,7 +87,7 @@ module Rasti
         collection_class.queries.key?(method) || super
       end
 
-      attr_reader :collection_class, :dataset, :schema
+      attr_reader :collection_class, :dataset, :relations, :schema
 
     end
   end
