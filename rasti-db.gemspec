@@ -25,6 +25,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rake', '~> 11.0'
   spec.add_development_dependency 'minitest', '~> 5.0'
   spec.add_development_dependency 'minitest-colorin', '~> 0.1'
+  spec.add_development_dependency 'minitest-line', '~> 0.6'
   spec.add_development_dependency 'simplecov', '~> 0.12'
   spec.add_development_dependency 'coveralls', '~> 0.8'
   spec.add_development_dependency 'pry-nav', '~> 0.2'
