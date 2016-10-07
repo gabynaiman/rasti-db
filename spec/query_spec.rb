@@ -12,6 +12,8 @@ describe 'Query' do
   let(:users_query) { Rasti::DB::Query.new Users, db[:users] }
 
   let(:posts_query) { Rasti::DB::Query.new Posts, db[:posts] }
+  
+  let(:comments_query) { Rasti::DB::Query.new Comments, db[:comments] }
 
   it 'Count' do
     users_query.count.must_equal 10
@@ -74,6 +76,16 @@ describe 'Query' do
 
   it 'Graph' do
     users_query.graph(:posts).where(id: 1).first.must_equal User.new(id: 1, name: 'User 1', posts: [Post.new(id: 2, user_id: 1, title: 'Another post', body: '...')])
+  end
+
+  it 'Empty?' do
+    users_query.empty?.must_equal false
+    users_query.any?.must_equal true
+  end
+
+  it 'Any?' do
+    comments_query.empty?.must_equal true
+    comments_query.any?.must_equal false
   end
 
   it 'To String' do

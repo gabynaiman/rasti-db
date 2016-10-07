@@ -38,7 +38,7 @@ describe 'Relations' do
       
       Users.relations[:posts].graph_to rows, db
       
-      rows[0][:posts].must_equal posts.query { where user_id: user_id }
+      rows[0][:posts].must_equal posts.where(user_id: user_id).all
     end
 
   end
@@ -135,8 +135,8 @@ describe 'Relations' do
 
       Posts.relations[:categories].graph_to rows, db
 
-      rows[0][:categories].must_equal categories.query { where id: [1,2] }
-      rows[1][:categories].must_equal categories.query { where id: [3,4] }
+      rows[0][:categories].must_equal categories.where(id: [1,2]).all
+      rows[1][:categories].must_equal categories.where(id: [3,4]).all
     end
 
   end

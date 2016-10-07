@@ -93,6 +93,15 @@ class Posts < Rasti::DB::Collection
   end
   
   query :entitled, -> (title) { where title: title }
+
+  query :commented_by do |user_id|
+    chainable do
+      dataset.join(with_schema(:comments), post_id: :id)
+             .where(with_schema(:comments, :user_id) => user_id)
+             .select_all(with_schema(:posts))
+             .distinct
+    end
+  end
 end
 
 class Comments < Rasti::DB::Collection
@@ -126,11 +135,11 @@ end
 posts.all # => [Post, ...]
 posts.first # => Post
 posts.count # => 1
-posts.query { where id: [1,2] } # => [Post, ...]
-posts.query { where{id > 1}.limit(10).offset(20) } # => [Post, ...]
-posts.query { graph(:user, :categories, 'comments.user')} # => [Post(User, [Categories, ...], [Comments(User)]), ...]
+posts.where(id: [1,2]) # => [Post, ...]
+posts.where{id > 1}.limit(10).offset(20) } # => [Post, ...]
+posts.graph(:user, :categories, 'comments.user') # => [Post(User, [Categories, ...], [Comments(User)]), ...]
 posts.created_by(1) # => [Post, ...]
-posts.query { created_by(1).entitled('...') } # => [Post, ...]
+posts.created_by(1).entitled('...').commented_by(2) # => [Post, ...]
 ```
 
 ## Contributing

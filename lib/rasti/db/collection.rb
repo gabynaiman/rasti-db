@@ -2,6 +2,8 @@ module Rasti
   module DB
     class Collection
 
+      QUERY_METHODS = (Query::DATASET_CHAINED_METHODS + [:graph, :count, :all, :first]).freeze
+
       class << self
 
         include Sequel::Inflections
@@ -66,20 +68,25 @@ module Rasti
           relations[name] = Relations::ManyToMany.new name, self, options
         end
 
-        def query(name, query=nil, &block)
-          queries[name] = query || block
+        def query(name, lambda=nil, &block)
+          queries[name] = lambda || block
           
           define_method name do |*args|
-            result = Query.new(self.class, dataset, [], schema).instance_exec *args, &self.class.queries[name]
-            result.respond_to?(:all) ? result.all : result
+            query.instance_exec *args, &self.class.queries[name]
           end
         end
 
       end
 
+      attr_reader :db, :schema
+
       def initialize(db, schema=nil)
         @db = db
         @schema = schema
+      end
+
+      def dataset
+        db[schema.nil? ? self.class.collection_name : Sequel.qualify(schema, self.class.collection_name)]
       end
 
       def insert(attributes)
@@ -120,29 +127,22 @@ module Rasti
       end
 
       def find(primary_key)
-        query { |q| q.where(self.class.primary_key => primary_key).first }
+        where(self.class.primary_key => primary_key).first
       end
 
       def find_graph(primary_key, *relations)
         raise ArgumentError, 'must specify relations for graph' if relations.empty?
-        query { |q| q.where(self.class.primary_key => primary_key).graph(*relations).first }
+        where(self.class.primary_key => primary_key).graph(*relations).first
       end
 
-      def count
-        dataset.count
+      def query
+        Query.new self.class, dataset, [], schema
       end
 
-      def all
-        query { all }
-      end
-
-      def first
-        query { first }
-      end
-
-      def query(filter=nil, &block)
-        result = build_query filter, &block
-        result.respond_to?(:all) ? result.all : result
+      QUERY_METHODS.each do |method|
+        define_method method do |*args, &block|
+          query.public_send method, *args, &block
+        end
       end
 
       def exists?(filter=nil, &block)
@@ -154,19 +154,13 @@ module Rasti
       end
 
       private
-
-      attr_reader :db, :schema
       
-      def dataset
-        db[schema.nil? ? self.class.collection_name : Sequel.qualify(schema, self.class.collection_name)]
-      end
-
       def build_query(filter=nil, &block)
-        query = Query.new self.class, dataset, [], schema
+        raise ArgumentError, 'must specify filter hash or block' if filter.nil? && block.nil?
         if filter
-          query.where(filter)
+          query.where filter
         else
-          block.arity == 0 ? query.instance_eval(&block) : block.call(query, dataset)
+          block.arity == 0 ? query.instance_eval(&block) : block.call(query)
         end
       end
 

@@ -2,7 +2,7 @@ module Rasti
   module DB
     class Query
 
-      CHAINED_METHODS = [:where, :exclude, :and, :or, :order, :reverse_order, :limit, :offset].freeze
+      DATASET_CHAINED_METHODS = [:where, :exclude, :and, :or, :order, :reverse_order, :limit, :offset].freeze
 
       include Enumerable
 
@@ -13,7 +13,18 @@ module Rasti
         @schema = schema
       end
 
-      CHAINED_METHODS.each do |method|
+      def all
+        with_relations(dataset.all).map do |row| 
+          collection_class.model.new row
+        end
+      end
+      alias_method :to_a, :all
+
+      def each(&block)
+        all.each &block
+      end
+
+      DATASET_CHAINED_METHODS.each do |method|
         define_method method do |*args, &block|
           Query.new collection_class, 
                     dataset.send(method, *args, &block), 
@@ -22,18 +33,23 @@ module Rasti
         end
       end
 
-      def all
-        with_relations(dataset.all).map do |row| 
-          collection_class.model.new row
-        end
-      end
-
-      def each(&block)
-        all.each &block
+      def graph(*rels)
+        Query.new collection_class, 
+                  dataset, 
+                  (relations | rels), 
+                  schema
       end
 
       def count
         dataset.count
+      end
+
+      def any?
+        count > 0
+      end
+
+      def empty?
+        !any?
       end
 
       def first
@@ -46,13 +62,6 @@ module Rasti
         instance ? collection_class.model.new(instance) : nil
       end
 
-      def graph(*rels)
-        Query.new collection_class, 
-                  dataset, 
-                  (relations | rels), 
-                  schema
-      end
-
       def to_s
         "#<#{self.class.name}: \"#{dataset.sql}\">"
       end
@@ -62,7 +71,7 @@ module Rasti
 
       def chainable(&block)
         ds = instance_eval &block
-        Query.new collection_class, ds, schema
+        Query.new collection_class, ds, relations, schema
       end
 
       def with_relations(data)
@@ -71,8 +80,9 @@ module Rasti
         data
       end
 
-      def with_schema(identifier)
-        Sequel.qualify schema, identifier
+      def with_schema(table, field=nil)
+        qualified_table = schema ? Sequel.qualify(schema, table) : table
+        field ? Sequel.qualify(qualified_table, field) : qualified_table
       end
 
       def method_missing(method, *args, &block)

@@ -72,11 +72,9 @@ module Rasti
 
           target_collection = target_collection_class.new db, schema
 
-          relation_rows = target_collection.query do |q|
-                            q = q.where foreign_key => pks
-                            relations.empty? ? q : q.graph(*relations)
-                          end
-                          .group_by { |r| r.public_send(foreign_key) }
+          relation_rows = target_collection.where(foreign_key => pks)
+                                           .graph(*relations)
+                                           .group_by { |r| r.public_send(foreign_key) }
 
           rows.each do |row| 
             row[name] = relation_rows.fetch row[source_collection_class.primary_key], []
@@ -97,11 +95,11 @@ module Rasti
 
           target_collection = target_collection_class.new db, schema
 
-          relation_rows = target_collection.query do |q|
-                            q = q.where source_collection_class.primary_key => fks
-                            relations.empty? ? q : q.graph(*relations)
-                          end
-                          .each_with_object({}) { |r,h| h[r.public_send(source_collection_class.primary_key)] = r }
+          relation_rows = target_collection.where(source_collection_class.primary_key => fks)
+                                           .graph(*relations)
+                                           .each_with_object({}) do |row, hash| 
+                                              hash[row.public_send(source_collection_class.primary_key)] = row
+                                            end
           
           rows.each do |row| 
             row[name] = relation_rows[row[foreign_key]]
@@ -136,10 +134,10 @@ module Rasti
 
           relation_name = qualified_relation_collection_name schema
 
-          join_rows = target_collection.query do |q, ds|
-            ds.join(relation_name, target_foreign_key => target_collection_class.primary_key)
-              .where(Sequel.qualify(relation_name, source_foreign_key) => pks)
-          end
+          join_rows = target_collection.dataset
+                                       .join(relation_name, target_foreign_key => target_collection_class.primary_key)
+                                       .where(Sequel.qualify(relation_name, source_foreign_key) => pks)
+                                       .all
 
           Relations.graph_to join_rows, relations, target_collection_class, db, schema
 

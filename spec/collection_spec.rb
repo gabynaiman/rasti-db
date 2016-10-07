@@ -189,12 +189,21 @@ describe 'Collection' do
       users.detect { where id: 0 }.must_equal nil
     end
 
-    it 'Query' do
+    it 'Chained query' do
       1.upto(10) { |i| db[:users].insert name: "User #{i}" }
 
-      models = users.query { where(id: [1,2]).reverse_order(:id) }
+      models = users.where(id: [1,2]).reverse_order(:id).all
 
       models.must_equal [2,1].map { |i| User.new(id: i, name: "User #{i}") }
+    end
+
+    it 'Chain dataset as query' do
+      1.upto(2) { |i| db[:users].insert name: "User #{i}" }
+      1.upto(3) { |i| db[:posts].insert user_id: 1, title: "Post #{i}", body: '...' }
+      1.upto(2) { |i| db[:comments].insert post_id: i, user_id: 2, text: 'Comment' }
+
+      models = posts.commented_by(2).all
+      models.must_equal [1,2].map { |i| Post.new(id: i, user_id: 1, title: "Post #{i}", body: '...') }
     end
 
     describe 'Named queries' do
@@ -207,17 +216,14 @@ describe 'Collection' do
 
       it 'Global' do
         result_1 = posts.created_by(1)
-        result_1.must_be_instance_of Array
         result_1.map(&:id).must_equal [1,2,3]
         
         result_2 = posts.created_by(2)
-        result_2.must_be_instance_of Array
         result_2.map(&:id).must_equal [4,5]
       end
 
       it 'Chained' do
-        result = posts.query { created_by(2).entitled('Post 4') }
-        result.must_be_instance_of Array
+        result = posts.created_by(2).entitled('Post 4')
         result.map(&:id).must_equal [4]
       end
 
@@ -237,7 +243,7 @@ describe 'Collection' do
         end
       end
 
-      posts_graph = posts.query { where(id: 1).graph :user, :categories, 'comments.user.posts.categories' }
+      posts_graph = posts.where(id: 1).graph(:user, :categories, 'comments.user.posts.categories').all
 
       posts_graph.count.must_equal 1
 
@@ -342,13 +348,13 @@ describe 'Collection' do
       stub_db.sqls.must_equal ['DELETE FROM custom_schema.users WHERE (id = 1)']
     end
 
-    it 'Query' do
-      stub_users.query { where(id: [1,2]).limit(1).order(:name) }
+    it 'Chained query' do
+      stub_users.where(id: [1,2]).limit(1).order(:name).all
       stub_db.sqls.must_equal ['SELECT * FROM custom_schema.users WHERE (id IN (1, 2)) ORDER BY name LIMIT 1']
     end
 
     it 'Graph' do
-      stub_posts.query { graph :user, :categories, 'comments.user.posts.categories' }
+      stub_posts.graph(:user, :categories, 'comments.user.posts.categories').all
       stub_db.sqls.must_equal [
         'SELECT * FROM custom_schema.posts',
         'SELECT * FROM custom_schema.users WHERE (id IN (1, 2))',
@@ -357,6 +363,13 @@ describe 'Collection' do
         'SELECT * FROM custom_schema.users WHERE (id IN (2, 1))',
         'SELECT * FROM custom_schema.posts WHERE (user_id IN (1, 2))',
         'SELECT * FROM custom_schema.categories INNER JOIN custom_schema.categories_posts ON (custom_schema.categories_posts.category_id = custom_schema.categories.id) WHERE (custom_schema.categories_posts.post_id IN (3, 4))'
+      ]
+    end
+
+    it 'Named query' do
+      stub_posts.commented_by(1).all
+      stub_db.sqls.must_equal [
+        'SELECT DISTINCT custom_schema.posts.* FROM custom_schema.posts INNER JOIN custom_schema.comments ON (custom_schema.comments.post_id = custom_schema.posts.id) WHERE (custom_schema.comments.user_id = 1)'
       ]
     end
 

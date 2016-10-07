@@ -26,6 +26,15 @@ class Posts < Rasti::DB::Collection
   query :entitled do |title| 
     where title: title
   end
+
+  query :commented_by do |user_id|
+    chainable do
+      dataset.join(with_schema(:comments), post_id: :id)
+             .where(with_schema(:comments, :user_id) => user_id)
+             .select_all(with_schema(:posts))
+             .distinct
+    end
+  end
 end
 
 class Comments < Rasti::DB::Collection
