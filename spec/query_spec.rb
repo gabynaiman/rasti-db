@@ -52,7 +52,7 @@ describe 'Query' do
     ]
   end
   
-  it 'Reverse_order' do
+  it 'Reverse order' do
     posts_query.reverse_order(:title).all.must_equal [
       Post.new(id: 1, user_id: 2, title: 'Sample post', body: '...'),
       Post.new(id: 3, user_id: 4, title: 'Best post', body: '...'), 
