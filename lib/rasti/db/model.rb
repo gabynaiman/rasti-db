@@ -16,9 +16,9 @@ module Rasti
 
       class << self
 
-        def [](*attributes)
+        def [](*attribute_names)
           Class.new(self) do
-            attributes.each { |name| attribute name }
+            attribute *attribute_names
 
             def self.inherited(subclass)
               subclass.instance_variable_set :@attributes, attributes.dup
@@ -30,18 +30,24 @@ module Rasti
           @attributes ||= []
         end
 
+        def model_name
+          name || self.superclass.name
+        end
+
         def to_s
-          "#{name || self.superclass.name}[#{attributes.join(', ')}]"
+          "#{model_name}[#{attributes.join(', ')}]"
         end
         alias_method :inspect, :to_s
 
         private
 
-        def attribute(name)
-          attributes << name
+        def attribute(*names)
+          names.each do |name|
+            attributes << name
 
-          define_method name do
-            attributes.key?(name) ? attributes[name] : raise(UninitializedAttributeError, name)
+            define_method name do
+              attributes.key?(name) ? attributes[name] : raise(UninitializedAttributeError, name)
+            end
           end
         end
 
@@ -49,7 +55,9 @@ module Rasti
 
 
       def initialize(attributes)
-        @attributes = attributes.select { |name,_| self.class.attributes.include? name }
+        invalid_attributes = attributes.keys - self.class.attributes
+        raise "#{self.class.model_name} invalid attributes: #{invalid_attributes.join(', ')}" unless invalid_attributes.empty?
+        @attributes = attributes
       end
 
       def eql?(other)
@@ -65,7 +73,7 @@ module Rasti
       end
 
       def to_s
-        "#<#{self.class.name || self.class.superclass.name}[#{attributes.map { |n,v| "#{n}: #{v.inspect}" }.join(', ')}]>"
+        "#<#{self.class.model_name}[#{attributes.map { |n,v| "#{n}: #{v.inspect}" }.join(', ')}]>"
       end
       alias_method :inspect, :to_s
 

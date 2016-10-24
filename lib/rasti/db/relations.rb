@@ -142,7 +142,8 @@ module Rasti
           Relations.graph_to join_rows, relations, target_collection_class, db, schema
 
           relation_rows = join_rows.each_with_object(Hash.new { |h,k| h[k] = [] }) do |row, hash| 
-            hash[row[source_foreign_key]] << target_collection_class.model.new(row)
+            attributes = row.select { |attr,_| target_collection_class.model.attributes.include? attr }
+            hash[row[source_foreign_key]] << target_collection_class.model.new(attributes)
           end
 
           rows.each do |row| 
