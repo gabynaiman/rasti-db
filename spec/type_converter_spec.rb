@@ -19,7 +19,8 @@ describe 'Type Converter' do
           [
             [:hash,          {db_type: 'hstore'}],
             [:text_array,    {db_type: 'text[]'}],
-            [:integer_array, {db_type: 'integer[]'}]
+            [:integer_array, {db_type: 'integer[]'}],
+            [:hstore_array,  {db_type: 'hstore[]'}]
           ]
         end
       end
@@ -55,6 +56,18 @@ describe 'Type Converter' do
       attributes[:integer_array].class.must_equal Sequel::Postgres::PGArray
       attributes[:integer_array].array_type.must_equal 'integer'
       attributes[:integer_array].must_equal [1,2,3]
+    end
+
+    it 'Hstore array' do
+      attributes = type_converter.apply_to hstore_array: [{key: 0}, {key: 1}]
+
+      attributes[:hstore_array].class.must_equal Sequel::Postgres::PGArray
+      attributes[:hstore_array].array_type.must_equal 'hstore'
+      
+      2.times do |i|
+        attributes[:hstore_array][i].class.must_equal Sequel::Postgres::HStore
+        attributes[:hstore_array][i].must_equal 'key' => i.to_s
+      end
     end
 
     it 'Empty array' do

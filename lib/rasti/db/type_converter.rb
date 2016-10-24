@@ -4,8 +4,9 @@ module Rasti
 
       CONVERTIONS = {
         postgres: {
-          /hstore/       => ->(value, match) { Sequel::Postgres::HStore.new value },
-          /([a-z]+)\[\]/ => ->(value, match) { Sequel::Postgres::PGArray.new value, match.captures[0] }
+          /^hstore$/       => ->(value, match) { Sequel::Postgres::HStore.new value },
+          /^hstore\[\]$/   => ->(value, match) { Sequel::Postgres::PGArray.new value.map { |v| Sequel::Postgres::HStore.new v }, 'hstore' },
+          /^([a-z]+)\[\]$/ => ->(value, match) { Sequel::Postgres::PGArray.new value, match.captures[0] }
         }
       }
 
@@ -36,7 +37,7 @@ module Rasti
           columns = Hash[db.schema(collection_name)]
           @cache[key] = columns.each_with_object({}) do |(name, schema), hash| 
             CONVERTIONS.fetch(db.database_type, {}).each do |type, convertion|
-              if match = type.match(schema[:db_type])
+              if !hash.key?(name) && match = type.match(schema[:db_type])
                 hash[name] = {match: match, block: convertion}
               end
             end
