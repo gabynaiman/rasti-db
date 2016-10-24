@@ -4,6 +4,8 @@ require 'minitest/autorun'
 require 'minitest/colorin'
 require 'pry-nav'
 require 'logger'
+require 'sequel/extensions/pg_hstore'
+require 'sequel/extensions/pg_array'
 
 User     = Rasti::DB::Model[:id, :name, :posts, :comments]
 Post     = Rasti::DB::Model[:id, :title, :body, :user_id, :user, :comments, :categories]
@@ -45,6 +47,11 @@ end
 class Categories < Rasti::DB::Collection
   many_to_many :posts
 end
+
+
+Rasti::DB::TypeConverter::CONVERTIONS[:sqlite] = {
+  /integer/ => ->(value, match) { value.to_i }
+}
 
 
 class Minitest::Spec

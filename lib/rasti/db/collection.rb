@@ -86,12 +86,13 @@ module Rasti
       end
 
       def dataset
-        db[schema.nil? ? self.class.collection_name : Sequel.qualify(schema, self.class.collection_name)]
+        db[qualified_collection_name]
       end
 
       def insert(attributes)
         db.transaction do
-          collection_attributes, relations_primary_keys = split_related_attributes attributes
+          db_attributes = type_converter.apply_to attributes
+          collection_attributes, relations_primary_keys = split_related_attributes db_attributes
           primary_key = dataset.insert collection_attributes
           save_relations primary_key, relations_primary_keys
           primary_key
@@ -99,12 +100,14 @@ module Rasti
       end
 
       def bulk_insert(attributes, options={})
-        dataset.multi_insert attributes, options
+        db_attributes = type_converter.apply_to attributes
+        dataset.multi_insert db_attributes, options
       end
 
       def update(primary_key, attributes)
         db.transaction do
-          collection_attributes, relations_primary_keys = split_related_attributes attributes
+          db_attributes = type_converter.apply_to attributes
+          collection_attributes, relations_primary_keys = split_related_attributes db_attributes
           dataset.where(self.class.primary_key => primary_key).update(collection_attributes) unless collection_attributes.empty?
           save_relations primary_key, relations_primary_keys
           nil
@@ -112,7 +115,8 @@ module Rasti
       end
 
       def bulk_update(attributes, &block)
-        build_query(&block).instance_eval { dataset.update attributes }
+        db_attributes = type_converter.apply_to attributes
+        build_query(&block).instance_eval { dataset.update db_attributes }
         nil
       end
 
@@ -154,6 +158,14 @@ module Rasti
       end
 
       private
+
+      def type_converter
+        @type_converter ||= TypeConverter.new db, qualified_collection_name
+      end
+
+      def qualified_collection_name
+        schema.nil? ? self.class.collection_name : Sequel.qualify(schema, self.class.collection_name)
+      end
       
       def build_query(filter=nil, &block)
         raise ArgumentError, 'must specify filter hash or block' if filter.nil? && block.nil?
