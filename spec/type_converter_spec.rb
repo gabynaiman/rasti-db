@@ -20,7 +20,8 @@ describe 'Type Converter' do
             [:hash,          {db_type: 'hstore'}],
             [:text_array,    {db_type: 'text[]'}],
             [:integer_array, {db_type: 'integer[]'}],
-            [:hstore_array,  {db_type: 'hstore[]'}]
+            [:hstore_array,  {db_type: 'hstore[]'}],
+            [:json,          {db_type: 'json'}]
           ]
         end
       end
@@ -76,6 +77,20 @@ describe 'Type Converter' do
       attributes[:integer_array].class.must_equal Sequel::Postgres::PGArray
       attributes[:integer_array].array_type.must_equal 'integer'
       attributes[:integer_array].must_equal []
+    end
+
+    it 'Json' do
+      attributes = type_converter.apply_to json: {key_1: {key_2: [3]}}
+
+      attributes[:json].class.must_equal Sequel::Postgres::JSONHash
+      attributes[:json].must_equal key_1: {key_2: [3]}
+    end
+
+    it 'Json array' do
+      attributes = type_converter.apply_to json: [{key_1: {key_2: [3]}}]
+
+      attributes[:json].class.must_equal Sequel::Postgres::JSONArray
+      attributes[:json].must_equal [{key_1: {key_2: [3]}}]
     end
 
   end

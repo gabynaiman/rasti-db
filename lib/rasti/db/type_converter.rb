@@ -4,10 +4,10 @@ module Rasti
 
       CONVERTIONS = {
         postgres: {
-          /^json$/ => -> (value, match) { Sequel.pg_json value },
-          /^hstore$/       => ->(value, match) { Sequel::Postgres::HStore.new value },
-          /^hstore\[\]$/   => ->(value, match) { Sequel::Postgres::PGArray.new value.map { |v| Sequel::Postgres::HStore.new v }, 'hstore' },
-          /^([a-z]+)\[\]$/ => ->(value, match) { Sequel::Postgres::PGArray.new value, match.captures[0] }
+          /^json$/         => ->(value, match) { Sequel.pg_json value },
+          /^hstore$/       => ->(value, match) { Sequel.hstore value },
+          /^hstore\[\]$/   => ->(value, match) { Sequel.pg_array value.map { |v| Sequel.hstore v }, 'hstore' },
+          /^([a-z]+)\[\]$/ => ->(value, match) { Sequel.pg_array value, match.captures[0] }
         }
       }
 
