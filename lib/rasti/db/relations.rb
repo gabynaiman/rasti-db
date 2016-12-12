@@ -8,6 +8,7 @@ module Rasti
           return if rows.empty?
 
           parse(relations).each do |relation, nested_relations|
+            raise "Undefined relation #{relation} for #{collection_class}" unless collection_class.relations.key? relation
             collection_class.relations[relation].graph_to rows, db, schema, nested_relations
           end
         end
