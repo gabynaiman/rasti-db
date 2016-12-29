@@ -147,8 +147,6 @@ describe 'Collection' do
       db[:posts].insert user_id: user_id, title: 'Post 1', body: '...'
 
       users.find_graph(user_id, :posts).must_equal User.new id: user_id, name: 'User 1', posts: posts.all
-
-      proc { users.find_graph user_id }.must_raise ArgumentError
     end
 
     it 'Count' do
