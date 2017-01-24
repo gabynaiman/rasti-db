@@ -201,6 +201,11 @@ module Rasti
         end
       end
 
+      def with_schema(table, field=nil) #FIXME: duplicated method with query class
+        qualified_table = schema ? Sequel.qualify(schema, table) : table
+        field ? Sequel.qualify(qualified_table, field) : qualified_table
+      end
+
     end
   end
 end
