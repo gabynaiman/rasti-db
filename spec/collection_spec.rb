@@ -204,6 +204,15 @@ describe 'Collection' do
       models.must_equal [1,2].map { |i| Post.new(id: i, user_id: 1, title: "Post #{i}", body: '...') }
     end
 
+    it 'Custom query' do
+      1.upto(2) { |i| db[:users].insert name: "User #{i}" }
+      1.upto(3) { |i| db[:posts].insert user_id: 1, title: "Post #{i}", body: '...' }
+      1.upto(2) { |i| db[:comments].insert post_id: i, user_id: 2, text: 'Comment' }
+
+      models = comments.posts_commented_by(2)
+      models.must_equal [1,2].map { |i| Post.new(id: i, user_id: 1, title: "Post #{i}", body: '...') }
+    end
+
     describe 'Named queries' do
 
       before do
@@ -313,8 +322,9 @@ describe 'Collection' do
       end
     end
 
-    let(:stub_users) { Users.new stub_db, :custom_schema }
-    let(:stub_posts) { Posts.new stub_db, :custom_schema }
+    let(:stub_users)    { Users.new    stub_db, :custom_schema }
+    let(:stub_posts)    { Posts.new    stub_db, :custom_schema }
+    let(:stub_comments) { Comments.new stub_db, :custom_schema }
 
     it 'Insert' do
       stub_users.insert name: 'User 1'
@@ -373,6 +383,13 @@ describe 'Collection' do
       stub_posts.commented_by(1).all
       stub_db.sqls.must_equal [
         'SELECT DISTINCT custom_schema.posts.* FROM custom_schema.posts INNER JOIN custom_schema.comments ON (custom_schema.comments.post_id = custom_schema.posts.id) WHERE (custom_schema.comments.user_id = 1)'
+      ]
+    end
+
+    it 'Custom query' do
+      stub_comments.posts_commented_by(2)
+      stub_db.sqls.must_equal [
+        'SELECT custom_schema.posts.* FROM custom_schema.comments INNER JOIN custom_schema.posts ON (custom_schema.posts.id = custom_schema.comments.post_id) WHERE (comments.user_id = 2)'
       ]
     end
 

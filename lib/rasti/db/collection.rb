@@ -4,6 +4,8 @@ module Rasti
 
       QUERY_METHODS = (Query::DATASET_CHAINED_METHODS + [:graph, :count, :all, :first]).freeze
 
+      include Helpers::WithSchema
+
       class << self
 
         include Sequel::Inflections
@@ -199,11 +201,6 @@ module Rasti
           db[relation_collection_name].where(relation.source_foreign_key => primary_key).delete
           db[relation_collection_name].multi_insert values
         end
-      end
-
-      def with_schema(table, field=nil) #FIXME: duplicated method with query class
-        qualified_table = schema ? Sequel.qualify(schema, table) : table
-        field ? Sequel.qualify(qualified_table, field) : qualified_table
       end
 
     end

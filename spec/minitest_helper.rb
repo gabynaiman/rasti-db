@@ -43,6 +43,13 @@ end
 class Comments < Rasti::DB::Collection
   many_to_one :user
   many_to_one :post
+
+  def posts_commented_by(user_id)
+    dataset.where(comments__user_id: user_id)
+           .join(with_schema(:posts), id: :post_id)
+           .select_all(with_schema(:posts))
+           .map { |row| Post.new row }
+  end
 end
 
 class Categories < Rasti::DB::Collection

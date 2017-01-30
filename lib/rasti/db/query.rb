@@ -5,6 +5,7 @@ module Rasti
       DATASET_CHAINED_METHODS = [:where, :exclude, :and, :or, :order, :reverse_order, :limit, :offset].freeze
 
       include Enumerable
+      include Helpers::WithSchema
 
       def initialize(collection_class, dataset, relations=[], schema=nil)
         @collection_class = collection_class
@@ -78,11 +79,6 @@ module Rasti
         rows = data.is_a?(Array) ? data : [data]
         Relations.graph_to rows, relations, collection_class, dataset.db, schema
         data
-      end
-
-      def with_schema(table, field=nil)
-        qualified_table = schema ? Sequel.qualify(schema, table) : table
-        field ? Sequel.qualify(qualified_table, field) : qualified_table
       end
 
       def method_missing(method, *args, &block)
