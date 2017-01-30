@@ -132,6 +132,11 @@ module Rasti
         nil
       end
 
+      def delete_cascade(primary_key, *relation_names)
+        delete_relations primary_key, *relation_names
+        delete primary_key
+      end
+
       def find(primary_key)
         where(self.class.primary_key => primary_key).first
       end
@@ -200,6 +205,23 @@ module Rasti
           
           db[relation_collection_name].where(relation.source_foreign_key => primary_key).delete
           db[relation_collection_name].multi_insert values
+        end
+      end
+
+      def delete_relations(primary_key, *relation_names)
+        relations = relation_names.map { |r| self.class.relations[r] }
+
+        # TODO: Rasie error when try to remove many to one relation
+        # relations.select(&:many_to_one?)
+
+        relations.select(&:one_to_many?).each do |relation|
+          target_collection = relation.target_collection_class.new db, schema
+          target_collection.bulk_delete { where(relation.foreign_key => primary_key) }
+        end
+
+        relations.select(&:many_to_many?).each do |relation|
+          relation_collection_name = relation.qualified_relation_collection_name(schema)
+          db[relation_collection_name].where(relation.source_foreign_key => primary_key).delete
         end
       end
 

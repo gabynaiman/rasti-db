@@ -132,6 +132,42 @@ describe 'Collection' do
       db[:users].map(:id).must_equal [3]
     end
 
+    it 'Delete cascade' do
+      1.upto(2) do |i|
+        user_id = db[:users].insert name: "User #{i}"
+        category_id = db[:categories].insert name: "Category #{i}" 
+        
+        1.upto(3) do |n|
+          post_id = db[:posts].insert user_id: user_id, title: "Post #{i}.#{n}", body: '...'
+          db[:categories_posts].insert post_id: post_id, category_id: category_id
+          db[:comments].insert post_id: post_id, user_id: user_id, text: 'Comment'
+        end
+      end
+      
+      db[:users].count.must_equal 2
+      db[:categories].count.must_equal 2
+      db[:posts].count.must_equal 6
+      db[:categories_posts].count.must_equal 6
+      db[:comments].count.must_equal 6
+
+      db[:posts].where(id: 1).count.must_equal 1
+      db[:categories_posts].where(post_id: 1).count.must_equal 1
+      db[:comments].where(post_id: 1).count.must_equal 1
+
+      posts.delete_cascade 1, :categories, :comments
+      users.delete_cascade 1, 'posts.comments', 'posts.categories', :comments
+
+      db[:users].count.must_equal 2
+      db[:categories].count.must_equal 2
+      db[:posts].count.must_equal 5
+      db[:categories_posts].count.must_equal 5
+      db[:comments].count.must_equal 5
+
+      db[:posts].where(id: 1).count.must_equal 0
+      db[:categories_posts].where(post_id: 1).count.must_equal 0
+      db[:comments].where(post_id: 1).count.must_equal 0
+    end
+
   end
 
   describe 'Queries' do
