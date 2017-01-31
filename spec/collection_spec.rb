@@ -132,40 +132,72 @@ describe 'Collection' do
       db[:users].map(:id).must_equal [3]
     end
 
-    it 'Delete cascade' do
-      1.upto(2) do |i|
-        user_id = db[:users].insert name: "User #{i}"
-        category_id = db[:categories].insert name: "Category #{i}" 
-        
-        1.upto(3) do |n|
-          post_id = db[:posts].insert user_id: user_id, title: "Post #{i}.#{n}", body: '...'
-          db[:categories_posts].insert post_id: post_id, category_id: category_id
-          db[:comments].insert post_id: post_id, user_id: user_id, text: 'Comment'
+    describe 'Delete' do
+
+      before :each do
+        1.upto(3) do |i|
+          user_id = db[:users].insert name: "User #{i}"
+          category_id = db[:categories].insert name: "Category #{i}" 
+          
+          1.upto(3) do |n|
+            post_id = db[:posts].insert user_id: user_id, title: "Post #{i}.#{n}", body: '...'
+            db[:categories_posts].insert post_id: post_id, category_id: category_id
+          end
         end
+
+        {1 => 4..6, 2 => 7..9, 3 => 1..3}.each do |user_id, post_ids|
+          post_ids.each do |post_id|
+            db[:comments].insert post_id: post_id, user_id: user_id, text: 'Comment'
+          end
+        end
+
+        db[:users].count.must_equal 3
+        db[:categories].count.must_equal 3
+        db[:posts].count.must_equal 9
+        db[:categories_posts].count.must_equal 9
+        db[:comments].count.must_equal 9
       end
-      
-      db[:users].count.must_equal 2
-      db[:categories].count.must_equal 2
-      db[:posts].count.must_equal 6
-      db[:categories_posts].count.must_equal 6
-      db[:comments].count.must_equal 6
 
-      db[:posts].where(id: 1).count.must_equal 1
-      db[:categories_posts].where(post_id: 1).count.must_equal 1
-      db[:comments].where(post_id: 1).count.must_equal 1
+      it 'Self relations' do
+        db[:posts].where(id: 1).count.must_equal 1
+        db[:categories_posts].where(post_id: 1).count.must_equal 1
+        db[:comments].where(post_id: 1).count.must_equal 1
 
-      posts.delete_cascade 1, :categories, :comments
-      users.delete_cascade 1, 'posts.comments', 'posts.categories', :comments
+        posts.delete_cascade 1
 
-      db[:users].count.must_equal 2
-      db[:categories].count.must_equal 2
-      db[:posts].count.must_equal 5
-      db[:categories_posts].count.must_equal 5
-      db[:comments].count.must_equal 5
+        db[:posts].where(id: 1).count.must_equal 0
+        db[:categories_posts].where(post_id: 1).count.must_equal 0
+        db[:comments].where(post_id: 1).count.must_equal 0
 
-      db[:posts].where(id: 1).count.must_equal 0
-      db[:categories_posts].where(post_id: 1).count.must_equal 0
-      db[:comments].where(post_id: 1).count.must_equal 0
+        db[:users].count.must_equal 3
+        db[:categories].count.must_equal 3
+        db[:posts].count.must_equal 8
+        db[:categories_posts].count.must_equal 8
+        db[:comments].count.must_equal 8
+      end
+
+      it 'Deep relations' do
+        db[:users].where(id: 1).count.must_equal 1
+        db[:comments].where(user_id: 1).count.must_equal 3
+        db[:posts].where(user_id: 1).count.must_equal 3
+        db[:comments].join(:posts, id: :post_id).where(posts__user_id: 1).count.must_equal 3
+        db[:categories_posts].join(:posts, id: :post_id).where(posts__user_id: 1).count.must_equal 3
+
+        users.delete_cascade 1
+
+        db[:users].where(id: 1).count.must_equal 0
+        db[:comments].where(user_id: 1).count.must_equal 0
+        db[:posts].where(user_id: 1).count.must_equal 0
+        db[:comments].join(:posts, id: :post_id).where(posts__user_id: 1).count.must_equal 0
+        db[:categories_posts].join(:posts, id: :post_id).where(posts__user_id: 1).count.must_equal 0
+        
+        db[:users].count.must_equal 2
+        db[:categories].count.must_equal 3
+        db[:posts].count.must_equal 6
+        db[:categories_posts].count.must_equal 6
+        db[:comments].count.must_equal 3
+      end
+
     end
 
   end
