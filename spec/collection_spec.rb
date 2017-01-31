@@ -132,7 +132,7 @@ describe 'Collection' do
       db[:users].map(:id).must_equal [3]
     end
 
-    describe 'Delete' do
+    describe 'Delete cascade' do
 
       before :each do
         1.upto(3) do |i|

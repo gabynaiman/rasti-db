@@ -215,6 +215,7 @@ module Rasti
         relations.select(&:one_to_many?).each do |relation|
           relation_collection_name = with_schema(relation.target_collection_class.collection_name)
           relations_ids = db[relation_collection_name].where(relation.foreign_key => primary_keys)
+                                                      .select(relation.target_collection_class.primary_key)
                                                       .map(relation.target_collection_class.primary_key)
 
           target_collection = relation.target_collection_class.new db, schema
