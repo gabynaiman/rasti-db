@@ -408,7 +408,7 @@ describe 'Collection' do
       stub_db.sqls.must_equal [
         'BEGIN',
         "INSERT INTO custom_schema.posts (user_id, title, body) VALUES (1, 'Post 1', '...')",
-        'DELETE FROM custom_schema.categories_posts WHERE (post_id = 1)',
+        'DELETE FROM custom_schema.categories_posts WHERE (post_id IN (1))',
         'INSERT INTO custom_schema.categories_posts (post_id, category_id) VALUES (1, 2)',
         'INSERT INTO custom_schema.categories_posts (post_id, category_id) VALUES (1, 3)',
         'COMMIT'

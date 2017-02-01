@@ -195,13 +195,17 @@ module Rasti
       def save_relations(primary_key, relations_primary_keys)
         relations_primary_keys.each do |relation_name, relation_primary_keys|
           relation = self.class.relations[relation_name]
-          delete_relation_table relation, primary_key
+          delete_relation_table relation, [primary_key]
           insert_relation_table relation, primary_key, relation_primary_keys
         end
       end
 
       def delete_relations(primary_keys)
         relations = self.class.relations.values
+
+        relations.select(&:many_to_many?).each do |relation|
+          delete_relation_table relation, primary_keys
+        end
 
         relations.select(&:one_to_many?).each do |relation|
           relation_collection_name = with_schema(relation.target_collection_class.collection_name)
@@ -210,11 +214,7 @@ module Rasti
                                                       .map(relation.target_collection_class.primary_key)
 
           target_collection = relation.target_collection_class.new db, schema
-          target_collection.delete_cascade *relations_ids
-        end
-
-        relations.select(&:many_to_many?).each do |relation|
-          delete_relation_table relation primary_keys
+          target_collection.delete_cascade *relations_ids unless relations_ids.empty?
         end
       end
 
@@ -233,7 +233,7 @@ module Rasti
 
       def delete_relation_table(relation, primary_keys)
         relation_collection_name = relation.qualified_relation_collection_name(schema)
-        db[relation_collection_name].where(relation.source_foreign_key => Array(primary_keys)).delete
+        db[relation_collection_name].where(relation.source_foreign_key => primary_keys).delete
       end
 
     end
