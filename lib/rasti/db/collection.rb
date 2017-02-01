@@ -193,19 +193,10 @@ module Rasti
       end
       
       def save_relations(primary_key, relations_primary_keys)
-        relations_primary_keys.each do |relation_name, primary_keys|
+        relations_primary_keys.each do |relation_name, relation_primary_keys|
           relation = self.class.relations[relation_name]
-          relation_collection_name = relation.qualified_relation_collection_name(schema)
-          
-          values = primary_keys.map do |rel_primary_key| 
-            {
-              relation.source_foreign_key => primary_key, 
-              relation.target_foreign_key => rel_primary_key
-            }
-          end
-          
-          db[relation_collection_name].where(relation.source_foreign_key => primary_key).delete
-          db[relation_collection_name].multi_insert values
+          delete_relation_table relation, primary_key
+          insert_relation_table relation, primary_key, relation_primary_keys
         end
       end
 
@@ -223,9 +214,26 @@ module Rasti
         end
 
         relations.select(&:many_to_many?).each do |relation|
-          relation_collection_name = relation.qualified_relation_collection_name(schema)
-          db[relation_collection_name].where(relation.source_foreign_key => primary_keys).delete
+          delete_relation_table relation primary_keys
         end
+      end
+
+      def insert_relation_table(relation, primary_key, relation_primary_keys)
+        relation_collection_name = relation.qualified_relation_collection_name(schema)
+
+        values = relation_primary_keys.map do |relation_pk| 
+          {
+            relation.source_foreign_key => primary_key, 
+            relation.target_foreign_key => relation_pk
+          }
+        end
+
+        db[relation_collection_name].multi_insert values
+      end
+
+      def delete_relation_table(relation, primary_keys)
+        relation_collection_name = relation.qualified_relation_collection_name(schema)
+        db[relation_collection_name].where(relation.source_foreign_key => Array(primary_keys)).delete
       end
 
     end
