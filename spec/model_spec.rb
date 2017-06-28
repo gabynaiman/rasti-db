@@ -2,19 +2,34 @@ require 'minitest_helper'
 
 describe 'Model' do
 
-  it 'Attributes' do
-    post = Post.new id: 1, title: 'Title'
+  describe 'Attribues' do
 
-    post.id.must_equal 1
-    post.title.must_equal 'Title'
-
-    [:body, :user, :comments].each do |attribute|
-      error = proc { post.send attribute }.must_raise Rasti::DB::Model::UninitializedAttributeError
-      error.message.must_equal "Uninitialized attribute #{attribute}"
+    it 'Valid definition' do
+      model = Rasti::DB::Model[:id, :name]
+      model.attributes.must_equal [:id, :name]
     end
 
-    proc { post.invalid_method }.must_raise NoMethodError
+    it 'Invalid definition' do
+      error = proc { model = Rasti::DB::Model[:id, :name, :name] }.must_raise ArgumentError
+      error.message.must_equal 'Attribute name already exists'
+    end
+
+    it 'Accessors' do
+      post = Post.new id: 1, title: 'Title'
+
+      post.id.must_equal 1
+      post.title.must_equal 'Title'
+
+      [:body, :user, :comments].each do |attribute|
+        error = proc { post.send attribute }.must_raise Rasti::DB::Model::UninitializedAttributeError
+        error.message.must_equal "Uninitialized attribute #{attribute}"
+      end
+
+      proc { post.invalid_method }.must_raise NoMethodError
+    end
+
   end
+
 
   it 'Inheritance' do
     subclass = Class.new(User) do

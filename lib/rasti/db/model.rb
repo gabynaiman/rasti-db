@@ -43,6 +43,8 @@ module Rasti
 
         def attribute(*names)
           names.each do |name|
+            raise ArgumentError, "Attribute #{name} already exists" if attributes.include?(name)
+            
             attributes << name
 
             define_method name do
