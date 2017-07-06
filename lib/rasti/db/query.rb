@@ -14,6 +14,10 @@ module Rasti
         @schema = schema
       end
 
+      def raw
+        dataset.all
+      end
+
       def all
         with_relations(dataset.all).map do |row| 
           collection_class.model.new row
