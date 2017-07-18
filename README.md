@@ -126,6 +126,10 @@ DB.transaction do
   id = users.insert name: 'User 1'
   users.update id, name: 'User updated'
   users.delete id
+
+  users.bulk_insert [{name: 'User 1'}, {name: 'User 2'}]
+  users.bulk_update(name: 'User updated') { where id: [1,2] }
+  users.bulk_delete { where id: [1,2] }
 end
 ```
 
@@ -140,6 +144,10 @@ posts.where{id > 1}.limit(10).offset(20) } # => [Post, ...]
 posts.graph(:user, :categories, 'comments.user') # => [Post(User, [Categories, ...], [Comments(User)]), ...]
 posts.created_by(1) # => [Post, ...]
 posts.created_by(1).entitled('...').commented_by(2) # => [Post, ...]
+posts.where(id: [1,2]).raw # => [{id:1, ...}, {id:2, ...}]
+posts.where(id: [1,2]).primary_keys # => [1,2]
+posts.where(id: [1,2]).pluck(:id) # => [1,2]
+posts.where(id: [1,2]).pluck(:id, :title) # => [[1, ...], [2, ...]]
 ```
 
 ## Contributing
