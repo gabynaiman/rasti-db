@@ -23,6 +23,19 @@ describe 'Query' do
     users_query.all.must_equal db[:users].map { |u| User.new u }
   end
 
+  it 'Raw' do
+    users_query.raw.must_equal db[:users].all
+  end
+
+  it 'Pluck' do
+    users_query.pluck(:name).must_equal db[:users].map { |u| u[:name] }
+    users_query.pluck(:id, :name).must_equal db[:users].map { |u| [u[:id], u[:name]] }
+  end
+
+  it 'Primary keys' do
+    users_query.primary_keys.must_equal db[:users].map { |u| u[:id] }
+  end
+
   it 'Map' do
     users_query.map { |u| u.name }.must_equal db[:users].map(:name)
   end
