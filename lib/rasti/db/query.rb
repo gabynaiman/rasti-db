@@ -18,6 +18,15 @@ module Rasti
         dataset.all
       end
 
+      def pluck(*attributes)
+        ds = dataset.select(*attributes.map { |attr| Sequel.qualify(collection_class.collection_name, attr) })
+        attributes.count == 1 ? ds.map { |r| r[attributes.first] } : ds.map(&:values)
+      end
+
+      def primary_keys
+        pluck collection_class.primary_key
+      end
+
       def all
         with_relations(dataset.all).map do |row| 
           collection_class.model.new row
