@@ -106,6 +106,13 @@ module Rasti
         dataset.multi_insert db_attributes, options
       end
 
+      def insert_relations(primary_key, relations)
+        relations.each do |relation_name, relation_primary_keys|
+          relation = self.class.relations[relation_name]
+          insert_relation_table relation, primary_key, relation_primary_keys
+        end
+      end
+
       def update(primary_key, attributes)
         db.transaction do
           db_attributes = type_converter.apply_to attributes
@@ -132,8 +139,15 @@ module Rasti
         nil
       end
 
+      def delete_relations(primary_key, relations)
+        relations.each do |relation_name, relation_primary_keys|
+          relation = self.class.relations[relation_name]
+          delete_relation_table relation, primary_key, relation_primary_keys
+        end
+      end
+
       def delete_cascade(*primary_keys)
-        delete_relations primary_keys
+        delete_cascade_relations primary_keys
         bulk_delete { |q| q.where self.class.primary_key => primary_keys }
         nil
       end
@@ -200,7 +214,7 @@ module Rasti
         end
       end
 
-      def delete_relations(primary_keys)
+      def delete_cascade_relations(primary_keys)
         relations = self.class.relations.values
 
         relations.select(&:many_to_many?).each do |relation|
@@ -231,9 +245,11 @@ module Rasti
         db[relation_collection_name].multi_insert values
       end
 
-      def delete_relation_table(relation, primary_keys)
+      def delete_relation_table(relation, primary_keys, relation_primary_keys=nil)
         relation_collection_name = relation.qualified_relation_collection_name(schema)
-        db[relation_collection_name].where(relation.source_foreign_key => primary_keys).delete
+        ds = db[relation_collection_name].where(relation.source_foreign_key => primary_keys)
+        ds = ds.where(relation.target_foreign_key => relation_primary_keys) if relation_primary_keys
+        ds.delete
       end
 
     end

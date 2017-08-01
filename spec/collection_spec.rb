@@ -43,7 +43,7 @@ describe 'Collection' do
       db[:users][id: id][:name].must_equal 'User 1'
     end
 
-    it 'Insert many to many' do
+    it 'Insert with many to many' do
       user_id = db[:users].insert name: 'User 1'
 
       1.upto(2) do |i| 
@@ -56,6 +56,20 @@ describe 'Collection' do
 
       db[:categories_posts].where(post_id: post_id).map(:category_id).must_equal [1,2]
       db[:categories_posts].where(category_id: category_id).map(:post_id).must_equal [1,2]
+    end
+
+    it 'Insert only many to many' do
+      1.upto(3) do |i| 
+        db[:categories].insert name: "Category #{i}"
+      end
+
+      user_id = db[:users].insert name: 'User 1'
+      post_id = db[:posts].insert user_id: user_id, title: 'Post title', body: '...'
+      1.upto(2) { |category_id| db[:categories_posts].insert post_id: post_id, category_id: category_id }
+
+      posts.insert_relations post_id, categories: [3]
+
+      db[:categories_posts].where(post_id: post_id).map(:category_id).must_equal [1,2,3]
     end
 
     it 'Bulk insert' do
@@ -78,7 +92,7 @@ describe 'Collection' do
       db[:users][id: id][:name].must_equal 'updated'
     end
 
-    it 'Update many to many' do
+    it 'Update with many to many' do
       user_id = db[:users].insert name: 'User 1'
 
       1.upto(3) do |i| 
@@ -122,6 +136,20 @@ describe 'Collection' do
       users.delete id
 
       db[:users].count.must_equal 0
+    end
+
+    it 'Delete only many to many' do
+      1.upto(3) do |i| 
+        db[:categories].insert name: "Category #{i}"
+      end
+
+      user_id = db[:users].insert name: 'User 1'
+      post_id = db[:posts].insert user_id: user_id, title: 'Post title', body: '...'
+      1.upto(3) { |category_id| db[:categories_posts].insert post_id: post_id, category_id: category_id }
+
+      posts.delete_relations post_id, categories: [3]
+
+      db[:categories_posts].where(post_id: post_id).map(:category_id).must_equal [1,2]
     end
 
     it 'Bulk delete' do
