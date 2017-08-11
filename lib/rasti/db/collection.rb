@@ -111,6 +111,7 @@ module Rasti
           relation = self.class.relations[relation_name]
           insert_relation_table relation, primary_key, relation_primary_keys
         end
+        nil
       end
 
       def update(primary_key, attributes)
@@ -119,8 +120,8 @@ module Rasti
           collection_attributes, relations_primary_keys = split_related_attributes db_attributes
           dataset.where(self.class.primary_key => primary_key).update(collection_attributes) unless collection_attributes.empty?
           save_relations primary_key, relations_primary_keys
-          nil
         end
+        nil
       end
 
       def bulk_update(attributes, &block)
@@ -140,15 +141,20 @@ module Rasti
       end
 
       def delete_relations(primary_key, relations)
-        relations.each do |relation_name, relation_primary_keys|
-          relation = self.class.relations[relation_name]
-          delete_relation_table relation, primary_key, relation_primary_keys
+        db.transaction do
+          relations.each do |relation_name, relation_primary_keys|
+            relation = self.class.relations[relation_name]
+            delete_relation_table relation, primary_key, relation_primary_keys
+          end
         end
+        nil
       end
 
       def delete_cascade(*primary_keys)
-        delete_cascade_relations primary_keys
-        bulk_delete { |q| q.where self.class.primary_key => primary_keys }
+        db.transaction do
+          delete_cascade_relations primary_keys
+          bulk_delete { |q| q.where self.class.primary_key => primary_keys }
+        end
         nil
       end
 
