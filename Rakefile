@@ -3,7 +3,8 @@ require 'rake/testtask'
 
 Rake::TestTask.new(:spec) do |t|
   t.libs << 'spec'
-  t.pattern = 'spec/**/*_spec.rb'
+  t.libs << 'lib'
+  t.pattern = ENV['DIR'] ? File.join(ENV['DIR'], '**', '*_spec.rb') : 'spec/**/*_spec.rb'
   t.verbose = false
   t.warning = false
   t.loader = nil if ENV['TEST']
