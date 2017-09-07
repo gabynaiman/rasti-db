@@ -191,7 +191,7 @@ module Rasti
       end
 
       def qualified_collection_name
-        schema.nil? ? self.class.collection_name : Sequel.qualify(schema, self.class.collection_name)
+        schema.nil? ? self.class.collection_name : Sequel[schema][self.class.collection_name]
       end
       
       def build_query(filter=nil, &block)

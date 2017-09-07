@@ -208,16 +208,16 @@ describe 'Collection' do
         db[:users].where(id: 1).count.must_equal 1
         db[:comments].where(user_id: 1).count.must_equal 3
         db[:posts].where(user_id: 1).count.must_equal 3
-        db[:comments].join(:posts, id: :post_id).where(Sequel.qualify(:posts, :user_id) => 1).count.must_equal 3
-        db[:categories_posts].join(:posts, id: :post_id).where(Sequel.qualify(:posts, :user_id) => 1).count.must_equal 3
+        db[:comments].join(:posts, id: :post_id).where(Sequel[:posts][:user_id] => 1).count.must_equal 3
+        db[:categories_posts].join(:posts, id: :post_id).where(Sequel[:posts][:user_id] => 1).count.must_equal 3
 
         users.delete_cascade 1
 
         db[:users].where(id: 1).count.must_equal 0
         db[:comments].where(user_id: 1).count.must_equal 0
         db[:posts].where(user_id: 1).count.must_equal 0
-        db[:comments].join(:posts, id: :post_id).where(Sequel.qualify(:posts, :user_id) => 1).count.must_equal 0
-        db[:categories_posts].join(:posts, id: :post_id).where(Sequel.qualify(:posts, :user_id) => 1).count.must_equal 0
+        db[:comments].join(:posts, id: :post_id).where(Sequel[:posts][:user_id] => 1).count.must_equal 0
+        db[:categories_posts].join(:posts, id: :post_id).where(Sequel[:posts][:user_id] => 1).count.must_equal 0
         
         db[:users].count.must_equal 2
         db[:categories].count.must_equal 3

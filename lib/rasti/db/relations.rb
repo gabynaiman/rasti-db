@@ -125,7 +125,7 @@ module Rasti
         end
 
         def qualified_relation_collection_name(schema=nil)
-          schema.nil? ? relation_collection_name : Sequel.qualify(schema, relation_collection_name)
+          schema.nil? ? relation_collection_name : Sequel[schema][relation_collection_name]
         end
 
         def graph_to(rows, db, schema=nil, relations=[])
@@ -137,7 +137,7 @@ module Rasti
 
           join_rows = target_collection.dataset
                                        .join(relation_name, target_foreign_key => target_collection_class.primary_key)
-                                       .where(Sequel.qualify(relation_name, source_foreign_key) => pks)
+                                       .where(Sequel[relation_name][source_foreign_key] => pks)
                                        .all
 
           Relations.graph_to join_rows, relations, target_collection_class, db, schema
