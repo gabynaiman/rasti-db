@@ -49,7 +49,7 @@ describe 'Query' do
   end
   
   it 'And' do
-    users_query.where(id: [1,2]).and(name: 'User 2').all.must_equal [User.new(id: 2, name: 'User 2')]
+    users_query.where(id: [1,2]).where(name: 'User 2').all.must_equal [User.new(id: 2, name: 'User 2')]
   end
   
   it 'Or' do

@@ -2,7 +2,7 @@ module Rasti
   module DB
     class Query
 
-      DATASET_CHAINED_METHODS = [:where, :exclude, :and, :or, :order, :reverse_order, :limit, :offset].freeze
+      DATASET_CHAINED_METHODS = [:where, :exclude, :or, :order, :reverse_order, :limit, :offset].freeze
 
       include Enumerable
       include Helpers::WithSchema

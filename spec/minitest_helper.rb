@@ -45,7 +45,7 @@ class Comments < Rasti::DB::Collection
   many_to_one :post
 
   def posts_commented_by(user_id)
-    dataset.where(comments__user_id: user_id)
+    dataset.where(Sequel.qualify(:comments, :user_id) => user_id)
            .join(with_schema(:posts), id: :post_id)
            .select_all(with_schema(:posts))
            .map { |row| Post.new row }
