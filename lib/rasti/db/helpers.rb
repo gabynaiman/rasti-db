@@ -7,7 +7,7 @@ module Rasti
         private
 
         def with_schema(table, field=nil)
-          qualified_table = schema ? Sequel[schema][table] : table
+          qualified_table = schema ? Sequel.qualify(schema, table) : table
           field ? Sequel[qualified_table][field] : qualified_table
         end
 

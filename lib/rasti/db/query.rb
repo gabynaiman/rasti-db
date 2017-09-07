@@ -19,7 +19,7 @@ module Rasti
       end
 
       def pluck(*attributes)
-        ds = dataset.select(*attributes.map { |attr| Sequel[collection_class.collection_name][attr] })
+        ds = dataset.select(*attributes.map { |attr| Sequel.qualify(collection_class.collection_name, attr) })
         attributes.count == 1 ? ds.map { |r| r[attributes.first] } : ds.map(&:values)
       end
 
