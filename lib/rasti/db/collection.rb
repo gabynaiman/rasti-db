@@ -84,7 +84,7 @@ module Rasti
 
       def initialize(db, schema=nil)
         @db = db
-        @schema = schema
+        @schema = schema.to_sym if schema
       end
 
       def dataset
