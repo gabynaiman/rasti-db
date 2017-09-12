@@ -67,13 +67,13 @@ module Rasti
       end
 
       def first
-        instance = with_relations dataset.first
-        instance ? collection_class.model.new(instance) : nil
+        row = dataset.first
+        row ? collection_class.model.new(with_relations(row)) : nil
       end
 
       def last
-        instance = with_relations dataset.last
-        instance ? collection_class.model.new(instance) : nil
+        row = dataset.last
+        row ? collection_class.model.new(with_relations(row)) : nil
       end
 
       def to_s
