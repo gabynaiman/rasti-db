@@ -2,7 +2,7 @@ module Rasti
   module DB
     class Collection
 
-      QUERY_METHODS = (Query::DATASET_CHAINED_METHODS + [:graph, :count, :all, :first]).freeze
+      QUERY_METHODS = (Query::DATASET_CHAINED_METHODS + [:graph, :count, :all, :first, :pluck, :primary_keys, :any?, :empty?, :raw]).freeze
 
       include Helpers::WithSchema
 
@@ -177,7 +177,7 @@ module Rasti
       end
 
       def exists?(filter=nil, &block)
-        build_query(filter, &block).count > 0
+        build_query(filter, &block).any?
       end
 
       def detect(filter=nil, &block)

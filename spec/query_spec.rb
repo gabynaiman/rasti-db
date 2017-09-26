@@ -40,6 +40,10 @@ describe 'Query' do
     users_query.map { |u| u.name }.must_equal db[:users].map(:name)
   end
 
+  it 'Detect' do
+    users_query.detect(id: 3).must_equal User.new(id: 3, name: 'User 3')
+  end
+
   it 'Where' do
     users_query.where(id: 3).all.must_equal [User.new(id: 3, name: 'User 3')]
   end

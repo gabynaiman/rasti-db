@@ -76,6 +76,10 @@ module Rasti
         row ? collection_class.model.new(with_relations(row)) : nil
       end
 
+      def detect(*args, &block)
+        where(*args, &block).first
+      end
+
       def to_s
         "#<#{self.class.name}: \"#{dataset.sql}\">"
       end
