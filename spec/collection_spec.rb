@@ -277,10 +277,10 @@ describe 'Collection' do
       1.upto(10) { |i| db[:users].insert name: "User #{i}" }
 
       users.detect(id: 1).must_equal User.new(id: 1, name: 'User 1')
-      users.detect(id: 0).must_equal nil
+      users.detect(id: 0).must_be_nil
 
       users.detect { where id: 1 }.must_equal User.new(id: 1, name: 'User 1')
-      users.detect { where id: 0 }.must_equal nil
+      users.detect { where id: 0 }.must_be_nil
     end
 
     it 'Chained query' do
