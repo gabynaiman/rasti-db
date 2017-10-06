@@ -5,6 +5,7 @@ module Rasti
       CONVERTIONS = {
         postgres: {
           /^json$/         => ->(value, match) { Sequel.pg_json value },
+          /^jsonb$/        => ->(value, match) { Sequel.pg_jsonb value },
           /^hstore$/       => ->(value, match) { Sequel.hstore value },
           /^hstore\[\]$/   => ->(value, match) { Sequel.pg_array value.map { |v| Sequel.hstore v }, 'hstore' },
           /^([a-z]+)\[\]$/ => ->(value, match) { Sequel.pg_array value, match.captures[0] }

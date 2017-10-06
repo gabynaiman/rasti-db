@@ -21,7 +21,8 @@ describe 'Type Converter' do
             [:text_array,    {db_type: 'text[]'}],
             [:integer_array, {db_type: 'integer[]'}],
             [:hstore_array,  {db_type: 'hstore[]'}],
-            [:json,          {db_type: 'json'}]
+            [:json,          {db_type: 'json'}],
+            [:jsonb,         {db_type: 'jsonb'}]
           ]
         end
       end
@@ -91,6 +92,13 @@ describe 'Type Converter' do
 
       attributes[:json].class.must_equal Sequel::Postgres::JSONArray
       attributes[:json].must_equal [{key_1: {key_2: [3]}}]
+    end
+
+    it 'Json binary' do
+      attributes = type_converter.apply_to jsonb: {key_1: {key_2: [3]}}
+
+      attributes[:jsonb].class.must_equal Sequel::Postgres::JSONBHash
+      attributes[:jsonb].must_equal key_1: {key_2: [3]}
     end
 
   end
