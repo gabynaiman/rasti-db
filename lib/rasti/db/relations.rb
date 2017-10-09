@@ -124,6 +124,10 @@ module Rasti
           @relation_collection_name ||= @options[:relation_collection_name] || [source_collection_class.collection_name, target_collection_class.collection_name].sort.join('_').to_sym
         end
 
+        def qualified_target_collection_name(schema=nil)
+          schema.nil? ? target_collection_class.collection_name : Sequel.qualify(schema, target_collection_class.collection_name)
+        end
+
         def qualified_relation_collection_name(schema=nil)
           schema.nil? ? relation_collection_name : Sequel.qualify(schema, relation_collection_name)
         end
@@ -138,13 +142,15 @@ module Rasti
           join_rows = target_collection.dataset
                                        .join(relation_name, target_foreign_key => target_collection_class.primary_key)
                                        .where(Sequel.qualify(relation_name, source_foreign_key) => pks)
+                                       .select_all(qualified_target_collection_name(schema))
+                                       .select_append(Sequel.qualify(relation_name, source_foreign_key).as(:source_foreign_key))
                                        .all
 
           Relations.graph_to join_rows, relations, target_collection_class, db, schema
 
           relation_rows = join_rows.each_with_object(Hash.new { |h,k| h[k] = [] }) do |row, hash| 
             attributes = row.select { |attr,_| target_collection_class.model.attributes.include? attr }
-            hash[row[source_foreign_key]] << target_collection_class.model.new(attributes)
+            hash[row[:source_foreign_key]] << target_collection_class.model.new(attributes)
           end
 
           rows.each do |row| 

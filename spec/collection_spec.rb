@@ -467,11 +467,11 @@ describe 'Collection' do
       stub_db.sqls.must_equal [
         'SELECT * FROM custom_schema.posts',
         'SELECT * FROM custom_schema.users WHERE (id IN (1, 2))',
-        'SELECT * FROM custom_schema.categories INNER JOIN custom_schema.categories_posts ON (custom_schema.categories_posts.category_id = custom_schema.categories.id) WHERE (custom_schema.categories_posts.post_id IN (3, 4))', 
+        'SELECT custom_schema.categories.*, custom_schema.categories_posts.post_id AS source_foreign_key FROM custom_schema.categories INNER JOIN custom_schema.categories_posts ON (custom_schema.categories_posts.category_id = custom_schema.categories.id) WHERE (custom_schema.categories_posts.post_id IN (3, 4))', 
         'SELECT * FROM custom_schema.comments WHERE (post_id IN (3, 4))',
         'SELECT * FROM custom_schema.users WHERE (id IN (2, 1))',
         'SELECT * FROM custom_schema.posts WHERE (user_id IN (1, 2))',
-        'SELECT * FROM custom_schema.categories INNER JOIN custom_schema.categories_posts ON (custom_schema.categories_posts.category_id = custom_schema.categories.id) WHERE (custom_schema.categories_posts.post_id IN (3, 4))'
+        'SELECT custom_schema.categories.*, custom_schema.categories_posts.post_id AS source_foreign_key FROM custom_schema.categories INNER JOIN custom_schema.categories_posts ON (custom_schema.categories_posts.category_id = custom_schema.categories.id) WHERE (custom_schema.categories_posts.post_id IN (3, 4))'
       ]
     end
 
