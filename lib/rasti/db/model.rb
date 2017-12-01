@@ -48,7 +48,7 @@ module Rasti
             attributes << name
 
             define_method name do
-              attributes.key?(name) ? attributes[name] : raise(UninitializedAttributeError, name)
+              fetch_attribute name
             end
           end
         end
@@ -99,6 +99,10 @@ module Rasti
       private
 
       attr_reader :attributes
+
+      def fetch_attribute(name)
+        attributes.key?(name) ? attributes[name] : raise(UninitializedAttributeError, name)
+      end
       
     end
   end
