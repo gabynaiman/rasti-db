@@ -130,6 +130,9 @@ DB.transaction do
   users.bulk_insert [{name: 'User 1'}, {name: 'User 2'}]
   users.bulk_update(name: 'User updated') { where id: [1,2] }
   users.bulk_delete { where id: [1,2] }
+
+  posts.insert_relations 1, categories: [2,3]
+  posts.delete_relations 1, categories: [2,3]
 end
 ```
 
