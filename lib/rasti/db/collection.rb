@@ -8,6 +8,7 @@ module Rasti
 
       class << self
 
+        extend Sequel::Inflections
         include Sequel::Inflections
 
         def collection_name
@@ -58,19 +59,19 @@ module Rasti
           @model = model
         end
 
-        def one_to_many(name, options={})
-          relations[name] = Relations::OneToMany.new name, self, options
-        end
+        [Relations::OneToMany, Relations::ManyToOne, Relations::ManyToMany].each do |relation_class|
+          define_method underscore(demodulize(relation_class.name)) do |name, options={}|
+            relations[name] = relation_class.new name, self, options
 
-        def many_to_one(name, options={})
-          relations[name] = Relations::ManyToOne.new name, self, options
-        end
-
-        def many_to_many(name, options={})
-          relations[name] = Relations::ManyToMany.new name, self, options
+            query "with_#{pluralize(name)}".to_sym do |primary_keys|
+              with_related name, primary_keys
+            end
+          end
         end
 
         def query(name, lambda=nil, &block)
+          raise "Query #{name} already exists" if queries.key? name
+
           queries[name] = lambda || block
           
           define_method name do |*args|
@@ -166,10 +167,6 @@ module Rasti
         where(self.class.primary_key => primary_key).graph(*relations).first
       end
 
-      def query
-        Query.new self.class, dataset, [], schema
-      end
-
       QUERY_METHODS.each do |method|
         define_method method do |*args, &block|
           query.public_send method, *args, &block
@@ -194,6 +191,10 @@ module Rasti
         schema.nil? ? self.class.collection_name : Sequel.qualify(schema, self.class.collection_name)
       end
       
+      def query
+        Query.new self.class, dataset, [], schema
+      end
+
       def build_query(filter=nil, &block)
         raise ArgumentError, 'must specify filter hash or block' if filter.nil? && block.nil?
         if filter

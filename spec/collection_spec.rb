@@ -312,22 +312,45 @@ describe 'Collection' do
     describe 'Named queries' do
 
       before do
+        1.upto(2) { |i| db[:categories].insert name: "Category #{i}" }
         1.upto(2) { |i| db[:users].insert name: "User #{i}" }
-        1.upto(3) { |i| db[:posts].insert user_id: 1, title: "Post #{i}", body: '...' }
-        4.upto(5) { |i| db[:posts].insert user_id: 2, title: "Post #{i}", body: '...' }
+        1.upto(3) do |i| 
+          db[:posts].insert user_id: 1, title: "Post #{i}", body: '...'
+          db[:categories_posts].insert category_id: 1, post_id: i
+        end
+        4.upto(5) do |i| 
+          db[:posts].insert user_id: 2, title: "Post #{i}", body: '...'
+          db[:categories_posts].insert category_id: 2, post_id: i
+        end
+      end
+
+      describe 'Relations' do
+
+        it 'Many to Many' do
+          posts.order(:id).with_categories(1).primary_keys.must_equal [1,2,3]
+        end
+
+        it 'One to Many' do
+          users.with_posts([1,4]).primary_keys.must_equal [1,2]
+        end
+
+        it 'Many to One' do
+          posts.with_users(2).primary_keys.must_equal [4,5]
+        end
+
       end
 
       it 'Global' do
         result_1 = posts.created_by(1)
-        result_1.map(&:id).must_equal [1,2,3]
+        result_1.primary_keys.must_equal [1,2,3]
         
         result_2 = posts.created_by(2)
-        result_2.map(&:id).must_equal [4,5]
+        result_2.primary_keys.must_equal [4,5]
       end
 
       it 'Chained' do
         result = posts.created_by(2).entitled('Post 4')
-        result.map(&:id).must_equal [4]
+        result.primary_keys.must_equal [4]
       end
 
     end

@@ -28,7 +28,7 @@ module Rasti
       end
 
       def all
-        with_relations(dataset.all).map do |row| 
+        with_graph(dataset.all).map do |row| 
           collection_class.model.new row
         end
       end
@@ -41,7 +41,7 @@ module Rasti
       DATASET_CHAINED_METHODS.each do |method|
         define_method method do |*args, &block|
           Query.new collection_class, 
-                    dataset.send(method, *args, &block), 
+                    dataset.public_send(method, *args, &block), 
                     relations, 
                     schema
         end
@@ -68,12 +68,12 @@ module Rasti
 
       def first
         row = dataset.first
-        row ? collection_class.model.new(with_relations(row)) : nil
+        row ? collection_class.model.new(with_graph(row)) : nil
       end
 
       def last
         row = dataset.last
-        row ? collection_class.model.new(with_relations(row)) : nil
+        row ? collection_class.model.new(with_graph(row)) : nil
       end
 
       def detect(*args, &block)
@@ -92,7 +92,12 @@ module Rasti
         Query.new collection_class, ds, relations, schema
       end
 
-      def with_relations(data)
+      def with_related(relation_name, primary_keys)
+        ds = collection_class.relations[relation_name].apply_filter dataset, schema, primary_keys
+        Query.new collection_class, ds, relations, schema
+      end
+
+      def with_graph(data)
         rows = data.is_a?(Array) ? data : [data]
         Relations.graph_to rows, relations, collection_class, dataset.db, schema
         data

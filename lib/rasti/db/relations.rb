@@ -43,6 +43,14 @@ module Rasti
           @target_collection_class ||= @options[:collection].is_a?(Class) ? @options[:collection] : Consty.get(@options[:collection] || camelize(pluralize(name)), source_collection_class)
         end
 
+        def qualified_source_collection_name(schema=nil)
+          schema.nil? ? source_collection_class.collection_name : Sequel.qualify(schema, source_collection_class.collection_name)
+        end
+
+        def qualified_target_collection_name(schema=nil)
+          schema.nil? ? target_collection_class.collection_name : Sequel.qualify(schema, target_collection_class.collection_name)
+        end
+
         def one_to_many?
           is_a? OneToMany
         end
@@ -82,6 +90,15 @@ module Rasti
           end
         end
 
+        def apply_filter(dataset, schema=nil, primary_keys=[])
+          target_name = qualified_target_collection_name schema
+
+          dataset.join(target_name, foreign_key => source_collection_class.primary_key)
+                 .where(Sequel.qualify(target_name, target_collection_class.primary_key) => primary_keys)
+                 .select_all(qualified_source_collection_name(schema))
+                 .distinct
+        end
+
       end
 
 
@@ -107,6 +124,10 @@ module Rasti
           end
         end
 
+        def apply_filter(dataset, schema=nil, primary_keys=[])
+          dataset.where(foreign_key => primary_keys)
+        end
+
       end
 
 
@@ -122,10 +143,6 @@ module Rasti
 
         def relation_collection_name
           @relation_collection_name ||= @options[:relation_collection_name] || [source_collection_class.collection_name, target_collection_class.collection_name].sort.join('_').to_sym
-        end
-
-        def qualified_target_collection_name(schema=nil)
-          schema.nil? ? target_collection_class.collection_name : Sequel.qualify(schema, target_collection_class.collection_name)
         end
 
         def qualified_relation_collection_name(schema=nil)
@@ -156,6 +173,15 @@ module Rasti
           rows.each do |row| 
             row[name] = relation_rows.fetch row[target_collection_class.primary_key], []
           end
+        end
+
+        def apply_filter(dataset, schema=nil, primary_keys=[])
+          relation_name = qualified_relation_collection_name schema
+
+          dataset.join(relation_name, source_foreign_key => target_collection_class.primary_key)
+                 .where(Sequel.qualify(relation_name, target_foreign_key) => primary_keys)
+                 .select_all(qualified_source_collection_name(schema))
+                 .distinct
         end
 
       end
