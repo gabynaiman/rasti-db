@@ -37,7 +37,7 @@ describe 'Query' do
   end
 
   it 'Map' do
-    users_query.map { |u| u.name }.must_equal db[:users].map(:name)
+    users_query.map(&:name).must_equal db[:users].map(:name)
   end
 
   it 'Detect' do
