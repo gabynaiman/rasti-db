@@ -64,8 +64,6 @@ Rasti::DB::TypeConverter::CONVERTIONS[:sqlite] = {
 
 class Minitest::Spec
 
-  DB_DRIVER = (RUBY_ENGINE == 'jruby') ? 'jdbc:sqlite::memory:' : {adapter: :sqlite}
-
   let(:users) { Users.new db }
 
   let(:posts) { Posts.new db }
@@ -75,39 +73,41 @@ class Minitest::Spec
   let(:categories) { Categories.new db }
 
   let :db do
-    db = Sequel.connect DB_DRIVER
+    driver = (RUBY_ENGINE == 'jruby') ? 'jdbc:sqlite::memory:' : {adapter: :sqlite}
 
-    db.create_table :users do
-      primary_key :id
-      String :name, null: false, unique: true
+    Sequel.connect(driver).tap do |db|
+
+      db.create_table :users do
+        primary_key :id
+        String :name, null: false, unique: true
+      end
+
+      db.create_table :posts do
+        primary_key :id
+        String :title, null: false, unique: true
+        String :body, null: false
+        foreign_key :user_id, :users, null: false, index: true
+      end
+
+      db.create_table :comments do
+        primary_key :id
+        String :text, null: false
+        foreign_key :user_id, :users, null: false, index: true
+        foreign_key :post_id, :posts, null: false, index: true
+      end
+
+      db.create_table :categories do
+        primary_key :id
+        String :name, null: false, unique: true
+      end
+
+      db.create_table :categories_posts do
+        foreign_key :category_id, :categories, null: false, index: true
+        foreign_key :post_id, :posts, null: false, index: true
+        primary_key [:category_id, :post_id]
+      end
+
     end
-
-    db.create_table :posts do
-      primary_key :id
-      String :title, null: false, unique: true
-      String :body, null: false
-      foreign_key :user_id, :users, null: false, index: true
-    end
-
-    db.create_table :comments do
-      primary_key :id
-      String :text, null: false
-      foreign_key :user_id, :users, null: false, index: true
-      foreign_key :post_id, :posts, null: false, index: true
-    end
-
-    db.create_table :categories do
-      primary_key :id
-      String :name, null: false, unique: true
-    end
-
-    db.create_table :categories_posts do
-      foreign_key :category_id, :categories, null: false, index: true
-      foreign_key :post_id, :posts, null: false, index: true
-      primary_key [:category_id, :post_id]
-    end
-
-    db
   end
 
 end
