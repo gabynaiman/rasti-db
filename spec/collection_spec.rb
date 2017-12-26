@@ -8,21 +8,14 @@ describe 'Collection' do
       Users.collection_name.must_equal :users
       Users.model.must_equal User
       Users.primary_key.must_equal :id
-      Users.implicit_foreign_key_name.must_equal :user_id
+      Users.foreign_key.must_equal :user_id
     end
 
     it 'Explicit' do
-      model_class = Rasti::DB::Model[:code, :name]
-      
-      collection_class = Class.new(Rasti::DB::Collection) do
-        set_collection_name :countries
-        set_primary_key :code
-        set_model model_class
-      end
-
-      collection_class.collection_name.must_equal :countries
-      collection_class.model.must_equal model_class
-      collection_class.primary_key.must_equal :code
+      People.collection_name.must_equal :people
+      People.model.must_equal Person
+      People.primary_key.must_equal :document_number
+      People.foreign_key.must_equal :document_number
     end
 
     it 'Lazy model name' do

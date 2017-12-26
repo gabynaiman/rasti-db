@@ -12,11 +12,15 @@ module Rasti
         include Sequel::Inflections
 
         def collection_name
-          @collection_name ||= implicit_collection_name
+          @collection_name ||= underscore(demodulize(name)).to_sym
         end
 
         def primary_key
           @primary_key ||= :id
+        end
+
+        def foreign_key
+          @foreign_key ||= "#{singularize(collection_name)}_id".to_sym
         end
 
         def model
@@ -37,14 +41,6 @@ module Rasti
           @queries ||= {}
         end
 
-        def implicit_collection_name
-          underscore(demodulize(name)).to_sym
-        end
-
-        def implicit_foreign_key_name
-          "#{singularize(collection_name)}_id".to_sym
-        end
-
         private
 
         def set_collection_name(collection_name)
@@ -53,6 +49,10 @@ module Rasti
 
         def set_primary_key(primary_key)
           @primary_key = primary_key
+        end
+
+        def set_foreign_key(foreign_key)
+          @foreign_key = foreign_key
         end
 
         def set_model(model)

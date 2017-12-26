@@ -73,7 +73,7 @@ module Rasti
       class OneToMany < Base
 
         def foreign_key
-          @foreign_key ||= @options[:foreign_key] || source_collection_class.implicit_foreign_key_name
+          @foreign_key ||= @options[:foreign_key] || source_collection_class.foreign_key
         end
 
         def graph_to(rows, db, schema=nil, relations=[])
@@ -105,7 +105,7 @@ module Rasti
       class ManyToOne < Base
 
         def foreign_key
-          @foreign_key ||= @options[:foreign_key] || target_collection_class.implicit_foreign_key_name
+          @foreign_key ||= @options[:foreign_key] || target_collection_class.foreign_key
         end
 
         def graph_to(rows, db, schema=nil, relations=[])
@@ -134,11 +134,11 @@ module Rasti
       class ManyToMany < Base
 
         def source_foreign_key
-          @source_foreign_key ||= @options[:source_foreign_key] || source_collection_class.implicit_foreign_key_name
+          @source_foreign_key ||= @options[:source_foreign_key] || source_collection_class.foreign_key
         end
 
         def target_foreign_key
-          @target_foreign_key ||= @options[:target_foreign_key] || target_collection_class.implicit_foreign_key_name
+          @target_foreign_key ||= @options[:target_foreign_key] || target_collection_class.foreign_key
         end
 
         def relation_collection_name

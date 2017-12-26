@@ -8,10 +8,11 @@ require 'sequel/extensions/pg_hstore'
 require 'sequel/extensions/pg_array'
 require 'sequel/extensions/pg_json'
 
-User     = Rasti::DB::Model[:id, :name, :posts, :comments]
+User     = Rasti::DB::Model[:id, :name, :posts, :comments, :person]
 Post     = Rasti::DB::Model[:id, :title, :body, :user_id, :user, :comments, :categories]
 Comment  = Rasti::DB::Model[:id, :text, :user_id, :user, :post_id, :post]
 Category = Rasti::DB::Model[:id, :name, :posts]
+Person   = Rasti::DB::Model[:document_number, :first_name, :last_name, :birth_date, :user_id, :user]
 
 
 class Users < Rasti::DB::Collection
@@ -56,9 +57,16 @@ class Categories < Rasti::DB::Collection
   many_to_many :posts
 end
 
+class People < Rasti::DB::Collection
+  set_collection_name :people
+  set_primary_key :document_number
+  set_foreign_key :document_number
+  set_model Person
+end
+
 
 Rasti::DB::TypeConverter::CONVERTIONS[:sqlite] = {
-  /integer/ => ->(value, match) { value.to_i }
+  Regexp.new('integer') => ->(value, match) { value.to_i }
 }
 
 
@@ -71,6 +79,8 @@ class Minitest::Spec
   let(:comments) { Comments.new db }
 
   let(:categories) { Categories.new db }
+
+  let(:people) { People.new db }
 
   let :db do
     driver = (RUBY_ENGINE == 'jruby') ? 'jdbc:sqlite::memory:' : {adapter: :sqlite}
@@ -105,6 +115,14 @@ class Minitest::Spec
         foreign_key :category_id, :categories, null: false, index: true
         foreign_key :post_id, :posts, null: false, index: true
         primary_key [:category_id, :post_id]
+      end
+
+      db.create_table :people do
+        String :document_number, null: false, primary_key: true
+        String :first_name, null: false
+        String :last_name, null: false
+        Date :birth_date, null: false
+        foreign_key :user_id, :users, null: false, unique: true
       end
 
     end
