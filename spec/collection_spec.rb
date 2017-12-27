@@ -158,6 +158,13 @@ describe 'Collection' do
       before :each do
         1.upto(3) do |i|
           user_id = db[:users].insert name: "User #{i}"
+
+          db[:people].insert document_number: "document_#{i}", 
+                             first_name: "John #{i}",
+                             last_name: "Doe #{i}",
+                             birth_date: Time.now - i,
+                             user_id: user_id
+
           category_id = db[:categories].insert name: "Category #{i}" 
           
           1.upto(3) do |n|
@@ -171,12 +178,6 @@ describe 'Collection' do
             db[:comments].insert post_id: post_id, user_id: user_id, text: 'Comment'
           end
         end
-
-        db[:users].count.must_equal 3
-        db[:categories].count.must_equal 3
-        db[:posts].count.must_equal 9
-        db[:categories_posts].count.must_equal 9
-        db[:comments].count.must_equal 9
       end
 
       it 'Self relations' do
@@ -199,6 +200,7 @@ describe 'Collection' do
 
       it 'Deep relations' do
         db[:users].where(id: 1).count.must_equal 1
+        db[:people].where(user_id: 1).count.must_equal 1
         db[:comments].where(user_id: 1).count.must_equal 3
         db[:posts].where(user_id: 1).count.must_equal 3
         db[:comments].join(:posts, id: :post_id).where(Sequel[:posts][:user_id] => 1).count.must_equal 3
@@ -207,12 +209,14 @@ describe 'Collection' do
         users.delete_cascade 1
 
         db[:users].where(id: 1).count.must_equal 0
+        db[:people].where(user_id: 1).count.must_equal 0
         db[:comments].where(user_id: 1).count.must_equal 0
         db[:posts].where(user_id: 1).count.must_equal 0
         db[:comments].join(:posts, id: :post_id).where(Sequel[:posts][:user_id] => 1).count.must_equal 0
         db[:categories_posts].join(:posts, id: :post_id).where(Sequel[:posts][:user_id] => 1).count.must_equal 0
         
         db[:users].count.must_equal 2
+        db[:people].count.must_equal 2
         db[:categories].count.must_equal 3
         db[:posts].count.must_equal 6
         db[:categories_posts].count.must_equal 6
@@ -305,12 +309,21 @@ describe 'Collection' do
     describe 'Named queries' do
 
       before do
-        1.upto(2) { |i| db[:categories].insert name: "Category #{i}" }
-        1.upto(2) { |i| db[:users].insert name: "User #{i}" }
+        1.upto(2) do |i|
+          db[:categories].insert name: "Category #{i}"
+          db[:users].insert name: "User #{i}"
+          db[:people].insert document_number: "document_#{i}", 
+                             first_name: "John #{i}",
+                             last_name: "Doe #{i}",
+                             birth_date: Time.now - i,
+                             user_id: i
+        end
+
         1.upto(3) do |i| 
           db[:posts].insert user_id: 1, title: "Post #{i}", body: '...'
           db[:categories_posts].insert category_id: 1, post_id: i
         end
+        
         4.upto(5) do |i| 
           db[:posts].insert user_id: 2, title: "Post #{i}", body: '...'
           db[:categories_posts].insert category_id: 2, post_id: i
@@ -329,6 +342,10 @@ describe 'Collection' do
 
         it 'Many to One' do
           posts.with_users(2).primary_keys.must_equal [4,5]
+        end
+
+        it 'One to One' do
+          users.with_people('document_1').primary_keys.must_equal [1]
         end
 
       end

@@ -29,6 +29,7 @@ describe 'Relations' do
       relation.one_to_many?.must_equal true
       relation.many_to_one?.must_equal false
       relation.many_to_many?.must_equal false
+      relation.one_to_one?.must_equal false
     end
 
     it 'Graph' do
@@ -70,6 +71,7 @@ describe 'Relations' do
       relation.one_to_many?.must_equal false
       relation.many_to_one?.must_equal true
       relation.many_to_many?.must_equal false
+      relation.one_to_one?.must_equal false
     end
 
     it 'Graph' do
@@ -117,6 +119,7 @@ describe 'Relations' do
       relation.one_to_many?.must_equal false
       relation.many_to_one?.must_equal false
       relation.many_to_many?.must_equal true
+      relation.one_to_one?.must_equal false
     end
 
     it 'Graph' do
@@ -137,6 +140,57 @@ describe 'Relations' do
 
       rows[0][:categories].must_equal categories.where(id: [1,2]).all
       rows[1][:categories].must_equal categories.where(id: [3,4]).all
+    end
+
+  end
+
+  describe 'One To One' do
+
+    describe 'Specification' do
+
+      it 'Implicit' do
+        relation = Rasti::DB::Relations::OneToOne.new :person, Users
+        
+        relation.target_collection_class.must_equal People
+        relation.foreign_key.must_equal :user_id
+      end
+
+      it 'Explicit' do
+        relation = Rasti::DB::Relations::OneToOne.new :person, Users, collection: 'Users', 
+                                                                      foreign_key: :id_user
+        
+        relation.target_collection_class.must_equal Users
+        relation.foreign_key.must_equal :id_user
+      end
+
+    end
+
+    it 'Type' do
+      relation = Rasti::DB::Relations::OneToOne.new :person, User
+
+      relation.one_to_many?.must_equal false
+      relation.many_to_one?.must_equal false
+      relation.many_to_many?.must_equal false
+      relation.one_to_one?.must_equal true
+    end
+
+    it 'Graph' do
+      2.times do |i|
+        user_id = db[:users].insert name: "User #{i}"
+        db[:people].insert document_number: "document_#{i}", 
+                           first_name: "John #{i}",
+                           last_name: "Doe #{i}",
+                           birth_date: Time.now - i,
+                           user_id: user_id
+      end
+
+      rows = db[:users].all
+
+      Users.relations[:person].graph_to rows, db
+
+      2.times do |i|
+        rows[i][:person].must_equal people.find("document_#{i}")
+      end
     end
 
   end

@@ -18,6 +18,7 @@ Person   = Rasti::DB::Model[:document_number, :first_name, :last_name, :birth_da
 class Users < Rasti::DB::Collection
   one_to_many :posts
   one_to_many :comments
+  one_to_one :person
 end
 
 class Posts < Rasti::DB::Collection
@@ -62,6 +63,8 @@ class People < Rasti::DB::Collection
   set_primary_key :document_number
   set_foreign_key :document_number
   set_model Person
+
+  many_to_one :user
 end
 
 

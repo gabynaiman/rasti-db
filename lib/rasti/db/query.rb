@@ -99,7 +99,7 @@ module Rasti
 
       def with_graph(data)
         rows = data.is_a?(Array) ? data : [data]
-        Relations.graph_to rows, relations, collection_class, dataset.db, schema
+        Relations::GraphBuilder.graph_to rows, relations, collection_class, dataset.db, schema
         data
       end
 

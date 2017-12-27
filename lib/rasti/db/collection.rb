@@ -59,7 +59,7 @@ module Rasti
           @model = model
         end
 
-        [Relations::OneToMany, Relations::ManyToOne, Relations::ManyToMany].each do |relation_class|
+        [Relations::OneToMany, Relations::ManyToOne, Relations::ManyToMany, Relations::OneToOne].each do |relation_class|
           define_method underscore(demodulize(relation_class.name)) do |name, options={}|
             relations[name] = relation_class.new name, self, options
 
@@ -228,7 +228,7 @@ module Rasti
           delete_relation_table relation, primary_keys
         end
 
-        relations.select(&:one_to_many?).each do |relation|
+        relations.select { |r| r.one_to_many? || r.one_to_one? }.each do |relation|
           relation_collection_name = with_schema(relation.target_collection_class.collection_name)
           relations_ids = db[relation_collection_name].where(relation.foreign_key => primary_keys)
                                                       .select(relation.target_collection_class.primary_key)
