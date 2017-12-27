@@ -368,6 +368,11 @@ describe 'Collection' do
     it 'Graph' do
       1.upto(3) do |i|
         db[:users].insert name: "User #{i}"
+        db[:people].insert document_number: "document_#{i}", 
+                           first_name: "John #{i}",
+                           last_name: "Doe #{i}",
+                           birth_date: Time.now - i,
+                           user_id: i
         db[:categories].insert name: "Category #{i}"
         db[:posts].insert user_id: i, title: "Post #{i}", body: '...'
         db[:categories_posts].insert post_id: i, category_id: i
@@ -379,11 +384,12 @@ describe 'Collection' do
         end
       end
 
-      posts_graph = posts.where(id: 1).graph(:user, :categories, 'comments.user.posts.categories').all
+      posts_graph = posts.where(id: 1).graph('user.person', :categories, 'comments.user.posts.categories').all
 
       posts_graph.count.must_equal 1
 
-      posts_graph[0].user.must_equal users.find(1)
+      posts_graph[0].user.id.must_equal 1
+      posts_graph[0].user.person.must_equal people.detect(user_id: 1)
 
       posts_graph[0].categories.must_equal [categories.find(1)]
 
