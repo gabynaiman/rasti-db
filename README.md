@@ -77,7 +77,7 @@ end
 ### Models
 
 ```ruby
-User     = Rasti::DB::Model[:id, :name, :posts, :comments]
+User     = Rasti::DB::Model[:id, :name, :posts, :comments, :person]
 Post     = Rasti::DB::Model[:id, :title, :body, :user_id, :user, :comments, :categories]
 Comment  = Rasti::DB::Model[:id, :text, :user_id, :user, :post_id, :post]
 Category = Rasti::DB::Model[:id, :name, :posts]
