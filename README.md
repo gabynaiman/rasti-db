@@ -64,6 +64,14 @@ DB.create_table :categories_posts do
   foreign_key :post_id, :posts, null: false, index: true
   primary_key [:category_id, :post_id]
 end
+
+DB.create_table :people do
+  String :document_number, null: false, primary_key: true
+  String :first_name, null: false
+  String :last_name, null: false
+  Date :birth_date, null: false
+  foreign_key :user_id, :users, null: false, unique: true
+end
 ```
 
 ### Models
@@ -73,6 +81,7 @@ User     = Rasti::DB::Model[:id, :name, :posts, :comments]
 Post     = Rasti::DB::Model[:id, :title, :body, :user_id, :user, :comments, :categories]
 Comment  = Rasti::DB::Model[:id, :text, :user_id, :user, :post_id, :post]
 Category = Rasti::DB::Model[:id, :name, :posts]
+Person   = Rasti::DB::Model[:document_number, :first_name, :last_name, :birth_date, :user_id, :user]
 ```
 
 ### Collections
@@ -81,6 +90,7 @@ Category = Rasti::DB::Model[:id, :name, :posts]
 class Users < Rasti::DB::Collection
   one_to_many :posts
   one_to_many :comments
+  one_to_one :person
 end
 
 class Posts < Rasti::DB::Collection
@@ -113,10 +123,20 @@ class Categories < Rasti::DB::Collection
   many_to_many :posts
 end
 
+class People < Rasti::DB::Collection
+  set_collection_name :people
+  set_primary_key :document_number
+  set_foreign_key :document_number
+  set_model Person
+
+  many_to_one :user
+end
+
 users      = Users.new DB
 posts      = Posts.new DB
 comments   = Comments.new DB
 categories = Categories.new DB
+people     = People.new DB
 ```
 
 ### Persistence
