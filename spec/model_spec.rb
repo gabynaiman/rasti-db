@@ -28,6 +28,12 @@ describe 'Model' do
       proc { post.invalid_method }.must_raise NoMethodError
     end
 
+    it 'Time conversion' do
+      person = Person.new birth_date: Time.parse('2019-01-07T11:00:00-03:00')
+
+      person.birth_date.must_be_instance_of Timing::TimeInZone      
+    end
+
   end
 
 

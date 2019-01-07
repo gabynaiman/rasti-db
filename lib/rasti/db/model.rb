@@ -18,7 +18,7 @@ module Rasti
 
         def [](*attribute_names)
           Class.new(self) do
-            attribute *attribute_names
+            attribute(*attribute_names)
 
             def self.inherited(subclass)
               subclass.instance_variable_set :@attributes, attributes.dup
@@ -82,15 +82,16 @@ module Rasti
       def to_h
         self.class.attributes.each_with_object({}) do |name, hash|
           if attributes.key? name
-            case attributes[name]
+            value = fetch_attribute name
+            case value
             when Model
-              hash[name] = attributes[name].to_h
+              hash[name] = value.to_h
             when Array
-              hash[name] = attributes[name].map do |e|
+              hash[name] = value.map do |e|
                 e.is_a?(Model) ? e.to_h : e
               end
             else
-              hash[name] = attributes[name]
+              hash[name] = value
             end
           end
         end
@@ -101,7 +102,11 @@ module Rasti
       attr_reader :attributes
 
       def fetch_attribute(name)
-        attributes.key?(name) ? attributes[name] : raise(UninitializedAttributeError, name)
+        attributes.key?(name) ? casted_attribute(name) : raise(UninitializedAttributeError, name)
+      end
+
+      def casted_attribute(name)
+        attributes[name].is_a?(Time) ? Timing::TimeInZone.new(attributes[name]) : attributes[name]
       end
       
     end

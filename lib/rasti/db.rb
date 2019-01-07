@@ -1,5 +1,7 @@
 require 'sequel'
 require 'consty'
+require 'time'
+require 'timing'
 
 require_relative 'db/version'
 require_relative 'db/helpers'
