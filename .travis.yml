@@ -21,4 +21,5 @@ matrix:
     - rvm: jruby-head
 
 before_install:
+  - gem uninstall bundler -v ">= 2"
   - gem install bundler -v "< 2"
