@@ -21,4 +21,5 @@ matrix:
     - rvm: jruby-head
 
 before_install:
+  - rvm all-gemsets do gem uninstall bundler -ax || true
   - gem install bundler -v "< 2"
