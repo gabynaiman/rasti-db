@@ -76,7 +76,7 @@ module Rasti
           queries[name] = lambda || block
           
           define_method name do |*args|
-            query.instance_exec *args, &self.class.queries[name]
+            query.instance_exec(*args, &self.class.queries[name])
           end
         end
 
@@ -236,7 +236,7 @@ module Rasti
                                                       .map(relation.target_collection_class.primary_key)
 
           target_collection = relation.target_collection_class.new db, schema
-          target_collection.delete_cascade *relations_ids unless relations_ids.empty?
+          target_collection.delete_cascade(*relations_ids) unless relations_ids.empty?
         end
       end
 

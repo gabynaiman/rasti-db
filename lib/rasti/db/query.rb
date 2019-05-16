@@ -35,7 +35,7 @@ module Rasti
       alias_method :to_a, :all
 
       def each(&block)
-        all.each &block
+        all.each(&block)
       end
 
       DATASET_CHAINED_METHODS.each do |method|
@@ -88,7 +88,7 @@ module Rasti
       private
 
       def chainable(&block)
-        ds = instance_eval &block
+        ds = instance_eval(&block)
         Query.new collection_class, ds, relations, schema
       end
 
@@ -105,7 +105,7 @@ module Rasti
 
       def method_missing(method, *args, &block)
         if collection_class.queries.key?(method)
-          instance_exec *args, &collection_class.queries[method]
+          instance_exec(*args, &collection_class.queries[method])
         else
           super
         end
