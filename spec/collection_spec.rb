@@ -254,6 +254,12 @@ describe 'Collection' do
       users.all.must_equal [User.new(id: id, name: 'User 1')]
     end
 
+    it 'Map' do
+      1.upto(2) { |i| db[:users].insert name: "User #{i}" }
+
+      users.map(&:name).sort.must_equal ['User 1', 'User 2']
+    end
+
     it 'First' do
       1.upto(10) { |i| db[:users].insert name: "User #{i}" }
 
