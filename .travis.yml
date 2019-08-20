@@ -19,6 +19,9 @@ matrix:
     - rvm: ruby-head
     - rvm: jruby-head
 
+jdk:
+  - oraclejdk8
+
 before_install:
   - rvm all-gemsets do gem uninstall bundler -ax || true
   - gem install bundler -v "< 2"
