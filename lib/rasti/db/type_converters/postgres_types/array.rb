@@ -10,7 +10,7 @@ module Rasti
               /^([a-z]+)\[\]$/
             end
 
-            def to_db(value:, sub_type:)
+            def to_db(value, sub_type)
               array = sub_type == 'hstore' ? value.map { |v| Sequel.hstore v } : value
               Sequel.pg_array array
             end
@@ -19,7 +19,7 @@ module Rasti
               Sequel::Postgres::PGArray
             end
 
-            def from_db(object:)
+            def from_db(object)
               object.to_a
             end
 

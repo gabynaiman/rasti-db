@@ -10,7 +10,7 @@ module Rasti
               /^jsonb$/
             end
 
-            def to_db(value:, sub_type:)
+            def to_db(value, sub_type)
               Sequel.pg_jsonb value
             end
 
@@ -18,7 +18,7 @@ module Rasti
               Sequel::Postgres::JSONBHash
             end
 
-            def from_db(object:)
+            def from_db(object)
               object.to_h
             end
 

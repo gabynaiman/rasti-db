@@ -14,8 +14,7 @@ module Rasti
             to_db_mapping = to_db_mapping_for db, collection_name
 
             if to_db_mapping.key? attribute_name
-              to_db_mapping[attribute_name][:converter].to_db value: value, 
-                                                              sub_type: to_db_mapping[attribute_name][:sub_type] 
+              to_db_mapping[attribute_name][:converter].to_db value, to_db_mapping[attribute_name][:sub_type] 
             else
               value
             end
@@ -23,7 +22,7 @@ module Rasti
 
           def from_db(object)
             if from_db_mapping.key? object.class
-              from_db_mapping[object.class].from_db object: object
+              from_db_mapping[object.class].from_db object
             else
               object
             end

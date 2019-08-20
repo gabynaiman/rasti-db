@@ -10,7 +10,7 @@ module Rasti
               /^hstore$/
             end
 
-            def to_db(value:, sub_type:)
+            def to_db(value, sub_type)
               Sequel.hstore value
             end
 
@@ -18,7 +18,7 @@ module Rasti
               Sequel::Postgres::HStore
             end
 
-            def from_db(object:)
+            def from_db(object)
               object.to_h
             end
 
