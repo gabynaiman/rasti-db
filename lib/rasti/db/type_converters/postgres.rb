@@ -6,7 +6,6 @@ module Rasti
         CONVERTERS = [PostgresTypes::JSON, PostgresTypes::JSONB, PostgresTypes::HStore, PostgresTypes::Array]
 
         @to_db_mapping = {}
-        @from_db_mapping = {}
 
         class << self
 
@@ -49,7 +48,9 @@ module Rasti
           def from_db_mapping
             @from_db_mapping ||= begin
               CONVERTERS.each_with_object({}) do |converter, result|
-                result[converter.db_class] = converter
+                converter.db_classes.each do |db_class|
+                  result[db_class] = converter
+                end
               end              
             end
           end

@@ -12,11 +12,11 @@ module Rasti
 
             def to_db(value, sub_type)
               array = sub_type == 'hstore' ? value.map { |v| Sequel.hstore v } : value
-              Sequel.pg_array array
+              Sequel.pg_array array, sub_type
             end
 
-            def db_class
-              Sequel::Postgres::PGArray
+            def db_classes
+              [Sequel::Postgres::PGArray]
             end
 
             def from_db(object)

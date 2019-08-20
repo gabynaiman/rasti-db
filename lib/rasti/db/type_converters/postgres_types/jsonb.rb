@@ -4,6 +4,8 @@ module Rasti
       module PostgresTypes
         class JSONB
 
+
+
           class << self
 
             def column_type_regex
@@ -14,12 +16,21 @@ module Rasti
               Sequel.pg_jsonb value
             end
 
-            def db_class
-              Sequel::Postgres::JSONBHash
+            def db_classes
+              @db_classes ||= from_db_convertions.keys
             end
 
             def from_db(object)
-              object.to_h
+              object.public_send from_db_convertions[object.class]
+            end
+
+            private
+
+            def from_db_convertions
+              @from_db_convertions ||= {
+                Sequel::Postgres::JSONBHash => :to_h,
+                Sequel::Postgres::JSONBArray => :to_a
+              }
             end
 
           end

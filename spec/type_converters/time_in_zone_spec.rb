@@ -6,7 +6,7 @@ describe Rasti::DB::TypeConverters::TimeInZone do
 
   describe 'To DB' do
 
-    it 'must not cast Time to TimeInZone' do
+    it 'must not transform Time to TimeInZone' do
       time = Time.now
 
       converted_time = type_converter.to_db db, 'table', :time, time
@@ -19,7 +19,7 @@ describe Rasti::DB::TypeConverters::TimeInZone do
 
   describe 'From DB' do
 
-    it 'must cast Time to TimeInZone' do
+    it 'must transform Time to TimeInZone' do
       time = Time.now
 
       converted_time = type_converter.from_db time

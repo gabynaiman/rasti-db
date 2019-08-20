@@ -9,8 +9,8 @@ module Rasti
 
           def to_db(db, collection_name, attribute_name, value)
             db_mapping = to_db_mapping_for db, collection_name 
-            
-            if db_mapping.key(attribute_name) && /integer/.match(attribute_name)
+
+            if db_mapping.key?(attribute_name) && /integer/.match(db_mapping[attribute_name])
               value.to_i
             else
               value

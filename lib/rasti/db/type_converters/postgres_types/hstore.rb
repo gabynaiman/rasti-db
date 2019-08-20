@@ -14,8 +14,8 @@ module Rasti
               Sequel.hstore value
             end
 
-            def db_class
-              Sequel::Postgres::HStore
+            def db_classes
+              [Sequel::Postgres::HStore]
             end
 
             def from_db(object)
