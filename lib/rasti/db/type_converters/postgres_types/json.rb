@@ -1,7 +1,7 @@
 module Rasti
   module DB
     module TypeConverters
-      module Postgres
+      module PostgresTypes
         class JSON
 
           class << self

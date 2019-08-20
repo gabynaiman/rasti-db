@@ -95,7 +95,7 @@ module Rasti
 
       def insert(attributes)
         db.transaction do
-          db_attributes = type_converter.apply_to attributes
+          db_attributes = transform_attributes_to_db attributes
           collection_attributes, relations_primary_keys = split_related_attributes db_attributes
           primary_key = dataset.insert collection_attributes
           save_relations primary_key, relations_primary_keys
@@ -104,7 +104,7 @@ module Rasti
       end
 
       def bulk_insert(attributes, options={})
-        db_attributes = type_converter.apply_to attributes
+        db_attributes = attributes.map { |attrs| transform_attributes_to_db attrs }
         dataset.multi_insert db_attributes, options
       end
 
@@ -118,7 +118,7 @@ module Rasti
 
       def update(primary_key, attributes)
         db.transaction do
-          db_attributes = type_converter.apply_to attributes
+          db_attributes = transform_attributes_to_db attributes
           collection_attributes, relations_primary_keys = split_related_attributes db_attributes
           dataset.where(self.class.primary_key => primary_key).update(collection_attributes) unless collection_attributes.empty?
           save_relations primary_key, relations_primary_keys
@@ -127,7 +127,7 @@ module Rasti
       end
 
       def bulk_update(attributes, &block)
-        db_attributes = type_converter.apply_to attributes
+        db_attributes = transform_attributes_to_db attributes
         build_query(&block).instance_eval { dataset.update db_attributes }
         nil
       end
@@ -184,8 +184,11 @@ module Rasti
 
       private
 
-      def type_converter
-        @type_converter ||= TypeConverter.new db, qualified_collection_name
+      def transform_attributes_to_db(attributes)
+        attributes.each_with_object({}) do |(attribute_name, value), result| 
+          transformed_value = Rasti::DB.to_db db, qualified_collection_name, attribute_name, value
+          result[attribute_name] = transformed_value
+        end
       end
 
       def qualified_collection_name

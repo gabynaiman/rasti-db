@@ -3,7 +3,7 @@ module Rasti
     module TypeConverters
       class Postgres
 
-        CONVERTERS = [Postgres::JSON, Postgres::JSONB, Postgres::HStore, Postgres::Array]
+        CONVERTERS = [PostgresTypes::JSON, PostgresTypes::JSONB, PostgresTypes::HStore, PostgresTypes::Array]
 
         @to_db_mapping = {}
         @from_db_mapping = {}

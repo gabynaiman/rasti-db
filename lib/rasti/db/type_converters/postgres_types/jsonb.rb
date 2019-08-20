@@ -1,26 +1,25 @@
 module Rasti
   module DB
     module TypeConverters
-      module Postgres
-        class Array
+      module PostgresTypes
+        class JSONB
 
           class << self
 
             def column_type_regex
-              /^([a-z]+)\[\]$/
+              /^jsonb$/
             end
 
             def to_db(value:, sub_type:)
-              array = sub_type == 'hstore' ? value.map { |v| Sequel.hstore v } : value
-              Sequel.pg_array array
+              Sequel.pg_jsonb value
             end
 
             def db_class
-              Sequel::Postgres::PGArray
+              Sequel::Postgres::JSONBHash
             end
 
             def from_db(object:)
-              object.to_a
+              object.to_h
             end
 
           end

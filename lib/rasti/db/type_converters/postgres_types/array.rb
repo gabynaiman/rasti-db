@@ -1,25 +1,26 @@
 module Rasti
   module DB
     module TypeConverters
-      module Postgres
-        class HStore
+      module PostgresTypes
+        class Array
 
           class << self
 
             def column_type_regex
-              /^hstore$/
+              /^([a-z]+)\[\]$/
             end
 
             def to_db(value:, sub_type:)
-              Sequel.hstore value
+              array = sub_type == 'hstore' ? value.map { |v| Sequel.hstore v } : value
+              Sequel.pg_array array
             end
 
             def db_class
-              Sequel::Postgres::HStore
+              Sequel::Postgres::PGArray
             end
 
             def from_db(object:)
-              object.to_h
+              object.to_a
             end
 
           end

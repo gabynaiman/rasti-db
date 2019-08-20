@@ -1,21 +1,21 @@
 module Rasti
   module DB
     module TypeConverters
-      module Postgres
-        class JSONB
+      module PostgresTypes
+        class HStore
 
           class << self
 
             def column_type_regex
-              /^jsonb$/
+              /^hstore$/
             end
 
             def to_db(value:, sub_type:)
-              Sequel.pg_jsonb value
+              Sequel.hstore value
             end
 
             def db_class
-              Sequel::Postgres::JSONBHash
+              Sequel::Postgres::HStore
             end
 
             def from_db(object:)
