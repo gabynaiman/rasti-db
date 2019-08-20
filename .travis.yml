@@ -20,7 +20,7 @@ matrix:
     - rvm: jruby-head
 
 jdk:
-  - oraclejdk8
+  - openjdk8
 
 before_install:
   - rvm all-gemsets do gem uninstall bundler -ax || true
