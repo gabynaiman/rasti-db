@@ -4,8 +4,6 @@ module Rasti
       module PostgresTypes
         class JSONB
 
-
-
           class << self
 
             def column_type_regex

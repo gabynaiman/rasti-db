@@ -2,6 +2,8 @@ require 'minitest_helper'
 
 describe Rasti::DB::TypeConverters::Postgres do
 
+  let(:type_converter) { Rasti::DB::TypeConverters::Postgres }
+
   let(:pg) do
     Object.new.tap do |pg|
 
@@ -19,7 +21,24 @@ describe Rasti::DB::TypeConverters::Postgres do
     end
   end
 
-  let(:type_converter) { Rasti::DB::TypeConverters::Postgres }
+  describe 'Default' do
+
+    it 'must not change value in to_db if column not found in mapping' do
+      string = type_converter.to_db pg, :table_name, :column, "hola"
+
+      string.class.must_equal String
+      string.must_equal "hola"
+    end
+
+    it 'must not change value in from_db if class not found in mapping' do
+      string = type_converter.from_db "hola"
+
+      string.class.must_equal String
+      string.must_equal "hola"
+    end
+
+  end
+
 
   describe 'HStore' do
 
