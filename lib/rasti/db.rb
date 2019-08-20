@@ -28,7 +28,7 @@ module Rasti
     
     extend ClassConfig
 
-    attr_config :type_converters, [TypeConverters::TimeInZone]
+    attr_config :type_converters, []
 
     def self.to_db(db, collection_name, attribute_name, value)
       type_converters.inject(value) do |result, type_converter|
