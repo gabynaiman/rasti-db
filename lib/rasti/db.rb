@@ -21,7 +21,6 @@ require_relative 'db/type_converters/postgres_types/hstore'
 require_relative 'db/type_converters/postgres_types/json'
 require_relative 'db/type_converters/postgres_types/jsonb'
 require_relative 'db/type_converters/postgres'
-require_relative 'db/type_converters/sqlite'
 
 module Rasti
   module DB

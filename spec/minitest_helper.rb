@@ -8,6 +8,10 @@ require 'sequel/extensions/pg_hstore'
 require 'sequel/extensions/pg_array'
 require 'sequel/extensions/pg_json'
 
+Rasti::DB.configure do |config|
+  config.type_converters = [Rasti::DB::TypeConverters::TimeInZone]
+end
+
 User     = Rasti::DB::Model[:id, :name, :posts, :comments, :person]
 Post     = Rasti::DB::Model[:id, :title, :body, :user_id, :user, :comments, :categories]
 Comment  = Rasti::DB::Model[:id, :text, :user_id, :user, :post_id, :post]
@@ -67,8 +71,6 @@ class People < Rasti::DB::Collection
   many_to_one :user
 end
 
-
-Rasti::DB.type_converters << Rasti::DB::TypeConverters::SQLite
 
 class Minitest::Spec
 
