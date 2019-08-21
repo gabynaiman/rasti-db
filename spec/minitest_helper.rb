@@ -68,10 +68,7 @@ class People < Rasti::DB::Collection
 end
 
 
-Rasti::DB::TypeConverter::CONVERTIONS[:sqlite] = {
-  Regexp.new('integer') => ->(value, match) { value.to_i }
-}
-
+Rasti::DB.type_converters << Rasti::DB::TypeConverters::SQLite
 
 class Minitest::Spec
 

@@ -102,13 +102,9 @@ module Rasti
       attr_reader :attributes
 
       def fetch_attribute(name)
-        attributes.key?(name) ? casted_attribute(name) : raise(UninitializedAttributeError, name)
+        attributes.key?(name) ? Rasti::DB.from_db(attributes[name]) : raise(UninitializedAttributeError, name)
       end
 
-      def casted_attribute(name)
-        attributes[name].is_a?(Time) ? Timing::TimeInZone.new(attributes[name]) : attributes[name]
-      end
-      
     end
   end
 end

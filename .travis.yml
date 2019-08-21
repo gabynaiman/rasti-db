@@ -9,6 +9,7 @@ rvm:
   - 2.5.0
   - 2.6.0
   - jruby-9.1.7.0
+  - jruby-9.1.16.0
   - ruby-head
   - jruby-head
 
@@ -17,6 +18,9 @@ matrix:
   allow_failures:
     - rvm: ruby-head
     - rvm: jruby-head
+
+jdk:
+  - openjdk8
 
 before_install:
   - rvm all-gemsets do gem uninstall bundler -ax || true
