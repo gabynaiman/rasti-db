@@ -7,6 +7,12 @@ describe Rasti::DB::TypeConverters::Postgres do
   let(:pg) do
     Object.new.tap do |pg|
 
+      def pg.opts
+        {
+          database: 'database'
+        }
+      end
+
       def pg.schema(table_name, opts={})
         [
           [:hash,          {db_type: 'hstore'}],

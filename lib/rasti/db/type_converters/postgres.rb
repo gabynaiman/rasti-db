@@ -13,7 +13,7 @@ module Rasti
             to_db_mapping = to_db_mapping_for db, collection_name
 
             if to_db_mapping.key? attribute_name
-              to_db_mapping[attribute_name][:converter].to_db value, to_db_mapping[attribute_name][:sub_type] 
+              to_db_mapping[attribute_name][:converter].to_db value, to_db_mapping[attribute_name][:sub_type]
             else
               value
             end
@@ -30,7 +30,9 @@ module Rasti
           private
 
           def to_db_mapping_for(db, collection_name)
-            @to_db_mapping[collection_name] ||= begin
+            key = [db.opts[:database], collection_name]
+            
+            @to_db_mapping[key] ||= begin
               columns = Hash[db.schema(collection_name)]
 
               columns.each_with_object({}) do |(name, schema), hash| 
