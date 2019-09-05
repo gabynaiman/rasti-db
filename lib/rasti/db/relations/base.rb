@@ -33,16 +33,24 @@ module Rasti
           self.class == OneToOne
         end
 
+        def join_relation_name(prefix)
+          with_prefix prefix, name
+        end
+
         private
 
         attr_reader :options
 
         def qualified_source_collection_name(schema=nil)
-          schema.nil? ? source_collection_class.collection_name : Sequel.qualify(schema, source_collection_class.collection_name)
+          schema.nil? ? Sequel[source_collection_class.collection_name] : Sequel[schema][source_collection_class.collection_name]
         end
 
         def qualified_target_collection_name(schema=nil)
-          schema.nil? ? target_collection_class.collection_name : Sequel.qualify(schema, target_collection_class.collection_name)
+          schema.nil? ? Sequel[target_collection_class.collection_name] : Sequel[schema][target_collection_class.collection_name]
+        end
+
+        def with_prefix(prefix, name)
+          [prefix, name].compact.join('__').to_sym
         end
         
       end

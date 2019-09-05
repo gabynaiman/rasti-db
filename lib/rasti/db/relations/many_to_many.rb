@@ -16,7 +16,7 @@ module Rasti
         end
 
         def qualified_relation_collection_name(schema=nil)
-          schema.nil? ? relation_collection_name : Sequel.qualify(schema, relation_collection_name)
+          schema.nil? ? Sequel[relation_collection_name] : Sequel[schema][relation_collection_name]
         end
 
         def graph_to(rows, db, schema=nil, relations=[])
@@ -28,9 +28,9 @@ module Rasti
 
           join_rows = target_collection.dataset
                                        .join(relation_name, target_foreign_key => target_collection_class.primary_key)
-                                       .where(Sequel.qualify(relation_name, source_foreign_key) => pks)
+                                       .where(Sequel[relation_name][source_foreign_key] => pks)
                                        .select_all(qualified_target_collection_name(schema))
-                                       .select_append(Sequel.qualify(relation_name, source_foreign_key).as(:source_foreign_key))
+                                       .select_append(Sequel[relation_name][source_foreign_key].as(:source_foreign_key))
                                        .all
 
           GraphBuilder.graph_to join_rows, relations, target_collection_class, db, schema
@@ -45,11 +45,30 @@ module Rasti
           end
         end
 
+        def join_to(dataset, schema=nil, prefix=nil)
+          many_to_many_relation_alias = with_prefix prefix, relation_collection_name
+
+          qualified_relation_source = prefix ? Sequel[prefix] : qualified_source_collection_name(schema)
+
+          many_to_many_condition = {
+            Sequel[many_to_many_relation_alias][source_foreign_key] => qualified_relation_source[source_collection_class.primary_key]
+          }
+
+          relation_alias = join_relation_name prefix
+
+          relation_condition = {
+            Sequel[relation_alias][target_collection_class.primary_key] => Sequel[many_to_many_relation_alias][target_foreign_key]
+          }
+
+          dataset.join(qualified_relation_collection_name(schema).as(many_to_many_relation_alias), many_to_many_condition)
+                 .join(qualified_target_collection_name(schema).as(relation_alias), relation_condition)
+        end
+
         def apply_filter(dataset, schema=nil, primary_keys=[])
           relation_name = qualified_relation_collection_name schema
 
           dataset.join(relation_name, source_foreign_key => target_collection_class.primary_key)
-                 .where(Sequel.qualify(relation_name, target_foreign_key) => primary_keys)
+                 .where(Sequel[relation_name][target_foreign_key] => primary_keys)
                  .select_all(qualified_source_collection_name(schema))
                  .distinct
         end

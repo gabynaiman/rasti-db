@@ -4,6 +4,7 @@ describe 'Query' do
 
   before do
     1.upto(10) { |i| db[:users].insert name: "User #{i}" }
+
     db[:posts].insert user_id: 2, title: 'Sample post', body: '...'
     db[:posts].insert user_id: 1, title: 'Another post', body: '...'
     db[:posts].insert user_id: 4, title: 'Best post', body: '...'
@@ -119,6 +120,59 @@ describe 'Query' do
     it 'Safe method missing' do
       posts_query.created_by(1).first.must_equal Post.new(db[:posts][user_id: 1])
       proc { posts_query.by_user(1) }.must_raise NoMethodError
+    end
+
+  end
+
+  describe 'Join' do
+
+    before do
+      1.upto(10) do |i| 
+        db[:people].insert user_id: i, 
+                           document_number: i, 
+                           first_name: "Name #{i}", 
+                           last_name: "Last Name #{i}", 
+                           birth_date: Time.now
+      end
+
+      1.upto(3) { |i| db[:categories].insert name: "Category #{i}" }
+      
+      db[:comments].insert post_id: 1, user_id: 5, text: 'Comment 1'
+      db[:comments].insert post_id: 1, user_id: 7, text: 'Comment 2'
+      db[:comments].insert post_id: 2, user_id: 2, text: 'Comment 3'
+
+      db[:categories_posts].insert post_id: 1, category_id: 1
+      db[:categories_posts].insert post_id: 1, category_id: 2
+      db[:categories_posts].insert post_id: 2, category_id: 2
+      db[:categories_posts].insert post_id: 2, category_id: 3
+      db[:categories_posts].insert post_id: 3, category_id: 3
+    end
+
+    it 'One to Many' do
+      users_query.join(:posts).where(title: 'Sample post').all.must_equal [User.new(id: 2, name: 'User 2')]
+    end
+
+    it 'Many to One' do
+      posts_query.join(:user).where(name: 'User 4').all.must_equal [Post.new(id: 3, user_id: 4, title: 'Best post', body: '...')]
+    end
+
+    it 'One to One' do
+      users_query.join(:person).where(document_number: 1).all.must_equal [User.new(id: 1, name: 'User 1')]
+    end
+
+    it 'Many to Many' do
+      posts_query.join(:categories).where(name: 'Category 3').order(:id).all.must_equal [
+        Post.new(id: 2, user_id: 1, title: 'Another post', body: '...'),
+        Post.new(id: 3, user_id: 4, title: 'Best post', body: '...'),
+      ]
+    end
+
+    it 'Nested' do
+      posts_query.join('categories', 'comments.user.person')
+                 .where(Sequel[:categories][:name] => 'Category 2')
+                 .where(Sequel[:comments__user__person][:document_number] => 7)
+                 .all
+                 .must_equal [Post.new(id: 1, user_id: 2, title: 'Sample post', body: '...')]
     end
 
   end

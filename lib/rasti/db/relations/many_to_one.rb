@@ -23,6 +23,18 @@ module Rasti
           end
         end
 
+        def join_to(dataset, schema=nil, prefix=nil)
+          relation_alias = join_relation_name prefix
+
+          qualified_relation_source = prefix ? Sequel[prefix] : qualified_source_collection_name(schema)
+
+          relation_condition = {
+            Sequel[relation_alias][target_collection_class.primary_key] => qualified_relation_source[foreign_key]
+          }
+
+          dataset.join(qualified_target_collection_name(schema).as(relation_alias), relation_condition)
+        end
+
         def apply_filter(dataset, schema=nil, primary_keys=[])
           dataset.where(foreign_key => primary_keys)
         end

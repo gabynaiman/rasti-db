@@ -2,7 +2,7 @@ module Rasti
   module DB
     class Collection
 
-      QUERY_METHODS = (Query::DATASET_CHAINED_METHODS + [:graph, :count, :all, :each, :first, :pluck, :primary_keys, :any?, :empty?, :raw]).freeze
+      QUERY_METHODS = (Query::DATASET_CHAINED_METHODS + [:graph, :join, :count, :all, :each, :first, :pluck, :primary_keys, :any?, :empty?, :raw]).freeze
 
       include Enumerable
       include Helpers::WithSchema
@@ -192,7 +192,7 @@ module Rasti
       end
 
       def qualified_collection_name
-        schema.nil? ? self.class.collection_name : Sequel.qualify(schema, self.class.collection_name)
+        schema.nil? ? Sequel[self.class.collection_name] : Sequel[schema][self.class.collection_name]
       end
       
       def query
