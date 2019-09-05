@@ -172,6 +172,7 @@ posts.where(id: [1,2]).raw # => [{id:1, ...}, {id:2, ...}]
 posts.where(id: [1,2]).primary_keys # => [1,2]
 posts.where(id: [1,2]).pluck(:id) # => [1,2]
 posts.where(id: [1,2]).pluck(:id, :title) # => [[1, ...], [2, ...]]
+posts.join(:user).where(name: 'User 4') # => [Post, ...]
 ```
 
 ## Contributing
