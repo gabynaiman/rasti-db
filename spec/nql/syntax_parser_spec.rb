@@ -79,6 +79,56 @@ describe 'SyntaxParser' do
         right_hand_operand.value.must_equal 'String1'
       end
 
+      it 'must parse expression with literal string' do
+        tree = parser.parse 'column = "a & (b | c) | d"'
+        tree.wont_be_nil
+
+        right_hand_operand = tree.proposition.right
+        right_hand_operand.must_be_instance_of Rasti::DB::NQL::LiteralStringConstant
+        right_hand_operand.value.must_equal 'a & (b | c) | d'
+      end
+
+      describe 'Time' do
+
+        it 'must parse expression with hours and minutes' do
+          tree = parser.parse 'column > 12:20'
+          tree.wont_be_nil
+
+          right_hand_operand = tree.proposition.right
+          right_hand_operand.must_be_instance_of Rasti::DB::NQL::TimeConstant
+          right_hand_operand.value.must_equal Timing::TimeInZone.parse('12:20')
+        end
+
+        it 'must parse expression with date, hours, minutes and seconds' do
+          tree = parser.parse 'column > 2019-03-27T12:20:00'
+          tree.wont_be_nil
+
+          right_hand_operand = tree.proposition.right
+          right_hand_operand.must_be_instance_of Rasti::DB::NQL::TimeConstant
+          right_hand_operand.value.must_equal Timing::TimeInZone.parse('2019-03-27T12:20:00')
+        end
+
+        it 'must parse expression with date, hours, minutes, seconds and timezone' do
+          tree = parser.parse 'column > 2019-03-27T12:20:00-03:00'
+          tree.wont_be_nil
+
+          right_hand_operand = tree.proposition.right
+          right_hand_operand.must_be_instance_of Rasti::DB::NQL::TimeConstant
+          right_hand_operand.value.must_equal Timing::TimeInZone.parse('2019-03-27T12:20:00-03:00')
+        end
+
+      end
+    
     end
+
+    it 'must parse expression with field with tables' do
+      tree = parser.parse 'relation_table_one.relation_table_two.column = 1'
+      tree.wont_be_nil
+
+      left_hand_operand = tree.proposition.left
+      left_hand_operand.tables.must_equal ['relation_table_one', 'relation_table_two']
+      left_hand_operand.column.must_equal 'column'
+    end
+
   end
 end

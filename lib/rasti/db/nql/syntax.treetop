@@ -14,11 +14,11 @@ module Rasti
         end
 
         rule disjunction
-          left:conjunction mandatory_space '|' mandatory_space right:disjunction <Disjunction>
+          left:(statement / conjunction) mandatory_space '|' mandatory_space right:proposition <Disjunction>
         end
 
         rule conjunction
-          left:statement mandatory_space '&' mandatory_space right:conjunction <Conjunction>
+          left:statement mandatory_space '&' mandatory_space right:(statement / conjunction) <Conjunction>
         end
 
         rule statement
@@ -27,7 +27,7 @@ module Rasti
         end
 
         rule parenthesis_sentence
-          '(' optional_space sentence optional_space ')' <ParenthesisSentence>
+          '(' sentence ')' <ParenthesisSentence>
         end
 
         rule comparison
@@ -35,7 +35,7 @@ module Rasti
         end
 
         rule field
-          tables:(field_name '.')* column:field_name <Field>
+          _tables:(table:field_name '.')* _column:field_name <Field>
         end
 
         rule comparator
@@ -68,11 +68,11 @@ module Rasti
         end
 
         rule field_name
-          [a-z]+
+          [a-z_]+
         end
 
         rule time
-          date:(value:date 'T')? hour:(digit digit) ':' minutes:(digit digit) seconds:(':' value:(digit digit))? timezone:(timezone)? <TimeConstant>
+          date:(value:date 'T')? hour:(digit digit) ':' minutes:(digit digit) seconds:(':' value:(digit digit))? timezone:(value:timezone)? <TimeConstant>
         end
 
         rule date
@@ -97,7 +97,7 @@ module Rasti
         end
 
         rule character 
-          [0-9a-zA-ZÁÀÄÂÃÅĀĂǍáàäâãåāăǎÉÈËÊĒĔĖĚéèëêēĕėěÍÌÏÎĨĬǏíìïîĩĭǐÓÒÖÔÕŌŎŐǑóòöôõōŏőǒÚÙÜÛŨŪŬŮŰǓúùüûũūŭůűǔÑñçÇ%&@#\:\+\-_=ß'\?!$\*\/\s\(\)\.]
+          [0-9a-zA-ZÁÀÄÂÃÅĀĂǍáàäâãåāăǎÉÈËÊĒĔĖĚéèëêēĕėěÍÌÏÎĨĬǏíìïîĩĭǐÓÒÖÔÕŌŎŐǑóòöôõōŏőǒÚÙÜÛŨŪŬŮŰǓúùüûũūŭůűǔÑñçÇ%&@#\|\:\+\-_=ß'\?!$\*\/\s\(\)\.]
         end
 
         rule boolean

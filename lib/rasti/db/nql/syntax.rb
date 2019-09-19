@@ -125,26 +125,38 @@ module Rasti
           end
 
           i0, s0 = index, []
-          r1 = _nt_conjunction
+          i1 = index
+          r2 = _nt_statement
+          if r2
+            r1 = r2
+          else
+            r3 = _nt_conjunction
+            if r3
+              r1 = r3
+            else
+              @index = i1
+              r1 = nil
+            end
+          end
           s0 << r1
           if r1
-            r2 = _nt_mandatory_space
-            s0 << r2
-            if r2
+            r4 = _nt_mandatory_space
+            s0 << r4
+            if r4
               if has_terminal?('|', false, index)
-                r3 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                r5 = instantiate_node(SyntaxNode,input, index...(index + 1))
                 @index += 1
               else
                 terminal_parse_failure('|')
-                r3 = nil
+                r5 = nil
               end
-              s0 << r3
-              if r3
-                r4 = _nt_mandatory_space
-                s0 << r4
-                if r4
-                  r5 = _nt_disjunction
-                  s0 << r5
+              s0 << r5
+              if r5
+                r6 = _nt_mandatory_space
+                s0 << r6
+                if r6
+                  r7 = _nt_proposition
+                  s0 << r7
                 end
               end
             end
@@ -210,7 +222,19 @@ module Rasti
                 r4 = _nt_mandatory_space
                 s0 << r4
                 if r4
-                  r5 = _nt_conjunction
+                  i5 = index
+                  r6 = _nt_statement
+                  if r6
+                    r5 = r6
+                  else
+                    r7 = _nt_conjunction
+                    if r7
+                      r5 = r7
+                    else
+                      @index = i5
+                      r5 = nil
+                    end
+                  end
                   s0 << r5
                 end
               end
@@ -260,16 +284,8 @@ module Rasti
         end
 
         module ParenthesisSentence0
-          def optional_space1
-            elements[1]
-          end
-
           def sentence
-            elements[2]
-          end
-
-          def optional_space2
-            elements[3]
+            elements[1]
           end
 
         end
@@ -295,25 +311,17 @@ module Rasti
           end
           s0 << r1
           if r1
-            r2 = _nt_optional_space
+            r2 = _nt_sentence
             s0 << r2
             if r2
-              r3 = _nt_sentence
-              s0 << r3
-              if r3
-                r4 = _nt_optional_space
-                s0 << r4
-                if r4
-                  if has_terminal?(')', false, index)
-                    r5 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                    @index += 1
-                  else
-                    terminal_parse_failure(')')
-                    r5 = nil
-                  end
-                  s0 << r5
-                end
+              if has_terminal?(')', false, index)
+                r3 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                @index += 1
+              else
+                terminal_parse_failure(')')
+                r3 = nil
               end
+              s0 << r3
             end
           end
           if s0.last
@@ -395,18 +403,18 @@ module Rasti
         end
 
         module Field0
-          def field_name
+          def table
             elements[0]
           end
 
         end
 
         module Field1
-          def tables
+          def _tables
             elements[0]
           end
 
-          def column
+          def _column
             elements[1]
           end
         end
@@ -721,7 +729,7 @@ module Rasti
 
           s0, i0 = [], index
           loop do
-            if has_terminal?('\G[a-z]', true, index)
+            if has_terminal?('\G[a-z_]', true, index)
               r1 = true
               @index += 1
             else
@@ -789,6 +797,12 @@ module Rasti
         end
 
         module Time5
+          def value
+            elements[0]
+          end
+        end
+
+        module Time6
           def date
             elements[0]
           end
@@ -930,7 +944,16 @@ module Rasti
                   end
                   s0 << r12
                   if r12
-                    r19 = _nt_timezone
+                    i19, s19 = index, []
+                    r20 = _nt_timezone
+                    s19 << r20
+                    if s19.last
+                      r19 = instantiate_node(SyntaxNode,input, i19...index, s19)
+                      r19.extend(Time5)
+                    else
+                      @index = i19
+                      r19 = nil
+                    end
                     if r19
                       r18 = r19
                     else
@@ -944,7 +967,7 @@ module Rasti
           end
           if s0.last
             r0 = instantiate_node(TimeConstant,input, i0...index, s0)
-            r0.extend(Time5)
+            r0.extend(Time6)
           else
             @index = i0
             r0 = nil
@@ -1353,7 +1376,7 @@ module Rasti
             return cached
           end
 
-          if has_terminal?('\G[0-9a-zA-ZÁÀÄÂÃÅĀĂǍáàäâãåāăǎÉÈËÊĒĔĖĚéèëêēĕėěÍÌÏÎĨĬǏíìïîĩĭǐÓÒÖÔÕŌŎŐǑóòöôõōŏőǒÚÙÜÛŨŪŬŮŰǓúùüûũūŭůűǔÑñçÇ%&@#\\:\\+\\-_=ß\'\\?!$\\*\\/\\s\\(\\)\\.]', true, index)
+          if has_terminal?('\G[0-9a-zA-ZÁÀÄÂÃÅĀĂǍáàäâãåāăǎÉÈËÊĒĔĖĚéèëêēĕėěÍÌÏÎĨĬǏíìïîĩĭǐÓÒÖÔÕŌŎŐǑóòöôõōŏőǒÚÙÜÛŨŪŬŮŰǓúùüûũūŭůűǔÑñçÇ%&@#\\|\\:\\+\\-_=ß\'\\?!$\\*\\/\\s\\(\\)\\.]', true, index)
             r0 = instantiate_node(SyntaxNode,input, index...(index + 1))
             @index += 1
           else

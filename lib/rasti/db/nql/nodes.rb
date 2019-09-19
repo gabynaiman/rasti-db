@@ -18,9 +18,23 @@ module Rasti
       end
 
       class Field < Treetop::Runtime::SyntaxNode
+
+        def tables
+          _tables.elements.map{ |e| e.table.text_value }
+        end
+
+        def column
+          _column.text_value
+        end
+
       end
 
       class TimeConstant < Treetop::Runtime::SyntaxNode
+
+        def value
+          Timing::TimeInZone.parse text_value
+        end
+
       end
 
       class Date < Treetop::Runtime::SyntaxNode
