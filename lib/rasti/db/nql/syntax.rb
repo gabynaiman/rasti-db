@@ -234,15 +234,15 @@ module Rasti
           if r1
             r0 = r1
           else
-            r2 = _nt_boolean_comparison
+            r2 = _nt_comparison_with_boolean
             if r2
               r0 = r2
             else
-              r3 = _nt_quantity_comparison
+              r3 = _nt_comparison_with_quantity
               if r3
                 r0 = r3
               else
-                r4 = _nt_string_comparison
+                r4 = _nt_comparison_with_text
                 if r4
                   r0 = r4
                 else
@@ -328,7 +328,7 @@ module Rasti
           r0
         end
 
-        module BooleanComparison0
+        module ComparisonWithBoolean0
           def left
             elements[0]
           end
@@ -350,10 +350,10 @@ module Rasti
           end
         end
 
-        def _nt_boolean_comparison
+        def _nt_comparison_with_boolean
           start_index = index
-          if node_cache[:boolean_comparison].has_key?(index)
-            cached = node_cache[:boolean_comparison][index]
+          if node_cache[:comparison_with_boolean].has_key?(index)
+            cached = node_cache[:comparison_with_boolean][index]
             if cached
               cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
               @index = cached.interval.end
@@ -381,19 +381,19 @@ module Rasti
             end
           end
           if s0.last
-            r0 = instantiate_node(BooleanComparison,input, i0...index, s0)
-            r0.extend(BooleanComparison0)
+            r0 = instantiate_node(ComparisonWithBoolean,input, i0...index, s0)
+            r0.extend(ComparisonWithBoolean0)
           else
             @index = i0
             r0 = nil
           end
 
-          node_cache[:boolean_comparison][start_index] = r0
+          node_cache[:comparison_with_boolean][start_index] = r0
 
           r0
         end
 
-        module QuantityComparison0
+        module ComparisonWithQuantity0
           def left
             elements[0]
           end
@@ -415,10 +415,10 @@ module Rasti
           end
         end
 
-        def _nt_quantity_comparison
+        def _nt_comparison_with_quantity
           start_index = index
-          if node_cache[:quantity_comparison].has_key?(index)
-            cached = node_cache[:quantity_comparison][index]
+          if node_cache[:comparison_with_quantity].has_key?(index)
+            cached = node_cache[:comparison_with_quantity][index]
             if cached
               cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
               @index = cached.interval.end
@@ -446,19 +446,19 @@ module Rasti
             end
           end
           if s0.last
-            r0 = instantiate_node(QuantityComparison,input, i0...index, s0)
-            r0.extend(QuantityComparison0)
+            r0 = instantiate_node(ComparisonWithQuantity,input, i0...index, s0)
+            r0.extend(ComparisonWithQuantity0)
           else
             @index = i0
             r0 = nil
           end
 
-          node_cache[:quantity_comparison][start_index] = r0
+          node_cache[:comparison_with_quantity][start_index] = r0
 
           r0
         end
 
-        module StringComparison0
+        module ComparisonWithText0
           def left
             elements[0]
           end
@@ -480,10 +480,10 @@ module Rasti
           end
         end
 
-        def _nt_string_comparison
+        def _nt_comparison_with_text
           start_index = index
-          if node_cache[:string_comparison].has_key?(index)
-            cached = node_cache[:string_comparison][index]
+          if node_cache[:comparison_with_text].has_key?(index)
+            cached = node_cache[:comparison_with_text][index]
             if cached
               cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
               @index = cached.interval.end
@@ -511,14 +511,14 @@ module Rasti
             end
           end
           if s0.last
-            r0 = instantiate_node(StringComparison,input, i0...index, s0)
-            r0.extend(StringComparison0)
+            r0 = instantiate_node(ComparisonWithText,input, i0...index, s0)
+            r0.extend(ComparisonWithText0)
           else
             @index = i0
             r0 = nil
           end
 
-          node_cache[:string_comparison][start_index] = r0
+          node_cache[:comparison_with_text][start_index] = r0
 
           r0
         end

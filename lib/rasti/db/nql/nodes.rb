@@ -14,13 +14,13 @@ module Rasti
       class ParenthesisSentence < Treetop::Runtime::SyntaxNode
       end
 
-      class StringComparison < Treetop::Runtime::SyntaxNode
+      class ComparisonWithText < Treetop::Runtime::SyntaxNode
       end
 
-      class QuantityComparison < Treetop::Runtime::SyntaxNode
+      class ComparisonWithQuantity < Treetop::Runtime::SyntaxNode
       end
       
-      class BooleanComparison < Treetop::Runtime::SyntaxNode
+      class ComparisonWithBoolean < Treetop::Runtime::SyntaxNode
       end
 
       class Field < Treetop::Runtime::SyntaxNode

@@ -18,26 +18,26 @@ module Rasti
         end
 
         rule statement
-          parenthesis_sentence /
-          boolean_comparison   /
-          quantity_comparison  /
-          string_comparison
+          parenthesis_sentence     /
+          comparison_with_boolean  /
+          comparison_with_quantity /
+          comparison_with_text
         end
 
         rule parenthesis_sentence
           '(' optional_space sentence optional_space ')' <ParenthesisSentence>
         end
 
-        rule boolean_comparison
-          left:field optional_space comparator:string_comparator optional_space right:boolean <BooleanComparison>
+        rule comparison_with_boolean
+          left:field optional_space comparator:string_comparator optional_space right:boolean <ComparisonWithBoolean>
         end
 
-        rule quantity_comparison
-          left:field optional_space comparator:quantity_comparator optional_space right:quantity <QuantityComparison>
+        rule comparison_with_quantity
+          left:field optional_space comparator:quantity_comparator optional_space right:quantity <ComparisonWithQuantity>
         end
 
-        rule string_comparison
-          left:field optional_space comparator:string_comparator optional_space right:text <StringComparison>
+        rule comparison_with_text
+          left:field optional_space comparator:string_comparator optional_space right:text <ComparisonWithText>
         end
 
         rule field
