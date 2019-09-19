@@ -19,6 +19,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_runtime_dependency 'sequel', '~> 5.0'
+  spec.add_runtime_dependency 'treetop', '~> 1.4.8'
   spec.add_runtime_dependency 'consty', '~> 1.0', '>= 1.0.3'
   spec.add_runtime_dependency 'timing', '~> 0.1', '>= 0.1.3'
   spec.add_runtime_dependency 'class_config', '~> 0.0', '>= 0.0.2'

@@ -2,6 +2,7 @@ require 'sequel'
 require 'consty'
 require 'time'
 require 'timing'
+require 'treetop'
 require 'class_config'
 
 require_relative 'db/version'
@@ -21,6 +22,8 @@ require_relative 'db/type_converters/postgres_types/hstore'
 require_relative 'db/type_converters/postgres_types/json'
 require_relative 'db/type_converters/postgres_types/jsonb'
 require_relative 'db/type_converters/postgres'
+require_relative 'db/nql/syntax'
+require_relative 'db/nql/nodes'
 
 module Rasti
   module DB

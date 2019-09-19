@@ -1,0 +1,147 @@
+module Rasti
+  module DB
+    module NQL
+      grammar Syntax
+        
+        rule sentence
+          optional_space sentence:proposition optional_space <Sentence>
+        end
+
+        rule proposition
+          left:conjunction mandatory_space '|' mandatory_space right:proposition <Disjunction> /
+          conjunction
+        end
+
+        rule conjunction
+          left:statement mandatory_space '&' mandatory_space right:conjunction <Conjunction> /
+          statement
+        end
+
+        rule statement
+          parenthesis_sentence /
+          boolean_comparison   /
+          quantity_comparison  /
+          string_comparison
+        end
+
+        rule parenthesis_sentence
+          '(' optional_space sentence optional_space ')' <ParenthesisSentence>
+        end
+
+        rule boolean_comparison
+          left:field optional_space comparator:string_comparator optional_space right:boolean <BooleanComparison>
+        end
+
+        rule quantity_comparison
+          left:field optional_space comparator:quantity_comparator optional_space right:quantity <QuantityComparison>
+        end
+
+        rule string_comparison
+          left:field optional_space comparator:string_comparator optional_space right:text <StringComparison>
+        end
+
+        rule field
+          tables:(field_name '.')* name:field_name <Field>
+        end
+
+        rule string_comparator
+          ':' /
+          '!:'/
+          '~' /
+          boolean_comparator
+        end
+
+        rule quantity_comparator
+          '>='/
+          '<='/
+          '>' /
+          '<' /
+          boolean_comparator
+        end
+
+        rule boolean_comparator
+          '!='/
+          '='
+        end
+
+        rule quantity
+          integer /
+          float /
+          time
+        end
+
+        rule text
+          literal_string /
+          string
+        end
+
+        rule optional_space
+          [\s\t\n]*
+        end
+
+        rule mandatory_space
+          [\s\t\n]+
+        end
+
+        rule field_name
+          [a-z]+
+        end
+
+        rule time
+          date:(value:date 'T')? hour:(digit digit) ':' minutes:(digit digit) seconds:(':' value:(digit digit))? timezone:(timezone)? <TimeConstant>
+        end
+
+        rule date
+          year:(digit digit digit digit) '-' month:(digit digit) '-' day:(digit digit) <Date>
+        end
+
+        rule timezone
+          sign:sign hour:(digit digit) ':' minutes:(digit digit) <TimeZone>
+        end
+
+        rule sign
+          '+' / 
+          '-'
+        end
+
+        rule literal_string
+          '"' value:string '"' <LiteralStringConstant>
+        end
+
+        rule string
+          value:character+ <StringConstant>
+        end
+
+        rule character 
+          [0-9a-zA-ZÁÀÄÂÃÅĀĂǍáàäâãåāăǎÉÈËÊĒĔĖĚéèëêēĕėěÍÌÏÎĨĬǏíìïîĩĭǐÓÒÖÔÕŌŎŐǑóòöôõōŏőǒÚÙÜÛŨŪŬŮŰǓúùüûũūŭůűǔÑñçÇ%&@#\+\-_=ß'\?!$\*\/\s\(\)]
+        end
+
+        rule boolean
+          true /
+          false
+        end
+
+        rule true
+          'true' <TrueConstant>
+        end
+
+        rule false
+          'false' <FalseConstant>
+        end
+
+        rule float
+          (digit+ ('.' digit+)?) <FloatConstant>
+        end
+
+        rule integer
+          digit+ <IntegerConstant>
+        end
+
+        rule digit
+          [0-9]
+        end
+
+      end
+    end
+  end
+end
