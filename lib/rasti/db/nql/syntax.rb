@@ -16,7 +16,7 @@ module Rasti
             elements[0]
           end
 
-          def sentence
+          def proposition
             elements[1]
           end
 
@@ -60,7 +60,42 @@ module Rasti
           r0
         end
 
-        module Proposition0
+        def _nt_proposition
+          start_index = index
+          if node_cache[:proposition].has_key?(index)
+            cached = node_cache[:proposition][index]
+            if cached
+              cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+              @index = cached.interval.end
+            end
+            return cached
+          end
+
+          i0 = index
+          r1 = _nt_statement
+          if r1
+            r0 = r1
+          else
+            r2 = _nt_disjunction
+            if r2
+              r0 = r2
+            else
+              r3 = _nt_conjunction
+              if r3
+                r0 = r3
+              else
+                @index = i0
+                r0 = nil
+              end
+            end
+          end
+
+          node_cache[:proposition][start_index] = r0
+
+          r0
+        end
+
+        module Disjunction0
           def left
             elements[0]
           end
@@ -78,10 +113,10 @@ module Rasti
           end
         end
 
-        def _nt_proposition
+        def _nt_disjunction
           start_index = index
-          if node_cache[:proposition].has_key?(index)
-            cached = node_cache[:proposition][index]
+          if node_cache[:disjunction].has_key?(index)
+            cached = node_cache[:disjunction][index]
             if cached
               cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
               @index = cached.interval.end
@@ -89,52 +124,40 @@ module Rasti
             return cached
           end
 
-          i0 = index
-          i1, s1 = index, []
-          r2 = _nt_conjunction
-          s1 << r2
-          if r2
-            r3 = _nt_mandatory_space
-            s1 << r3
-            if r3
+          i0, s0 = index, []
+          r1 = _nt_conjunction
+          s0 << r1
+          if r1
+            r2 = _nt_mandatory_space
+            s0 << r2
+            if r2
               if has_terminal?('|', false, index)
-                r4 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                r3 = instantiate_node(SyntaxNode,input, index...(index + 1))
                 @index += 1
               else
                 terminal_parse_failure('|')
-                r4 = nil
+                r3 = nil
               end
-              s1 << r4
-              if r4
-                r5 = _nt_mandatory_space
-                s1 << r5
-                if r5
-                  r6 = _nt_proposition
-                  s1 << r6
+              s0 << r3
+              if r3
+                r4 = _nt_mandatory_space
+                s0 << r4
+                if r4
+                  r5 = _nt_disjunction
+                  s0 << r5
                 end
               end
             end
           end
-          if s1.last
-            r1 = instantiate_node(Disjunction,input, i1...index, s1)
-            r1.extend(Proposition0)
+          if s0.last
+            r0 = instantiate_node(Disjunction,input, i0...index, s0)
+            r0.extend(Disjunction0)
           else
-            @index = i1
-            r1 = nil
-          end
-          if r1
-            r0 = r1
-          else
-            r7 = _nt_conjunction
-            if r7
-              r0 = r7
-            else
-              @index = i0
-              r0 = nil
-            end
+            @index = i0
+            r0 = nil
           end
 
-          node_cache[:proposition][start_index] = r0
+          node_cache[:disjunction][start_index] = r0
 
           r0
         end
@@ -168,49 +191,37 @@ module Rasti
             return cached
           end
 
-          i0 = index
-          i1, s1 = index, []
-          r2 = _nt_statement
-          s1 << r2
-          if r2
-            r3 = _nt_mandatory_space
-            s1 << r3
-            if r3
+          i0, s0 = index, []
+          r1 = _nt_statement
+          s0 << r1
+          if r1
+            r2 = _nt_mandatory_space
+            s0 << r2
+            if r2
               if has_terminal?('&', false, index)
-                r4 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                r3 = instantiate_node(SyntaxNode,input, index...(index + 1))
                 @index += 1
               else
                 terminal_parse_failure('&')
-                r4 = nil
+                r3 = nil
               end
-              s1 << r4
-              if r4
-                r5 = _nt_mandatory_space
-                s1 << r5
-                if r5
-                  r6 = _nt_conjunction
-                  s1 << r6
+              s0 << r3
+              if r3
+                r4 = _nt_mandatory_space
+                s0 << r4
+                if r4
+                  r5 = _nt_conjunction
+                  s0 << r5
                 end
               end
             end
           end
-          if s1.last
-            r1 = instantiate_node(Conjunction,input, i1...index, s1)
-            r1.extend(Conjunction0)
+          if s0.last
+            r0 = instantiate_node(Conjunction,input, i0...index, s0)
+            r0.extend(Conjunction0)
           else
-            @index = i1
-            r1 = nil
-          end
-          if r1
-            r0 = r1
-          else
-            r7 = _nt_statement
-            if r7
-              r0 = r7
-            else
-              @index = i0
-              r0 = nil
-            end
+            @index = i0
+            r0 = nil
           end
 
           node_cache[:conjunction][start_index] = r0
@@ -234,22 +245,12 @@ module Rasti
           if r1
             r0 = r1
           else
-            r2 = _nt_comparison_with_boolean
+            r2 = _nt_comparison
             if r2
               r0 = r2
             else
-              r3 = _nt_comparison_with_quantity
-              if r3
-                r0 = r3
-              else
-                r4 = _nt_comparison_with_text
-                if r4
-                  r0 = r4
-                else
-                  @index = i0
-                  r0 = nil
-                end
-              end
+              @index = i0
+              r0 = nil
             end
           end
 
@@ -328,7 +329,7 @@ module Rasti
           r0
         end
 
-        module ComparisonWithBoolean0
+        module Comparison0
           def left
             elements[0]
           end
@@ -350,10 +351,10 @@ module Rasti
           end
         end
 
-        def _nt_comparison_with_boolean
+        def _nt_comparison
           start_index = index
-          if node_cache[:comparison_with_boolean].has_key?(index)
-            cached = node_cache[:comparison_with_boolean][index]
+          if node_cache[:comparison].has_key?(index)
+            cached = node_cache[:comparison][index]
             if cached
               cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
               @index = cached.interval.end
@@ -368,157 +369,27 @@ module Rasti
             r2 = _nt_optional_space
             s0 << r2
             if r2
-              r3 = _nt_string_comparator
+              r3 = _nt_comparator
               s0 << r3
               if r3
                 r4 = _nt_optional_space
                 s0 << r4
                 if r4
-                  r5 = _nt_boolean
+                  r5 = _nt_basic
                   s0 << r5
                 end
               end
             end
           end
           if s0.last
-            r0 = instantiate_node(ComparisonWithBoolean,input, i0...index, s0)
-            r0.extend(ComparisonWithBoolean0)
+            r0 = instantiate_node(Comparison,input, i0...index, s0)
+            r0.extend(Comparison0)
           else
             @index = i0
             r0 = nil
           end
 
-          node_cache[:comparison_with_boolean][start_index] = r0
-
-          r0
-        end
-
-        module ComparisonWithQuantity0
-          def left
-            elements[0]
-          end
-
-          def optional_space1
-            elements[1]
-          end
-
-          def comparator
-            elements[2]
-          end
-
-          def optional_space2
-            elements[3]
-          end
-
-          def right
-            elements[4]
-          end
-        end
-
-        def _nt_comparison_with_quantity
-          start_index = index
-          if node_cache[:comparison_with_quantity].has_key?(index)
-            cached = node_cache[:comparison_with_quantity][index]
-            if cached
-              cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
-              @index = cached.interval.end
-            end
-            return cached
-          end
-
-          i0, s0 = index, []
-          r1 = _nt_field
-          s0 << r1
-          if r1
-            r2 = _nt_optional_space
-            s0 << r2
-            if r2
-              r3 = _nt_quantity_comparator
-              s0 << r3
-              if r3
-                r4 = _nt_optional_space
-                s0 << r4
-                if r4
-                  r5 = _nt_quantity
-                  s0 << r5
-                end
-              end
-            end
-          end
-          if s0.last
-            r0 = instantiate_node(ComparisonWithQuantity,input, i0...index, s0)
-            r0.extend(ComparisonWithQuantity0)
-          else
-            @index = i0
-            r0 = nil
-          end
-
-          node_cache[:comparison_with_quantity][start_index] = r0
-
-          r0
-        end
-
-        module ComparisonWithText0
-          def left
-            elements[0]
-          end
-
-          def optional_space1
-            elements[1]
-          end
-
-          def comparator
-            elements[2]
-          end
-
-          def optional_space2
-            elements[3]
-          end
-
-          def right
-            elements[4]
-          end
-        end
-
-        def _nt_comparison_with_text
-          start_index = index
-          if node_cache[:comparison_with_text].has_key?(index)
-            cached = node_cache[:comparison_with_text][index]
-            if cached
-              cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
-              @index = cached.interval.end
-            end
-            return cached
-          end
-
-          i0, s0 = index, []
-          r1 = _nt_field
-          s0 << r1
-          if r1
-            r2 = _nt_optional_space
-            s0 << r2
-            if r2
-              r3 = _nt_string_comparator
-              s0 << r3
-              if r3
-                r4 = _nt_optional_space
-                s0 << r4
-                if r4
-                  r5 = _nt_text
-                  s0 << r5
-                end
-              end
-            end
-          end
-          if s0.last
-            r0 = instantiate_node(ComparisonWithText,input, i0...index, s0)
-            r0.extend(ComparisonWithText0)
-          else
-            @index = i0
-            r0 = nil
-          end
-
-          node_cache[:comparison_with_text][start_index] = r0
+          node_cache[:comparison][start_index] = r0
 
           r0
         end
@@ -535,7 +406,7 @@ module Rasti
             elements[0]
           end
 
-          def name
+          def column
             elements[1]
           end
         end
@@ -599,10 +470,10 @@ module Rasti
           r0
         end
 
-        def _nt_string_comparator
+        def _nt_comparator
           start_index = index
-          if node_cache[:string_comparator].has_key?(index)
-            cached = node_cache[:string_comparator][index]
+          if node_cache[:comparator].has_key?(index)
+            cached = node_cache[:comparator][index]
             if cached
               cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
               @index = cached.interval.end
@@ -641,95 +512,87 @@ module Rasti
               if r3
                 r0 = r3
               else
-                r4 = _nt_boolean_comparator
-                if r4
-                  r0 = r4
+                if has_terminal?('>=', false, index)
+                  r4 = instantiate_node(SyntaxNode,input, index...(index + 2))
+                  @index += 2
                 else
-                  @index = i0
-                  r0 = nil
-                end
-              end
-            end
-          end
-
-          node_cache[:string_comparator][start_index] = r0
-
-          r0
-        end
-
-        def _nt_quantity_comparator
-          start_index = index
-          if node_cache[:quantity_comparator].has_key?(index)
-            cached = node_cache[:quantity_comparator][index]
-            if cached
-              cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
-              @index = cached.interval.end
-            end
-            return cached
-          end
-
-          i0 = index
-          if has_terminal?('>=', false, index)
-            r1 = instantiate_node(SyntaxNode,input, index...(index + 2))
-            @index += 2
-          else
-            terminal_parse_failure('>=')
-            r1 = nil
-          end
-          if r1
-            r0 = r1
-          else
-            if has_terminal?('<=', false, index)
-              r2 = instantiate_node(SyntaxNode,input, index...(index + 2))
-              @index += 2
-            else
-              terminal_parse_failure('<=')
-              r2 = nil
-            end
-            if r2
-              r0 = r2
-            else
-              if has_terminal?('>', false, index)
-                r3 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                @index += 1
-              else
-                terminal_parse_failure('>')
-                r3 = nil
-              end
-              if r3
-                r0 = r3
-              else
-                if has_terminal?('<', false, index)
-                  r4 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                  @index += 1
-                else
-                  terminal_parse_failure('<')
+                  terminal_parse_failure('>=')
                   r4 = nil
                 end
                 if r4
                   r0 = r4
                 else
-                  r5 = _nt_boolean_comparator
+                  if has_terminal?('<=', false, index)
+                    r5 = instantiate_node(SyntaxNode,input, index...(index + 2))
+                    @index += 2
+                  else
+                    terminal_parse_failure('<=')
+                    r5 = nil
+                  end
                   if r5
                     r0 = r5
                   else
-                    @index = i0
-                    r0 = nil
+                    if has_terminal?('>', false, index)
+                      r6 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                      @index += 1
+                    else
+                      terminal_parse_failure('>')
+                      r6 = nil
+                    end
+                    if r6
+                      r0 = r6
+                    else
+                      if has_terminal?('<', false, index)
+                        r7 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                        @index += 1
+                      else
+                        terminal_parse_failure('<')
+                        r7 = nil
+                      end
+                      if r7
+                        r0 = r7
+                      else
+                        if has_terminal?('!=', false, index)
+                          r8 = instantiate_node(SyntaxNode,input, index...(index + 2))
+                          @index += 2
+                        else
+                          terminal_parse_failure('!=')
+                          r8 = nil
+                        end
+                        if r8
+                          r0 = r8
+                        else
+                          if has_terminal?('=', false, index)
+                            r9 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                            @index += 1
+                          else
+                            terminal_parse_failure('=')
+                            r9 = nil
+                          end
+                          if r9
+                            r0 = r9
+                          else
+                            @index = i0
+                            r0 = nil
+                          end
+                        end
+                      end
+                    end
                   end
                 end
               end
             end
           end
 
-          node_cache[:quantity_comparator][start_index] = r0
+          node_cache[:comparator][start_index] = r0
 
           r0
         end
 
-        def _nt_boolean_comparator
+        def _nt_basic
           start_index = index
-          if node_cache[:boolean_comparator].has_key?(index)
-            cached = node_cache[:boolean_comparator][index]
+          if node_cache[:basic].has_key?(index)
+            cached = node_cache[:basic][index]
             if cached
               cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
               @index = cached.interval.end
@@ -738,97 +601,40 @@ module Rasti
           end
 
           i0 = index
-          if has_terminal?('!=', false, index)
-            r1 = instantiate_node(SyntaxNode,input, index...(index + 2))
-            @index += 2
-          else
-            terminal_parse_failure('!=')
-            r1 = nil
-          end
+          r1 = _nt_boolean
           if r1
             r0 = r1
           else
-            if has_terminal?('=', false, index)
-              r2 = instantiate_node(SyntaxNode,input, index...(index + 1))
-              @index += 1
-            else
-              terminal_parse_failure('=')
-              r2 = nil
-            end
+            r2 = _nt_time
             if r2
               r0 = r2
             else
-              @index = i0
-              r0 = nil
-            end
-          end
-
-          node_cache[:boolean_comparator][start_index] = r0
-
-          r0
-        end
-
-        def _nt_quantity
-          start_index = index
-          if node_cache[:quantity].has_key?(index)
-            cached = node_cache[:quantity][index]
-            if cached
-              cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
-              @index = cached.interval.end
-            end
-            return cached
-          end
-
-          i0 = index
-          r1 = _nt_integer
-          if r1
-            r0 = r1
-          else
-            r2 = _nt_float
-            if r2
-              r0 = r2
-            else
-              r3 = _nt_time
+              r3 = _nt_float
               if r3
                 r0 = r3
               else
-                @index = i0
-                r0 = nil
+                r4 = _nt_integer
+                if r4
+                  r0 = r4
+                else
+                  r5 = _nt_literal_string
+                  if r5
+                    r0 = r5
+                  else
+                    r6 = _nt_string
+                    if r6
+                      r0 = r6
+                    else
+                      @index = i0
+                      r0 = nil
+                    end
+                  end
+                end
               end
             end
           end
 
-          node_cache[:quantity][start_index] = r0
-
-          r0
-        end
-
-        def _nt_text
-          start_index = index
-          if node_cache[:text].has_key?(index)
-            cached = node_cache[:text][index]
-            if cached
-              cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
-              @index = cached.interval.end
-            end
-            return cached
-          end
-
-          i0 = index
-          r1 = _nt_literal_string
-          if r1
-            r0 = r1
-          else
-            r2 = _nt_string
-            if r2
-              r0 = r2
-            else
-              @index = i0
-              r0 = nil
-            end
-          end
-
-          node_cache[:text][start_index] = r0
+          node_cache[:basic][start_index] = r0
 
           r0
         end
@@ -1451,7 +1257,7 @@ module Rasti
         end
 
         module LiteralString0
-          def value
+          def string
             elements[1]
           end
 
@@ -1504,12 +1310,6 @@ module Rasti
           r0
         end
 
-        module String0
-          def value
-            elements[0]
-          end
-        end
-
         def _nt_string
           start_index = index
           if node_cache[:string].has_key?(index)
@@ -1521,29 +1321,20 @@ module Rasti
             return cached
           end
 
-          i0, s0 = index, []
-          s1, i1 = [], index
+          s0, i0 = [], index
           loop do
-            r2 = _nt_character
-            if r2
-              s1 << r2
+            r1 = _nt_character
+            if r1
+              s0 << r1
             else
               break
             end
           end
-          if s1.empty?
-            @index = i1
-            r1 = nil
-          else
-            r1 = instantiate_node(SyntaxNode,input, i1...index, s1)
-          end
-          s0 << r1
-          if s0.last
-            r0 = instantiate_node(StringConstant,input, i0...index, s0)
-            r0.extend(String0)
-          else
+          if s0.empty?
             @index = i0
             r0 = nil
+          else
+            r0 = instantiate_node(StringConstant,input, i0...index, s0)
           end
 
           node_cache[:string][start_index] = r0
@@ -1562,7 +1353,7 @@ module Rasti
             return cached
           end
 
-          if has_terminal?('\G[0-9a-zA-ZÁÀÄÂÃÅĀĂǍáàäâãåāăǎÉÈËÊĒĔĖĚéèëêēĕėěÍÌÏÎĨĬǏíìïîĩĭǐÓÒÖÔÕŌŎŐǑóòöôõōŏőǒÚÙÜÛŨŪŬŮŰǓúùüûũūŭůűǔÑñçÇ%&@#\\+\\-_=ß\'\\?!$\\*\\/\\s\\(\\)]', true, index)
+          if has_terminal?('\G[0-9a-zA-ZÁÀÄÂÃÅĀĂǍáàäâãåāăǎÉÈËÊĒĔĖĚéèëêēĕėěÍÌÏÎĨĬǏíìïîĩĭǐÓÒÖÔÕŌŎŐǑóòöôõōŏőǒÚÙÜÛŨŪŬŮŰǓúùüûũūŭůűǔÑñçÇ%&@#\\:\\+\\-_=ß\'\\?!$\\*\\/\\s\\(\\)\\.]', true, index)
             r0 = instantiate_node(SyntaxNode,input, index...(index + 1))
             @index += 1
           else
@@ -1655,9 +1446,6 @@ module Rasti
         module Float0
         end
 
-        module Float1
-        end
-
         def _nt_float
           start_index = index
           if node_cache[:float].has_key?(index)
@@ -1687,50 +1475,36 @@ module Rasti
           end
           s0 << r1
           if r1
-            i4, s4 = index, []
             if has_terminal?('.', false, index)
-              r5 = instantiate_node(SyntaxNode,input, index...(index + 1))
+              r3 = instantiate_node(SyntaxNode,input, index...(index + 1))
               @index += 1
             else
               terminal_parse_failure('.')
-              r5 = nil
+              r3 = nil
             end
-            s4 << r5
-            if r5
-              s6, i6 = [], index
+            s0 << r3
+            if r3
+              s4, i4 = [], index
               loop do
-                r7 = _nt_digit
-                if r7
-                  s6 << r7
+                r5 = _nt_digit
+                if r5
+                  s4 << r5
                 else
                   break
                 end
               end
-              if s6.empty?
-                @index = i6
-                r6 = nil
+              if s4.empty?
+                @index = i4
+                r4 = nil
               else
-                r6 = instantiate_node(SyntaxNode,input, i6...index, s6)
+                r4 = instantiate_node(SyntaxNode,input, i4...index, s4)
               end
-              s4 << r6
+              s0 << r4
             end
-            if s4.last
-              r4 = instantiate_node(SyntaxNode,input, i4...index, s4)
-              r4.extend(Float0)
-            else
-              @index = i4
-              r4 = nil
-            end
-            if r4
-              r3 = r4
-            else
-              r3 = instantiate_node(SyntaxNode,input, index...index)
-            end
-            s0 << r3
           end
           if s0.last
-            r0 = instantiate_node(SyntaxNode,input, i0...index, s0)
-            r0.extend(Float1)
+            r0 = instantiate_node(FloatConstant,input, i0...index, s0)
+            r0.extend(Float0)
           else
             @index = i0
             r0 = nil

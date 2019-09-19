@@ -14,13 +14,7 @@ module Rasti
       class ParenthesisSentence < Treetop::Runtime::SyntaxNode
       end
 
-      class ComparisonWithText < Treetop::Runtime::SyntaxNode
-      end
-
-      class ComparisonWithQuantity < Treetop::Runtime::SyntaxNode
-      end
-      
-      class ComparisonWithBoolean < Treetop::Runtime::SyntaxNode
+      class Comparison < Treetop::Runtime::SyntaxNode
       end
 
       class Field < Treetop::Runtime::SyntaxNode
@@ -36,18 +30,43 @@ module Rasti
       end
 
       class LiteralStringConstant < Treetop::Runtime::SyntaxNode
+      
+        def value
+          string.text_value
+        end
+
       end
 
       class StringConstant < Treetop::Runtime::SyntaxNode
+
+        def value
+          text_value
+        end
+
       end
 
       class TrueConstant < Treetop::Runtime::SyntaxNode
+
+        def value
+          true
+        end
+
       end
 
       class FalseConstant < Treetop::Runtime::SyntaxNode
+
+        def value
+          false
+        end
+
       end
 
       class FloatConstant < Treetop::Runtime::SyntaxNode
+
+        def value
+          text_value.to_f
+        end
+
       end
 
       class IntegerConstant < Treetop::Runtime::SyntaxNode

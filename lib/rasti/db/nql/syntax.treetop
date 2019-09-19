@@ -4,73 +4,57 @@ module Rasti
       grammar Syntax
         
         rule sentence
-          optional_space sentence:proposition optional_space <Sentence>
+          optional_space proposition:proposition optional_space <Sentence>
         end
 
         rule proposition
-          left:conjunction mandatory_space '|' mandatory_space right:proposition <Disjunction> /
+          statement   /
+          disjunction /
           conjunction
         end
 
+        rule disjunction
+          left:conjunction mandatory_space '|' mandatory_space right:disjunction <Disjunction>
+        end
+
         rule conjunction
-          left:statement mandatory_space '&' mandatory_space right:conjunction <Conjunction> /
-          statement
+          left:statement mandatory_space '&' mandatory_space right:conjunction <Conjunction>
         end
 
         rule statement
-          parenthesis_sentence     /
-          comparison_with_boolean  /
-          comparison_with_quantity /
-          comparison_with_text
+          parenthesis_sentence /
+          comparison
         end
 
         rule parenthesis_sentence
           '(' optional_space sentence optional_space ')' <ParenthesisSentence>
         end
 
-        rule comparison_with_boolean
-          left:field optional_space comparator:string_comparator optional_space right:boolean <ComparisonWithBoolean>
-        end
-
-        rule comparison_with_quantity
-          left:field optional_space comparator:quantity_comparator optional_space right:quantity <ComparisonWithQuantity>
-        end
-
-        rule comparison_with_text
-          left:field optional_space comparator:string_comparator optional_space right:text <ComparisonWithText>
+        rule comparison
+          left:field optional_space comparator:comparator optional_space right:basic <Comparison>
         end
 
         rule field
-          tables:(field_name '.')* name:field_name <Field>
+          tables:(field_name '.')* column:field_name <Field>
         end
 
-        rule string_comparator
-          ':' /
-          '!:'/
-          '~' /
-          boolean_comparator
-        end
-
-        rule quantity_comparator
-          '>='/
-          '<='/
-          '>' /
-          '<' /
-          boolean_comparator
-        end
-
-        rule boolean_comparator
-          '!='/
+        rule comparator
+          ':'  /
+          '!:' /
+          '~'  /
+          '>=' /
+          '<=' /
+          '>'  /
+          '<'  /
+          '!=' /
           '='
         end
 
-        rule quantity
-          integer /
-          float /
-          time
-        end
-
-        rule text
+        rule basic
+          boolean        /
+          time           /
+          float          /
+          integer        /
           literal_string /
           string
         end
@@ -105,15 +89,15 @@ module Rasti
         end
 
         rule literal_string
-          '"' value:string '"' <LiteralStringConstant>
+          '"' string:string '"' <LiteralStringConstant>
         end
 
         rule string
-          value:character+ <StringConstant>
+          character+ <StringConstant>
         end
 
         rule character 
-          [0-9a-zA-ZÁÀÄÂÃÅĀĂǍáàäâãåāăǎÉÈËÊĒĔĖĚéèëêēĕėěÍÌÏÎĨĬǏíìïîĩĭǐÓÒÖÔÕŌŎŐǑóòöôõōŏőǒÚÙÜÛŨŪŬŮŰǓúùüûũūŭůűǔÑñçÇ%&@#\+\-_=ß'\?!$\*\/\s\(\)]
+          [0-9a-zA-ZÁÀÄÂÃÅĀĂǍáàäâãåāăǎÉÈËÊĒĔĖĚéèëêēĕėěÍÌÏÎĨĬǏíìïîĩĭǐÓÒÖÔÕŌŎŐǑóòöôõōŏőǒÚÙÜÛŨŪŬŮŰǓúùüûũūŭůűǔÑñçÇ%&@#\:\+\-_=ß'\?!$\*\/\s\(\)\.]
         end
 
         rule boolean
@@ -130,7 +114,7 @@ module Rasti
         end
 
         rule float
-          (digit+ ('.' digit+)?) <FloatConstant>
+          digit+ '.' digit+ <FloatConstant>
         end
 
         rule integer
