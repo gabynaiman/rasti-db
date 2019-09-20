@@ -23,8 +23,8 @@ module Rasti
           _tables.elements.map{ |e| e.table.text_value }
         end
 
-        def column
-          _column.text_value
+        def name
+          _name.text_value
         end
 
       end

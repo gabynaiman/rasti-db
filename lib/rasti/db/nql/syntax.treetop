@@ -22,8 +22,8 @@ module Rasti
         end
 
         rule statement
-          parenthesis_sentence /
-          comparison
+          comparison /
+          parenthesis_sentence
         end
 
         rule parenthesis_sentence
@@ -35,7 +35,7 @@ module Rasti
         end
 
         rule field
-          _tables:(table:field_name '.')* _column:field_name <Field>
+          _tables:(table:field_name '.')* _name:field_name <Field>
         end
 
         rule comparator
@@ -89,15 +89,20 @@ module Rasti
         end
 
         rule literal_string
-          '"' string:string '"' <LiteralStringConstant>
+          '"' string:any_character+ '"' <LiteralStringConstant>
         end
 
         rule string
-          character+ <StringConstant>
+          valid_character+ <StringConstant>
         end
 
-        rule character 
-          [0-9a-zA-ZÁÀÄÂÃÅĀĂǍáàäâãåāăǎÉÈËÊĒĔĖĚéèëêēĕėěÍÌÏÎĨĬǏíìïîĩĭǐÓÒÖÔÕŌŎŐǑóòöôõōŏőǒÚÙÜÛŨŪŬŮŰǓúùüûũūŭůűǔÑñçÇ%&@#\|\:\+\-_=ß'\?!$\*\/\s\(\)\.]
+        rule any_character
+          valid_character /
+          reserved_character
+        end
+
+        rule valid_character 
+          [0-9a-zA-ZÁÀÄÂÃÅĀĂǍáàäâãåāăǎÉÈËÊĒĔĖĚéèëêēĕėěÍÌÏÎĨĬǏíìïîĩĭǐÓÒÖÔÕŌŎŐǑóòöôõōŏőǒÚÙÜÛŨŪŬŮŰǓúùüûũūŭůűǔÑñçÇ%@#+-_'?!$*/\s]
         end
 
         rule boolean
@@ -123,6 +128,10 @@ module Rasti
 
         rule digit
           [0-9]
+        end
+
+        rule reserved_character
+          [&|.():!=<>~]
         end
 
       end

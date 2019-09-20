@@ -127,8 +127,16 @@ describe 'SyntaxParser' do
 
       left_hand_operand = tree.proposition.left
       left_hand_operand.tables.must_equal ['relation_table_one', 'relation_table_two']
-      left_hand_operand.column.must_equal 'column'
+      left_hand_operand.name.must_equal 'column'
     end
 
   end
+
+  it 'must parse parenthesis sentence' do
+    tree = parser.parse '(column: name)'
+    tree.wont_be_nil
+
+    tree.proposition.sentence.text_value.must_equal 'column: name'
+  end
+
 end
