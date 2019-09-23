@@ -73,7 +73,7 @@ describe 'SyntaxParser' do
       end
 
       it 'must parse expression with string' do
-        tree = parse 'column = String1'
+        tree = parse 'column = String1 '
 
         right_hand_operand = tree.proposition.right
         right_hand_operand.must_be_instance_of Rasti::DB::NQL::Nodes::Constants::String
@@ -81,11 +81,11 @@ describe 'SyntaxParser' do
       end
 
       it 'must parse expression with literal string' do
-        tree = parse 'column = "a & (b | c) | d"'
+        tree = parse 'column = "a & (b | c) | d:=e"'
 
         right_hand_operand = tree.proposition.right
         right_hand_operand.must_be_instance_of Rasti::DB::NQL::Nodes::Constants::LiteralString
-        right_hand_operand.value.must_equal 'a & (b | c) | d'
+        right_hand_operand.value.must_equal 'a & (b | c) | d:=e'
       end
 
       describe 'Time' do
@@ -128,42 +128,70 @@ describe 'SyntaxParser' do
 
   end
 
-  it 'must parse parenthesis sentence' do
-    tree = parse '(column: name)'
+  describe 'Parenthesis Sentence' do
+    
+    it 'must parse parenthesis comparison' do
+      tree = parse '(column: name)'
 
-    tree.proposition.sentence.text_value.must_equal 'column: name'
+      tree.proposition.sentence.text_value.must_equal 'column: name'
+    end
+
+    it 'must parse conjunction over parenthesis of disjunction' do
+      tree = parse '(column_one: 1 | column_two: two) & column_three: 3.0'
+
+      tree.proposition.must_be_instance_of Rasti::DB::NQL::Nodes::Conjunction
+      tree.proposition.left.sentence.text_value.must_equal 'column_one: 1 | column_two: two'
+    end
+
   end
+
 
   describe 'Conjunction' do
 
-    it 'must parse conjunction of two comparisons' do
-      tree = parse 'column_one != 1 & column_two: name'
+    def parse_and_assert(expression, conjunction_values)
+      tree = parse expression
       
-      proposition = tree.proposition
-      proposition.must_be_instance_of Rasti::DB::NQL::Nodes::Conjunction
-      proposition.values.map(&:text_value).zip(['column_one != 1', 'column_two: name']).each do |actual, expected|
+      tree.proposition.must_be_instance_of Rasti::DB::NQL::Nodes::Conjunction
+      tree.proposition.values.map(&:text_value).zip(conjunction_values).each do |actual, expected|
         actual.must_equal expected
       end
     end
 
-    it 'must parse conjunction of three comparisons' do
-      tree = parse 'column_one > 1 & column_two: name & column_three < 9.2'
-      
-      proposition = tree.proposition
-      proposition.must_be_instance_of Rasti::DB::NQL::Nodes::Conjunction
-      proposition.values.zip(['column_one > 1', 'column_two: name ', 'column_three < 9.2']).each do |element, expected_text|
-        element.text_value.must_equal expected_text
-      end
+    it 'must parse conjunction of two comparisons' do
+      parse_and_assert 'column_one != 1 & column_two: name', ['column_one != 1', 'column_two: name']
+    end
+
+    it 'must parse multiple conjunctions' do
+      parse_and_assert 'column_one > 1 & column_two: name & column_three < 9.2', ['column_one > 1', 'column_two: name ', 'column_three < 9.2']
     end
 
     it 'must parse conjunction with parenthesis expression' do
-      tree = parse '(column_one > 1 | column_two: name) & column_three < 9.2'
+      parse_and_assert '(column_one > 1 | column_two: name) & column_three < 9.2', ['(column_one > 1 | column_two: name)', 'column_three < 9.2']
+    end
 
-      proposition = tree.proposition
-      proposition.must_be_instance_of Rasti::DB::NQL::Nodes::Conjunction
-      proposition.values.map(&:text_value).zip(['(column_one > 1 | column_two: name)', 'column_three < 9.2']).each do |actual, expected|
+  end
+
+  describe 'Disjunction' do
+
+    def parse_and_assert(expression, disjunction_values)
+      tree = parse expression
+      
+      tree.proposition.must_be_instance_of Rasti::DB::NQL::Nodes::Disjunction
+      tree.proposition.values.map(&:text_value).zip(disjunction_values).each do |actual, expected|
         actual.must_equal expected
       end
+    end
+
+    it 'must parse disjunction of two disjunctions' do
+      parse_and_assert 'column_one != 1 | column_two: name', ['column_one != 1', 'column_two: name'] 
+    end
+
+    it 'must parse disjunction over conjunction' do
+      parse_and_assert 'column_one != 1 & column_two: name | column_three < 1.2', ['column_one != 1 & column_two: name ', 'column_three < 1.2'] 
+    end
+
+    it 'must parse multiple conjunctions' do
+      parse_and_assert 'column_one != 1 | column_two: name | column_three < 1.2', ['column_one != 1', 'column_two: name ', 'column_three < 1.2']
     end
 
   end
