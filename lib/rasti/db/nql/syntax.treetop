@@ -4,38 +4,38 @@ module Rasti
       grammar Syntax
         
         rule sentence
-          optional_space proposition:proposition optional_space <Sentence>
+          space* proposition:proposition space* <Nodes::Sentence>
         end
 
         rule proposition
-          statement   /
           disjunction /
-          conjunction
+          conjunction /
+          statement
         end
 
         rule disjunction
-          left:(statement / conjunction) mandatory_space '|' mandatory_space right:proposition <Disjunction>
+          left:(conjunction / statement) space* '|' space* right:proposition <Nodes::Disjunction>
         end
 
         rule conjunction
-          left:statement mandatory_space '&' mandatory_space right:(statement / conjunction) <Conjunction>
+          left:statement space* '&' space* right:(conjunction / statement) <Nodes::Conjunction>
         end
 
         rule statement
-          comparison /
-          parenthesis_sentence
+          parenthesis_sentence /
+          comparison
         end
 
         rule parenthesis_sentence
-          '(' sentence ')' <ParenthesisSentence>
+          '(' sentence ')' <Nodes::ParenthesisSentence>
         end
 
         rule comparison
-          left:field optional_space comparator:comparator optional_space right:basic <Comparison>
+          left:field space* comparator:comparator space* right:basic <Nodes::Comparison>
         end
 
         rule field
-          _tables:(table:field_name '.')* _name:field_name <Field>
+          _tables:(table:field_name '.')* _name:field_name <Nodes::Field>
         end
 
         rule comparator
@@ -59,12 +59,8 @@ module Rasti
           string
         end
 
-        rule optional_space
-          [\s\t\n]*
-        end
-
-        rule mandatory_space
-          [\s\t\n]+
+        rule space
+          [\s\t\n]
         end
 
         rule field_name
@@ -72,15 +68,15 @@ module Rasti
         end
 
         rule time
-          date:(value:date 'T')? hour:(digit digit) ':' minutes:(digit digit) seconds:(':' value:(digit digit))? timezone:(value:timezone)? <TimeConstant>
+          date:(value:date 'T')? hour:(digit digit) ':' minutes:(digit digit) seconds:(':' value:(digit digit))? timezone:(value:timezone)? <Nodes::Constants::Time>
         end
 
         rule date
-          year:(digit digit digit digit) '-' month:(digit digit) '-' day:(digit digit) <Date>
+          year:(digit digit digit digit) '-' month:(digit digit) '-' day:(digit digit)
         end
 
         rule timezone
-          sign:sign hour:(digit digit) ':' minutes:(digit digit) <TimeZone>
+          sign:sign hour:(digit digit) ':' minutes:(digit digit)
         end
 
         rule sign
@@ -89,11 +85,11 @@ module Rasti
         end
 
         rule literal_string
-          '"' string:any_character+ '"' <LiteralStringConstant>
+          '"' string:any_character+ '"' <Nodes::Constants::LiteralString>
         end
 
         rule string
-          valid_character+ <StringConstant>
+          valid_character+ <Nodes::Constants::String>
         end
 
         rule any_character
@@ -111,19 +107,19 @@ module Rasti
         end
 
         rule true
-          'true' <TrueConstant>
+          'true' <Nodes::Constants::True>
         end
 
         rule false
-          'false' <FalseConstant>
+          'false' <Nodes::Constants::False>
         end
 
         rule float
-          digit+ '.' digit+ <FloatConstant>
+          digit+ '.' digit+ <Nodes::Constants::Float>
         end
 
         rule integer
-          digit+ <IntegerConstant>
+          digit+ <Nodes::Constants::Integer>
         end
 
         rule digit
