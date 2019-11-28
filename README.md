@@ -175,6 +175,14 @@ posts.where(id: [1,2]).pluck(:id, :title) # => [[1, ...], [2, ...]]
 posts.join(:user).where(name: 'User 4') # => [Post, ...]
 ```
 
+## Development
+
+Rasti::DB uses treetop to perform queries using natural language. To recompile the syntax, simply run the following command in `lib/rasti/db/nql`:
+
+```
+tt syntax.treetop -o syntax.rb
+```
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/gabynaiman/rasti-db.
