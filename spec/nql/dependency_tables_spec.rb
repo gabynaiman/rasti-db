@@ -21,7 +21,7 @@ describe 'NQL::DepedencyTables' do
   end
 
   it 'must have multiple dependency tables' do
-    tree = parse 'a.b.c = 1 & d.e: 2 | f.g.h = 1 | i = 4'
+    tree = parse 'a.b.c = 1 & (d.e: 2 | f.g.h = 1) | i = 4'
 
     tree.dependency_tables.must_equal ['a.b', 'd', 'f.g']
   end
