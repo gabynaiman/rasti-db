@@ -94,7 +94,9 @@ module Rasti
 
       def nql(filter_expression)
         sentence = nql_parser.parse filter_expression
-        
+
+        raise NQL::InvalidExpressionError.new(filter_expression) if sentence.nil?
+
         dependency_tables = sentence.dependency_tables
         query = dependency_tables.empty? ? self : join(*dependency_tables)
         

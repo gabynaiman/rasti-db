@@ -200,6 +200,11 @@ describe 'Query' do
       db[:categories_posts].insert post_id: 2, category_id: 3
       db[:categories_posts].insert post_id: 3, category_id: 3
     end
+
+    it 'Invalid expression' do
+      error = proc { posts_query.nql('a + b') }.must_raise Rasti::DB::NQL::InvalidExpressionError
+      error.message.must_equal 'Invalid filter expression: a + b'
+    end
     
     it 'Filter to self table' do
       people_query = Rasti::DB::Query.new People, db[:people]
