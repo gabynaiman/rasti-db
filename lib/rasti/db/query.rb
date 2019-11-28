@@ -92,6 +92,15 @@ module Rasti
       end
       alias_method :inspect, :to_s
 
+      def nql(filter_expression)
+        sentence = nql_parser.parse filter_expression
+        
+        dependency_tables = sentence.dependency_tables
+        query = dependency_tables.empty? ? self : join(*dependency_tables)
+        
+        query.where sentence.filter_condition
+      end
+
       private
 
       def chainable(&block)
@@ -120,6 +129,10 @@ module Rasti
 
       def respond_to_missing?(method, include_private=false)
         collection_class.queries.key?(method) || super
+      end
+
+      def nql_parser
+        NQL::SyntaxParser.new
       end
 
       attr_reader :collection_class, :dataset, :relations, :schema

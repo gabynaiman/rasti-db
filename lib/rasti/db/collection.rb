@@ -2,7 +2,7 @@ module Rasti
   module DB
     class Collection
 
-      QUERY_METHODS = (Query::DATASET_CHAINED_METHODS + [:graph, :join, :count, :all, :each, :first, :pluck, :primary_keys, :any?, :empty?, :raw]).freeze
+      QUERY_METHODS = (Query::DATASET_CHAINED_METHODS + [:graph, :join, :count, :all, :each, :first, :pluck, :primary_keys, :any?, :empty?, :raw, :nql]).freeze
 
       include Enumerable
       include Helpers::WithSchema

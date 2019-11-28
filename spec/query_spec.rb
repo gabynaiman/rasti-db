@@ -177,4 +177,52 @@ describe 'Query' do
 
   end
 
+  describe 'NQL' do
+
+    before do
+      1.upto(10) do |i| 
+        db[:people].insert user_id: i, 
+                           document_number: i, 
+                           first_name: "Name #{i}", 
+                           last_name: "Last Name #{i}", 
+                           birth_date: Time.now
+      end
+
+      1.upto(3) { |i| db[:categories].insert name: "Category #{i}" }
+      
+      db[:comments].insert post_id: 1, user_id: 5, text: 'Comment 1'
+      db[:comments].insert post_id: 1, user_id: 7, text: 'Comment 2'
+      db[:comments].insert post_id: 2, user_id: 2, text: 'Comment 3'
+
+      db[:categories_posts].insert post_id: 1, category_id: 1
+      db[:categories_posts].insert post_id: 1, category_id: 2
+      db[:categories_posts].insert post_id: 2, category_id: 2
+      db[:categories_posts].insert post_id: 2, category_id: 3
+      db[:categories_posts].insert post_id: 3, category_id: 3
+    end
+    
+    it 'Filter to self table' do
+      people_query = Rasti::DB::Query.new People, db[:people]
+
+      people_query.nql('user_id > 7')
+                  .map(&:user_id)
+                  .sort
+                  .must_equal [8, 9, 10]
+    end
+
+    it 'Filter to join table' do
+      posts_query.nql('categories.name = Category 2')
+                 .map(&:id)
+                 .sort
+                 .must_equal [1, 2]
+    end
+
+    it 'Filter to 2nd order relation' do
+      posts_query.nql('comments.user.person.document_number = 7')
+                 .map(&:id)
+                 .must_equal [1]
+    end
+
+  end
+
 end
