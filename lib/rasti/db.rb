@@ -28,7 +28,6 @@ require_relative 'db/nql/nodes/parenthesis_sentence'
 require_relative 'db/nql/nodes/binary_node'
 require_relative 'db/nql/nodes/disjunction'
 require_relative 'db/nql/nodes/conjunction'
-require_relative 'db/nql/nodes/comparison'
 require_relative 'db/nql/nodes/field'
 require_relative 'db/nql/nodes/constants/literal_string'
 require_relative 'db/nql/nodes/constants/integer'
@@ -37,6 +36,18 @@ require_relative 'db/nql/nodes/constants/false'
 require_relative 'db/nql/nodes/constants/true'
 require_relative 'db/nql/nodes/constants/float'
 require_relative 'db/nql/nodes/constants/time'
+require_relative 'db/nql/nodes/comparisons/base'
+require_relative 'db/nql/nodes/comparisons/include'
+require_relative 'db/nql/nodes/comparisons/not_include'
+require_relative 'db/nql/nodes/comparisons/like'
+require_relative 'db/nql/nodes/comparisons/greater_than'
+require_relative 'db/nql/nodes/comparisons/greater_than_or_equal'
+require_relative 'db/nql/nodes/comparisons/less_than'
+require_relative 'db/nql/nodes/comparisons/less_than_or_equal'
+require_relative 'db/nql/nodes/comparisons/not_equal'
+require_relative 'db/nql/nodes/comparisons/equal'
+
+
 
 module Rasti
   module DB

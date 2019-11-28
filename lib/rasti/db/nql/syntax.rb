@@ -368,20 +368,6 @@ module Rasti
           r0
         end
 
-        module Comparison0
-          def left
-            elements[0]
-          end
-
-          def comparator
-            elements[2]
-          end
-
-          def right
-            elements[4]
-          end
-        end
-
         def _nt_comparison
           start_index = index
           if node_cache[:comparison].has_key?(index)
@@ -393,49 +379,53 @@ module Rasti
             return cached
           end
 
-          i0, s0 = index, []
-          r1 = _nt_field
-          s0 << r1
+          i0 = index
+          r1 = _nt_comparison_not_include
           if r1
-            s2, i2 = [], index
-            loop do
-              r3 = _nt_space
-              if r3
-                s2 << r3
-              else
-                break
-              end
-            end
-            r2 = instantiate_node(SyntaxNode,input, i2...index, s2)
-            s0 << r2
+            r0 = r1
+          else
+            r2 = _nt_comparison_include
             if r2
-              r4 = _nt_comparator
-              s0 << r4
-              if r4
-                s5, i5 = [], index
-                loop do
-                  r6 = _nt_space
-                  if r6
-                    s5 << r6
+              r0 = r2
+            else
+              r3 = _nt_comparison_like
+              if r3
+                r0 = r3
+              else
+                r4 = _nt_comparison_greater_than_or_equal
+                if r4
+                  r0 = r4
+                else
+                  r5 = _nt_comparison_less_than_or_equal
+                  if r5
+                    r0 = r5
                   else
-                    break
+                    r6 = _nt_comparison_greater_than
+                    if r6
+                      r0 = r6
+                    else
+                      r7 = _nt_comparison_less_than
+                      if r7
+                        r0 = r7
+                      else
+                        r8 = _nt_comparison_not_equal
+                        if r8
+                          r0 = r8
+                        else
+                          r9 = _nt_comparison_equal
+                          if r9
+                            r0 = r9
+                          else
+                            @index = i0
+                            r0 = nil
+                          end
+                        end
+                      end
+                    end
                   end
                 end
-                r5 = instantiate_node(SyntaxNode,input, i5...index, s5)
-                s0 << r5
-                if r5
-                  r7 = _nt_basic
-                  s0 << r7
-                end
               end
             end
-          end
-          if s0.last
-            r0 = instantiate_node(Nodes::Comparison,input, i0...index, s0)
-            r0.extend(Comparison0)
-          else
-            @index = i0
-            r0 = nil
           end
 
           node_cache[:comparison][start_index] = r0
@@ -455,7 +445,7 @@ module Rasti
             elements[0]
           end
 
-          def _name
+          def _column
             elements[1]
           end
         end
@@ -519,10 +509,24 @@ module Rasti
           r0
         end
 
-        def _nt_comparator
+        module ComparisonInclude0
+          def left
+            elements[0]
+          end
+
+          def comparator
+            elements[2]
+          end
+
+          def right
+            elements[4]
+          end
+        end
+
+        def _nt_comparison_include
           start_index = index
-          if node_cache[:comparator].has_key?(index)
-            cached = node_cache[:comparator][index]
+          if node_cache[:comparison_include].has_key?(index)
+            cached = node_cache[:comparison_include][index]
             if cached
               cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
               @index = cached.interval.end
@@ -530,110 +534,706 @@ module Rasti
             return cached
           end
 
-          i0 = index
-          if has_terminal?(':', false, index)
-            r1 = instantiate_node(SyntaxNode,input, index...(index + 1))
-            @index += 1
-          else
-            terminal_parse_failure(':')
-            r1 = nil
-          end
+          i0, s0 = index, []
+          r1 = _nt_field
+          s0 << r1
           if r1
-            r0 = r1
-          else
-            if has_terminal?('!:', false, index)
-              r2 = instantiate_node(SyntaxNode,input, index...(index + 2))
-              @index += 2
-            else
-              terminal_parse_failure('!:')
-              r2 = nil
+            s2, i2 = [], index
+            loop do
+              r3 = _nt_space
+              if r3
+                s2 << r3
+              else
+                break
+              end
             end
+            r2 = instantiate_node(SyntaxNode,input, i2...index, s2)
+            s0 << r2
             if r2
-              r0 = r2
-            else
+              if has_terminal?(':', false, index)
+                r4 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                @index += 1
+              else
+                terminal_parse_failure(':')
+                r4 = nil
+              end
+              s0 << r4
+              if r4
+                s5, i5 = [], index
+                loop do
+                  r6 = _nt_space
+                  if r6
+                    s5 << r6
+                  else
+                    break
+                  end
+                end
+                r5 = instantiate_node(SyntaxNode,input, i5...index, s5)
+                s0 << r5
+                if r5
+                  r7 = _nt_basic
+                  s0 << r7
+                end
+              end
+            end
+          end
+          if s0.last
+            r0 = instantiate_node(Nodes::Comparisons::Include,input, i0...index, s0)
+            r0.extend(ComparisonInclude0)
+          else
+            @index = i0
+            r0 = nil
+          end
+
+          node_cache[:comparison_include][start_index] = r0
+
+          r0
+        end
+
+        module ComparisonNotInclude0
+          def left
+            elements[0]
+          end
+
+          def comparator
+            elements[2]
+          end
+
+          def right
+            elements[4]
+          end
+        end
+
+        def _nt_comparison_not_include
+          start_index = index
+          if node_cache[:comparison_not_include].has_key?(index)
+            cached = node_cache[:comparison_not_include][index]
+            if cached
+              cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+              @index = cached.interval.end
+            end
+            return cached
+          end
+
+          i0, s0 = index, []
+          r1 = _nt_field
+          s0 << r1
+          if r1
+            s2, i2 = [], index
+            loop do
+              r3 = _nt_space
+              if r3
+                s2 << r3
+              else
+                break
+              end
+            end
+            r2 = instantiate_node(SyntaxNode,input, i2...index, s2)
+            s0 << r2
+            if r2
+              if has_terminal?('!:', false, index)
+                r4 = instantiate_node(SyntaxNode,input, index...(index + 2))
+                @index += 2
+              else
+                terminal_parse_failure('!:')
+                r4 = nil
+              end
+              s0 << r4
+              if r4
+                s5, i5 = [], index
+                loop do
+                  r6 = _nt_space
+                  if r6
+                    s5 << r6
+                  else
+                    break
+                  end
+                end
+                r5 = instantiate_node(SyntaxNode,input, i5...index, s5)
+                s0 << r5
+                if r5
+                  r7 = _nt_basic
+                  s0 << r7
+                end
+              end
+            end
+          end
+          if s0.last
+            r0 = instantiate_node(Nodes::Comparisons::NotInclude,input, i0...index, s0)
+            r0.extend(ComparisonNotInclude0)
+          else
+            @index = i0
+            r0 = nil
+          end
+
+          node_cache[:comparison_not_include][start_index] = r0
+
+          r0
+        end
+
+        module ComparisonLike0
+          def left
+            elements[0]
+          end
+
+          def comparator
+            elements[2]
+          end
+
+          def right
+            elements[4]
+          end
+        end
+
+        def _nt_comparison_like
+          start_index = index
+          if node_cache[:comparison_like].has_key?(index)
+            cached = node_cache[:comparison_like][index]
+            if cached
+              cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+              @index = cached.interval.end
+            end
+            return cached
+          end
+
+          i0, s0 = index, []
+          r1 = _nt_field
+          s0 << r1
+          if r1
+            s2, i2 = [], index
+            loop do
+              r3 = _nt_space
+              if r3
+                s2 << r3
+              else
+                break
+              end
+            end
+            r2 = instantiate_node(SyntaxNode,input, i2...index, s2)
+            s0 << r2
+            if r2
               if has_terminal?('~', false, index)
-                r3 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                r4 = instantiate_node(SyntaxNode,input, index...(index + 1))
                 @index += 1
               else
                 terminal_parse_failure('~')
-                r3 = nil
+                r4 = nil
               end
-              if r3
-                r0 = r3
-              else
-                if has_terminal?('>=', false, index)
-                  r4 = instantiate_node(SyntaxNode,input, index...(index + 2))
-                  @index += 2
-                else
-                  terminal_parse_failure('>=')
-                  r4 = nil
+              s0 << r4
+              if r4
+                s5, i5 = [], index
+                loop do
+                  r6 = _nt_space
+                  if r6
+                    s5 << r6
+                  else
+                    break
+                  end
                 end
-                if r4
-                  r0 = r4
-                else
-                  if has_terminal?('<=', false, index)
-                    r5 = instantiate_node(SyntaxNode,input, index...(index + 2))
-                    @index += 2
-                  else
-                    terminal_parse_failure('<=')
-                    r5 = nil
-                  end
-                  if r5
-                    r0 = r5
-                  else
-                    if has_terminal?('>', false, index)
-                      r6 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                      @index += 1
-                    else
-                      terminal_parse_failure('>')
-                      r6 = nil
-                    end
-                    if r6
-                      r0 = r6
-                    else
-                      if has_terminal?('<', false, index)
-                        r7 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                        @index += 1
-                      else
-                        terminal_parse_failure('<')
-                        r7 = nil
-                      end
-                      if r7
-                        r0 = r7
-                      else
-                        if has_terminal?('!=', false, index)
-                          r8 = instantiate_node(SyntaxNode,input, index...(index + 2))
-                          @index += 2
-                        else
-                          terminal_parse_failure('!=')
-                          r8 = nil
-                        end
-                        if r8
-                          r0 = r8
-                        else
-                          if has_terminal?('=', false, index)
-                            r9 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                            @index += 1
-                          else
-                            terminal_parse_failure('=')
-                            r9 = nil
-                          end
-                          if r9
-                            r0 = r9
-                          else
-                            @index = i0
-                            r0 = nil
-                          end
-                        end
-                      end
-                    end
-                  end
+                r5 = instantiate_node(SyntaxNode,input, i5...index, s5)
+                s0 << r5
+                if r5
+                  r7 = _nt_basic
+                  s0 << r7
                 end
               end
             end
           end
+          if s0.last
+            r0 = instantiate_node(Nodes::Comparisons::Like,input, i0...index, s0)
+            r0.extend(ComparisonLike0)
+          else
+            @index = i0
+            r0 = nil
+          end
 
-          node_cache[:comparator][start_index] = r0
+          node_cache[:comparison_like][start_index] = r0
+
+          r0
+        end
+
+        module ComparisonGreaterThan0
+          def left
+            elements[0]
+          end
+
+          def comparator
+            elements[2]
+          end
+
+          def right
+            elements[4]
+          end
+        end
+
+        def _nt_comparison_greater_than
+          start_index = index
+          if node_cache[:comparison_greater_than].has_key?(index)
+            cached = node_cache[:comparison_greater_than][index]
+            if cached
+              cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+              @index = cached.interval.end
+            end
+            return cached
+          end
+
+          i0, s0 = index, []
+          r1 = _nt_field
+          s0 << r1
+          if r1
+            s2, i2 = [], index
+            loop do
+              r3 = _nt_space
+              if r3
+                s2 << r3
+              else
+                break
+              end
+            end
+            r2 = instantiate_node(SyntaxNode,input, i2...index, s2)
+            s0 << r2
+            if r2
+              if has_terminal?('>', false, index)
+                r4 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                @index += 1
+              else
+                terminal_parse_failure('>')
+                r4 = nil
+              end
+              s0 << r4
+              if r4
+                s5, i5 = [], index
+                loop do
+                  r6 = _nt_space
+                  if r6
+                    s5 << r6
+                  else
+                    break
+                  end
+                end
+                r5 = instantiate_node(SyntaxNode,input, i5...index, s5)
+                s0 << r5
+                if r5
+                  r7 = _nt_basic
+                  s0 << r7
+                end
+              end
+            end
+          end
+          if s0.last
+            r0 = instantiate_node(Nodes::Comparisons::GreaterThan,input, i0...index, s0)
+            r0.extend(ComparisonGreaterThan0)
+          else
+            @index = i0
+            r0 = nil
+          end
+
+          node_cache[:comparison_greater_than][start_index] = r0
+
+          r0
+        end
+
+        module ComparisonGreaterThanOrEqual0
+          def left
+            elements[0]
+          end
+
+          def comparator
+            elements[2]
+          end
+
+          def right
+            elements[4]
+          end
+        end
+
+        def _nt_comparison_greater_than_or_equal
+          start_index = index
+          if node_cache[:comparison_greater_than_or_equal].has_key?(index)
+            cached = node_cache[:comparison_greater_than_or_equal][index]
+            if cached
+              cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+              @index = cached.interval.end
+            end
+            return cached
+          end
+
+          i0, s0 = index, []
+          r1 = _nt_field
+          s0 << r1
+          if r1
+            s2, i2 = [], index
+            loop do
+              r3 = _nt_space
+              if r3
+                s2 << r3
+              else
+                break
+              end
+            end
+            r2 = instantiate_node(SyntaxNode,input, i2...index, s2)
+            s0 << r2
+            if r2
+              if has_terminal?('>=', false, index)
+                r4 = instantiate_node(SyntaxNode,input, index...(index + 2))
+                @index += 2
+              else
+                terminal_parse_failure('>=')
+                r4 = nil
+              end
+              s0 << r4
+              if r4
+                s5, i5 = [], index
+                loop do
+                  r6 = _nt_space
+                  if r6
+                    s5 << r6
+                  else
+                    break
+                  end
+                end
+                r5 = instantiate_node(SyntaxNode,input, i5...index, s5)
+                s0 << r5
+                if r5
+                  r7 = _nt_basic
+                  s0 << r7
+                end
+              end
+            end
+          end
+          if s0.last
+            r0 = instantiate_node(Nodes::Comparisons::GreaterThanOrEqual,input, i0...index, s0)
+            r0.extend(ComparisonGreaterThanOrEqual0)
+          else
+            @index = i0
+            r0 = nil
+          end
+
+          node_cache[:comparison_greater_than_or_equal][start_index] = r0
+
+          r0
+        end
+
+        module ComparisonLessThan0
+          def left
+            elements[0]
+          end
+
+          def comparator
+            elements[2]
+          end
+
+          def right
+            elements[4]
+          end
+        end
+
+        def _nt_comparison_less_than
+          start_index = index
+          if node_cache[:comparison_less_than].has_key?(index)
+            cached = node_cache[:comparison_less_than][index]
+            if cached
+              cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+              @index = cached.interval.end
+            end
+            return cached
+          end
+
+          i0, s0 = index, []
+          r1 = _nt_field
+          s0 << r1
+          if r1
+            s2, i2 = [], index
+            loop do
+              r3 = _nt_space
+              if r3
+                s2 << r3
+              else
+                break
+              end
+            end
+            r2 = instantiate_node(SyntaxNode,input, i2...index, s2)
+            s0 << r2
+            if r2
+              if has_terminal?('<', false, index)
+                r4 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                @index += 1
+              else
+                terminal_parse_failure('<')
+                r4 = nil
+              end
+              s0 << r4
+              if r4
+                s5, i5 = [], index
+                loop do
+                  r6 = _nt_space
+                  if r6
+                    s5 << r6
+                  else
+                    break
+                  end
+                end
+                r5 = instantiate_node(SyntaxNode,input, i5...index, s5)
+                s0 << r5
+                if r5
+                  r7 = _nt_basic
+                  s0 << r7
+                end
+              end
+            end
+          end
+          if s0.last
+            r0 = instantiate_node(Nodes::Comparisons::LessThan,input, i0...index, s0)
+            r0.extend(ComparisonLessThan0)
+          else
+            @index = i0
+            r0 = nil
+          end
+
+          node_cache[:comparison_less_than][start_index] = r0
+
+          r0
+        end
+
+        module ComparisonLessThanOrEqual0
+          def left
+            elements[0]
+          end
+
+          def comparator
+            elements[2]
+          end
+
+          def right
+            elements[4]
+          end
+        end
+
+        def _nt_comparison_less_than_or_equal
+          start_index = index
+          if node_cache[:comparison_less_than_or_equal].has_key?(index)
+            cached = node_cache[:comparison_less_than_or_equal][index]
+            if cached
+              cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+              @index = cached.interval.end
+            end
+            return cached
+          end
+
+          i0, s0 = index, []
+          r1 = _nt_field
+          s0 << r1
+          if r1
+            s2, i2 = [], index
+            loop do
+              r3 = _nt_space
+              if r3
+                s2 << r3
+              else
+                break
+              end
+            end
+            r2 = instantiate_node(SyntaxNode,input, i2...index, s2)
+            s0 << r2
+            if r2
+              if has_terminal?('<=', false, index)
+                r4 = instantiate_node(SyntaxNode,input, index...(index + 2))
+                @index += 2
+              else
+                terminal_parse_failure('<=')
+                r4 = nil
+              end
+              s0 << r4
+              if r4
+                s5, i5 = [], index
+                loop do
+                  r6 = _nt_space
+                  if r6
+                    s5 << r6
+                  else
+                    break
+                  end
+                end
+                r5 = instantiate_node(SyntaxNode,input, i5...index, s5)
+                s0 << r5
+                if r5
+                  r7 = _nt_basic
+                  s0 << r7
+                end
+              end
+            end
+          end
+          if s0.last
+            r0 = instantiate_node(Nodes::Comparisons::LessThanOrEqual,input, i0...index, s0)
+            r0.extend(ComparisonLessThanOrEqual0)
+          else
+            @index = i0
+            r0 = nil
+          end
+
+          node_cache[:comparison_less_than_or_equal][start_index] = r0
+
+          r0
+        end
+
+        module ComparisonNotEqual0
+          def left
+            elements[0]
+          end
+
+          def comparator
+            elements[2]
+          end
+
+          def right
+            elements[4]
+          end
+        end
+
+        def _nt_comparison_not_equal
+          start_index = index
+          if node_cache[:comparison_not_equal].has_key?(index)
+            cached = node_cache[:comparison_not_equal][index]
+            if cached
+              cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+              @index = cached.interval.end
+            end
+            return cached
+          end
+
+          i0, s0 = index, []
+          r1 = _nt_field
+          s0 << r1
+          if r1
+            s2, i2 = [], index
+            loop do
+              r3 = _nt_space
+              if r3
+                s2 << r3
+              else
+                break
+              end
+            end
+            r2 = instantiate_node(SyntaxNode,input, i2...index, s2)
+            s0 << r2
+            if r2
+              if has_terminal?('!=', false, index)
+                r4 = instantiate_node(SyntaxNode,input, index...(index + 2))
+                @index += 2
+              else
+                terminal_parse_failure('!=')
+                r4 = nil
+              end
+              s0 << r4
+              if r4
+                s5, i5 = [], index
+                loop do
+                  r6 = _nt_space
+                  if r6
+                    s5 << r6
+                  else
+                    break
+                  end
+                end
+                r5 = instantiate_node(SyntaxNode,input, i5...index, s5)
+                s0 << r5
+                if r5
+                  r7 = _nt_basic
+                  s0 << r7
+                end
+              end
+            end
+          end
+          if s0.last
+            r0 = instantiate_node(Nodes::Comparisons::NotEqual,input, i0...index, s0)
+            r0.extend(ComparisonNotEqual0)
+          else
+            @index = i0
+            r0 = nil
+          end
+
+          node_cache[:comparison_not_equal][start_index] = r0
+
+          r0
+        end
+
+        module ComparisonEqual0
+          def left
+            elements[0]
+          end
+
+          def comparator
+            elements[2]
+          end
+
+          def right
+            elements[4]
+          end
+        end
+
+        def _nt_comparison_equal
+          start_index = index
+          if node_cache[:comparison_equal].has_key?(index)
+            cached = node_cache[:comparison_equal][index]
+            if cached
+              cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+              @index = cached.interval.end
+            end
+            return cached
+          end
+
+          i0, s0 = index, []
+          r1 = _nt_field
+          s0 << r1
+          if r1
+            s2, i2 = [], index
+            loop do
+              r3 = _nt_space
+              if r3
+                s2 << r3
+              else
+                break
+              end
+            end
+            r2 = instantiate_node(SyntaxNode,input, i2...index, s2)
+            s0 << r2
+            if r2
+              if has_terminal?('=', false, index)
+                r4 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                @index += 1
+              else
+                terminal_parse_failure('=')
+                r4 = nil
+              end
+              s0 << r4
+              if r4
+                s5, i5 = [], index
+                loop do
+                  r6 = _nt_space
+                  if r6
+                    s5 << r6
+                  else
+                    break
+                  end
+                end
+                r5 = instantiate_node(SyntaxNode,input, i5...index, s5)
+                s0 << r5
+                if r5
+                  r7 = _nt_basic
+                  s0 << r7
+                end
+              end
+            end
+          end
+          if s0.last
+            r0 = instantiate_node(Nodes::Comparisons::Equal,input, i0...index, s0)
+            r0.extend(ComparisonEqual0)
+          else
+            @index = i0
+            r0 = nil
+          end
+
+          node_cache[:comparison_equal][start_index] = r0
 
           r0
         end

@@ -6,7 +6,13 @@ module Rasti
           class Time < Treetop::Runtime::SyntaxNode
 
             def value
-              Timing::TimeInZone.parse text_value
+              time.to_s
+            end
+
+            private
+
+            def time
+              @time ||= Timing::TimeInZone.parse text_value
             end
 
           end
