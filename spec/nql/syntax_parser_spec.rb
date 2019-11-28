@@ -113,7 +113,7 @@ describe 'NQL::SyntaxParser' do
 
           right_hand_operand = tree.proposition.right
           right_hand_operand.must_be_instance_of Rasti::DB::NQL::Nodes::Constants::Time
-          right_hand_operand.value.must_equal '2019-03-27 12:20:00 -0300'
+          right_hand_operand.value.must_equal Timing::TimeInZone.parse('2019-03-27T12:20:00').to_s
         end
 
         it 'must parse expression with date, hours, minutes, seconds and timezone' do
@@ -121,7 +121,7 @@ describe 'NQL::SyntaxParser' do
 
           right_hand_operand = tree.proposition.right
           right_hand_operand.must_be_instance_of Rasti::DB::NQL::Nodes::Constants::Time
-          right_hand_operand.value.must_equal '2019-03-27 12:20:00 -0300'
+          right_hand_operand.value.must_equal Timing::TimeInZone.parse('2019-03-27T12:20:00-03:00').to_s
         end
 
       end
