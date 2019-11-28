@@ -4,55 +4,19 @@ require 'time'
 require 'timing'
 require 'treetop'
 require 'class_config'
-
-require_relative 'db/version'
-require_relative 'db/helpers'
-require_relative 'db/query'
-require_relative 'db/relations/graph_builder'
-require_relative 'db/relations/base'
-require_relative 'db/relations/one_to_many'
-require_relative 'db/relations/one_to_one'
-require_relative 'db/relations/many_to_one'
-require_relative 'db/relations/many_to_many'
-require_relative 'db/collection'
-require_relative 'db/model'
-require_relative 'db/type_converters/time_in_zone'
-require_relative 'db/type_converters/postgres_types/array'
-require_relative 'db/type_converters/postgres_types/hstore'
-require_relative 'db/type_converters/postgres_types/json'
-require_relative 'db/type_converters/postgres_types/jsonb'
-require_relative 'db/type_converters/postgres'
-require_relative 'db/nql/syntax'
-require_relative 'db/nql/nodes/sentence'
-require_relative 'db/nql/nodes/parenthesis_sentence'
-require_relative 'db/nql/nodes/binary_node'
-require_relative 'db/nql/nodes/disjunction'
-require_relative 'db/nql/nodes/conjunction'
-require_relative 'db/nql/nodes/field'
-require_relative 'db/nql/nodes/constants/literal_string'
-require_relative 'db/nql/nodes/constants/integer'
-require_relative 'db/nql/nodes/constants/string'
-require_relative 'db/nql/nodes/constants/false'
-require_relative 'db/nql/nodes/constants/true'
-require_relative 'db/nql/nodes/constants/float'
-require_relative 'db/nql/nodes/constants/time'
-require_relative 'db/nql/nodes/comparisons/base'
-require_relative 'db/nql/nodes/comparisons/include'
-require_relative 'db/nql/nodes/comparisons/not_include'
-require_relative 'db/nql/nodes/comparisons/like'
-require_relative 'db/nql/nodes/comparisons/greater_than'
-require_relative 'db/nql/nodes/comparisons/greater_than_or_equal'
-require_relative 'db/nql/nodes/comparisons/less_than'
-require_relative 'db/nql/nodes/comparisons/less_than_or_equal'
-require_relative 'db/nql/nodes/comparisons/not_equal'
-require_relative 'db/nql/nodes/comparisons/equal'
-
-
+require 'multi_require'
 
 module Rasti
   module DB
     
+    extend MultiRequire
     extend ClassConfig
+
+    require_relative 'db/helpers'
+    require_relative 'db/query'
+    require_relative_pattern  'db/relations/*'
+    require_relative_pattern  'db/type_converters/postgres_types/*'
+    require_relative_pattern  'db/**/*'
 
     attr_config :type_converters, []
 
