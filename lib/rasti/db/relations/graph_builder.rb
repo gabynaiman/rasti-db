@@ -14,7 +14,7 @@ module Rasti
           end
 
           def joins_to(dataset, relations, collection_class, schema=nil)
-            ds = recusrive_joins dataset, recursive_parse(relations), collection_class, schema
+            ds = recursive_joins dataset, recursive_parse(relations), collection_class, schema
             qualified_collection_name = schema ? Sequel[schema][collection_class.collection_name] : Sequel[collection_class.collection_name]
             ds.distinct.select_all(qualified_collection_name)
           end
@@ -41,13 +41,13 @@ module Rasti
             end
           end
 
-          def recusrive_joins(dataset, joins, collection_class, schema, prefix=nil)
+          def recursive_joins(dataset, joins, collection_class, schema, prefix=nil)
             joins.each do |relation_name, nested_joins|
               relation = get_relation collection_class, relation_name
 
               dataset = relation.join_to dataset, schema, prefix
 
-              dataset = recusrive_joins dataset, nested_joins, relation.target_collection_class, schema, relation.join_relation_name(prefix) unless nested_joins.empty?
+              dataset = recursive_joins dataset, nested_joins, relation.target_collection_class, schema, relation.join_relation_name(prefix) unless nested_joins.empty?
             end
 
             dataset
