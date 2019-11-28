@@ -5,7 +5,7 @@ module Rasti
         module Comparisons
           class NotEqual < Base
 
-            def to_filter
+            def filter_condition
               Sequel.negate(field.identifier => argument.value)
             end
 

@@ -8,8 +8,8 @@ module Rasti
             proposition.dependency_tables
           end
 
-          def to_filter
-            proposition.to_filter
+          def filter_condition
+            proposition.filter_condition
           end
 
         end

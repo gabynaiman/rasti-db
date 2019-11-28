@@ -5,7 +5,7 @@ module Rasti
         module Comparisons
           class NotInclude < Base
 
-            def to_filter
+            def filter_condition
               ~ Sequel.ilike(field.identifier, "%#{argument.value}%")
             end
 

@@ -1,12 +1,12 @@
 require 'minitest_helper'
 
-describe 'NQL::ToFilter' do
+describe 'NQL::FilterCondition' do
 
   let(:parser) { Rasti::DB::NQL::SyntaxParser.new }
 
-  def to_filter(expression)
+  def filter_condition(expression)
     tree = parser.parse expression
-    tree.to_filter
+    tree.filter_condition
   end
 
   def assert_identifier(identifier, expected_value)
@@ -29,35 +29,35 @@ describe 'NQL::ToFilter' do
     it 'must create filter from expression with <' do
       splitted_expression = ['column', '<', 1]
 
-      assert_comparison to_filter(splitted_expression.join(' ')), *splitted_expression
+      assert_comparison filter_condition(splitted_expression.join(' ')), *splitted_expression
     end
 
     it 'must create filter from expression with >' do
       splitted_expression = ['column', '>', 1]
 
-      assert_comparison to_filter(splitted_expression.join(' ')), *splitted_expression
+      assert_comparison filter_condition(splitted_expression.join(' ')), *splitted_expression
     end
 
     it 'must create filter from expression with <=' do
       splitted_expression = ['column', '<=', 1]
 
-      assert_comparison to_filter(splitted_expression.join(' ')), *splitted_expression
+      assert_comparison filter_condition(splitted_expression.join(' ')), *splitted_expression
     end
 
     it 'must create filter from expression with >=' do
       splitted_expression = ['column', '>=', 1]
 
-      assert_comparison to_filter(splitted_expression.join(' ')), *splitted_expression
+      assert_comparison filter_condition(splitted_expression.join(' ')), *splitted_expression
     end
 
     it 'must create filter from expression with !=' do
       splitted_expression = ['column', '!=', 1]
 
-      assert_comparison to_filter(splitted_expression.join(' ')), *splitted_expression
+      assert_comparison filter_condition(splitted_expression.join(' ')), *splitted_expression
     end
 
     it 'must create filter from expression with =' do
-      filter = to_filter 'column = 1'
+      filter = filter_condition 'column = 1'
       identifier, value = filter.first
 
       assert_identifier identifier, 'column'
@@ -65,17 +65,17 @@ describe 'NQL::ToFilter' do
     end
 
     it 'must create filter from expression with ~' do
-      filter = to_filter 'column ~ test'
+      filter = filter_condition 'column ~ test'
       assert_comparison filter, 'column', 'ILIKE', 'test'
     end
 
     it 'must create filter from expression with :' do
-      filter = to_filter 'column: test'
+      filter = filter_condition 'column: test'
       assert_comparison filter, 'column', 'ILIKE', '%test%'
     end
 
     it 'must create filter from expression with !:' do
-      filter = to_filter 'column!: test'
+      filter = filter_condition 'column!: test'
       assert_comparison filter, 'column', 'NOT ILIKE', '%test%'
     end
 
@@ -84,19 +84,19 @@ describe 'NQL::ToFilter' do
   describe 'Constants' do
 
     it 'must create filter from expression with LiteralString' do
-      filter = to_filter 'column: "test "'
+      filter = filter_condition 'column: "test "'
       assert_comparison filter, 'column', 'ILIKE', '%test %'
     end
 
     it 'must create filter from expression with Time' do
-      filter = to_filter 'column > 2019-03-27T12:20:00-03:00'
+      filter = filter_condition 'column > 2019-03-27T12:20:00-03:00'
       assert_comparison filter, 'column', '>', '2019-03-27 12:20:00 -0300'
     end
 
   end
 
   it 'must create filter from expression with field with multiple tables' do
-    filter = to_filter 'table_one.table_two.column = test'
+    filter = filter_condition 'table_one.table_two.column = test'
     identifier, value = filter.first
 
     identifier.must_be_instance_of Sequel::SQL::QualifiedIdentifier
@@ -106,7 +106,7 @@ describe 'NQL::ToFilter' do
   end
 
   it 'must create filter from expression with conjunction' do
-    filter = to_filter 'column_one > 1 & column_two < 3'
+    filter = filter_condition 'column_one > 1 & column_two < 3'
 
     filter.must_be_instance_of Sequel::SQL::BooleanExpression
     filter.op.must_equal :AND
@@ -117,7 +117,7 @@ describe 'NQL::ToFilter' do
   end
 
   it 'must create filter from expression with disjunction' do
-    filter = to_filter 'column_one > 1 | column_two != 3'
+    filter = filter_condition 'column_one > 1 | column_two != 3'
 
     filter.must_be_instance_of Sequel::SQL::BooleanExpression
     filter.op.must_equal :OR
@@ -128,7 +128,7 @@ describe 'NQL::ToFilter' do
   end
 
   it 'must create filter from expression with parenthesis' do
-    filter = to_filter 'column_one > 1 & (column_two != 3 | column_three < 5)'
+    filter = filter_condition 'column_one > 1 & (column_two != 3 | column_three < 5)'
 
     filter.must_be_instance_of Sequel::SQL::BooleanExpression
     filter.op.must_equal :AND

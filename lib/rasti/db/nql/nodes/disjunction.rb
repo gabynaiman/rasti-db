@@ -4,8 +4,8 @@ module Rasti
       module Nodes
         class Disjunction < BinaryNode
 
-          def to_filter
-            Sequel.|(*values.map(&:to_filter))
+          def filter_condition
+            Sequel.|(*values.map(&:filter_condition))
           end
 
         end

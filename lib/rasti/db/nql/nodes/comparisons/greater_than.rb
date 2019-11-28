@@ -5,7 +5,7 @@ module Rasti
         module Comparisons
           class GreaterThan < Base
 
-            def to_filter
+            def filter_condition
               field.identifier > argument.value
             end
 

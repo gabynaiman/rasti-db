@@ -8,8 +8,8 @@ module Rasti
             sentence.dependency_tables
           end
 
-          def to_filter
-            sentence.to_filter
+          def filter_condition
+            sentence.filter_condition
           end
 
         end
