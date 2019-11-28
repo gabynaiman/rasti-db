@@ -5,5 +5,7 @@ SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new [SimpleCov::Forma
 
 SimpleCov.start do
   add_filter 'lib/rasti/db/nql/syntax.rb'
-  add_filter 'spec/'
+
+  add_group 'Rasti::DB', 'lib'
+  add_group 'Spec', 'spec'
 end
