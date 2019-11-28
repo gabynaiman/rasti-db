@@ -6,7 +6,7 @@ module Rasti
           class Base < Treetop::Runtime::SyntaxNode
 
             def dependency_tables
-              left.tables.empty? ? [] : [left.tables.join('.')]
+              field.tables.empty? ? [] : [field.tables.join('.')]
             end
 
           end

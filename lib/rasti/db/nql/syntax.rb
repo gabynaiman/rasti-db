@@ -510,7 +510,7 @@ module Rasti
         end
 
         module ComparisonInclude0
-          def left
+          def field
             elements[0]
           end
 
@@ -518,7 +518,7 @@ module Rasti
             elements[2]
           end
 
-          def right
+          def argument
             elements[4]
           end
         end
@@ -591,7 +591,7 @@ module Rasti
         end
 
         module ComparisonNotInclude0
-          def left
+          def field
             elements[0]
           end
 
@@ -599,7 +599,7 @@ module Rasti
             elements[2]
           end
 
-          def right
+          def argument
             elements[4]
           end
         end
@@ -672,7 +672,7 @@ module Rasti
         end
 
         module ComparisonLike0
-          def left
+          def field
             elements[0]
           end
 
@@ -680,7 +680,7 @@ module Rasti
             elements[2]
           end
 
-          def right
+          def argument
             elements[4]
           end
         end
@@ -753,7 +753,7 @@ module Rasti
         end
 
         module ComparisonGreaterThan0
-          def left
+          def field
             elements[0]
           end
 
@@ -761,7 +761,7 @@ module Rasti
             elements[2]
           end
 
-          def right
+          def argument
             elements[4]
           end
         end
@@ -834,7 +834,7 @@ module Rasti
         end
 
         module ComparisonGreaterThanOrEqual0
-          def left
+          def field
             elements[0]
           end
 
@@ -842,7 +842,7 @@ module Rasti
             elements[2]
           end
 
-          def right
+          def argument
             elements[4]
           end
         end
@@ -915,7 +915,7 @@ module Rasti
         end
 
         module ComparisonLessThan0
-          def left
+          def field
             elements[0]
           end
 
@@ -923,7 +923,7 @@ module Rasti
             elements[2]
           end
 
-          def right
+          def argument
             elements[4]
           end
         end
@@ -996,7 +996,7 @@ module Rasti
         end
 
         module ComparisonLessThanOrEqual0
-          def left
+          def field
             elements[0]
           end
 
@@ -1004,7 +1004,7 @@ module Rasti
             elements[2]
           end
 
-          def right
+          def argument
             elements[4]
           end
         end
@@ -1077,7 +1077,7 @@ module Rasti
         end
 
         module ComparisonNotEqual0
-          def left
+          def field
             elements[0]
           end
 
@@ -1085,7 +1085,7 @@ module Rasti
             elements[2]
           end
 
-          def right
+          def argument
             elements[4]
           end
         end
@@ -1158,7 +1158,7 @@ module Rasti
         end
 
         module ComparisonEqual0
-          def left
+          def field
             elements[0]
           end
 
@@ -1166,7 +1166,7 @@ module Rasti
             elements[2]
           end
 
-          def right
+          def argument
             elements[4]
           end
         end

@@ -31,8 +31,8 @@ describe 'NQL::SyntaxParser' do
           proposition = tree.proposition
           proposition.must_be_instance_of node_class
           proposition.comparator.text_value.must_equal comparator
-          proposition.left.text_value.must_equal 'column'
-          proposition.right.text_value.must_equal 'value'
+          proposition.field.text_value.must_equal 'column'
+          proposition.argument.text_value.must_equal 'value'
         end
       end
 
@@ -44,8 +44,8 @@ describe 'NQL::SyntaxParser' do
       proposition = tree.proposition
       proposition.must_be_instance_of Rasti::DB::NQL::Nodes::Comparisons::Equal
       proposition.comparator.text_value.must_equal '='
-      proposition.left.text_value.must_equal 'column'
-      proposition.right.text_value.must_equal 'value'
+      proposition.field.text_value.must_equal 'column'
+      proposition.argument.text_value.must_equal 'value'
     end
 
     describe 'Right hand Operand' do
@@ -53,7 +53,7 @@ describe 'NQL::SyntaxParser' do
       it 'must parse expression with integer' do
         tree = parse 'column = 1'
 
-        right_hand_operand = tree.proposition.right
+        right_hand_operand = tree.proposition.argument
         right_hand_operand.must_be_instance_of Rasti::DB::NQL::Nodes::Constants::Integer
         right_hand_operand.value.must_equal 1
       end
@@ -61,7 +61,7 @@ describe 'NQL::SyntaxParser' do
       it 'must parse expression with float' do
         tree = parse 'column = 2.3'
 
-        right_hand_operand = tree.proposition.right
+        right_hand_operand = tree.proposition.argument
         right_hand_operand.must_be_instance_of Rasti::DB::NQL::Nodes::Constants::Float
         right_hand_operand.value.must_equal 2.3
       end
@@ -69,7 +69,7 @@ describe 'NQL::SyntaxParser' do
       it 'must parse expression with true' do
         tree = parse 'column = true'
 
-        right_hand_operand = tree.proposition.right
+        right_hand_operand = tree.proposition.argument
         right_hand_operand.must_be_instance_of Rasti::DB::NQL::Nodes::Constants::True
         right_hand_operand.value.must_equal true
       end
@@ -77,7 +77,7 @@ describe 'NQL::SyntaxParser' do
       it 'must parse expression with false' do
         tree = parse 'column = false'
 
-        right_hand_operand = tree.proposition.right
+        right_hand_operand = tree.proposition.argument
         right_hand_operand.must_be_instance_of Rasti::DB::NQL::Nodes::Constants::False
         right_hand_operand.value.must_equal false
       end
@@ -85,7 +85,7 @@ describe 'NQL::SyntaxParser' do
       it 'must parse expression with string' do
         tree = parse 'column = String1 '
 
-        right_hand_operand = tree.proposition.right
+        right_hand_operand = tree.proposition.argument
         right_hand_operand.must_be_instance_of Rasti::DB::NQL::Nodes::Constants::String
         right_hand_operand.value.must_equal 'String1'
       end
@@ -93,7 +93,7 @@ describe 'NQL::SyntaxParser' do
       it 'must parse expression with literal string' do
         tree = parse 'column = "a & (b | c) | d:=e"'
 
-        right_hand_operand = tree.proposition.right
+        right_hand_operand = tree.proposition.argument
         right_hand_operand.must_be_instance_of Rasti::DB::NQL::Nodes::Constants::LiteralString
         right_hand_operand.value.must_equal 'a & (b | c) | d:=e'
       end
@@ -103,7 +103,7 @@ describe 'NQL::SyntaxParser' do
         it 'must parse expression with hours and minutes' do
           tree = parse 'column > 12:20'
 
-          right_hand_operand = tree.proposition.right
+          right_hand_operand = tree.proposition.argument
           right_hand_operand.must_be_instance_of Rasti::DB::NQL::Nodes::Constants::Time
           right_hand_operand.value.must_equal Timing::TimeInZone.parse('12:20').to_s
         end
@@ -111,7 +111,7 @@ describe 'NQL::SyntaxParser' do
         it 'must parse expression with date, hours, minutes and seconds' do
           tree = parse 'column > 2019-03-27T12:20:00'
 
-          right_hand_operand = tree.proposition.right
+          right_hand_operand = tree.proposition.argument
           right_hand_operand.must_be_instance_of Rasti::DB::NQL::Nodes::Constants::Time
           right_hand_operand.value.must_equal Timing::TimeInZone.parse('2019-03-27T12:20:00').to_s
         end
@@ -119,7 +119,7 @@ describe 'NQL::SyntaxParser' do
         it 'must parse expression with date, hours, minutes, seconds and timezone' do
           tree = parse 'column > 2019-03-27T12:20:00-03:00'
 
-          right_hand_operand = tree.proposition.right
+          right_hand_operand = tree.proposition.argument
           right_hand_operand.must_be_instance_of Rasti::DB::NQL::Nodes::Constants::Time
           right_hand_operand.value.must_equal Timing::TimeInZone.parse('2019-03-27T12:20:00-03:00').to_s
         end
@@ -131,7 +131,7 @@ describe 'NQL::SyntaxParser' do
     it 'must parse expression with field with tables' do
       tree = parse 'relation_table_one.relation_table_two.column = 1'
 
-      left_hand_operand = tree.proposition.left
+      left_hand_operand = tree.proposition.field
       left_hand_operand.tables.must_equal ['relation_table_one', 'relation_table_two']
       left_hand_operand.column.must_equal 'column'
     end

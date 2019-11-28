@@ -47,39 +47,39 @@ module Rasti
         end
 
         rule comparison_include
-          left:field space* comparator:':' space* right:basic <Nodes::Comparisons::Include>
+          field:field space* comparator:':' space* argument:basic <Nodes::Comparisons::Include>
         end
 
         rule comparison_not_include
-          left:field space* comparator:'!:' space* right:basic <Nodes::Comparisons::NotInclude>
+          field:field space* comparator:'!:' space* argument:basic <Nodes::Comparisons::NotInclude>
         end
 
         rule comparison_like
-          left:field space* comparator:'~' space* right:basic <Nodes::Comparisons::Like>
+          field:field space* comparator:'~' space* argument:basic <Nodes::Comparisons::Like>
         end
 
         rule comparison_greater_than
-          left:field space* comparator:'>' space* right:basic <Nodes::Comparisons::GreaterThan>
+          field:field space* comparator:'>' space* argument:basic <Nodes::Comparisons::GreaterThan>
         end
 
         rule comparison_greater_than_or_equal
-          left:field space* comparator:'>=' space* right:basic <Nodes::Comparisons::GreaterThanOrEqual>
+          field:field space* comparator:'>=' space* argument:basic <Nodes::Comparisons::GreaterThanOrEqual>
         end
 
         rule comparison_less_than
-          left:field space* comparator:'<' space* right:basic <Nodes::Comparisons::LessThan>
+          field:field space* comparator:'<' space* argument:basic <Nodes::Comparisons::LessThan>
         end
 
         rule comparison_less_than_or_equal
-          left:field space* comparator:'<=' space* right:basic <Nodes::Comparisons::LessThanOrEqual>
+          field:field space* comparator:'<=' space* argument:basic <Nodes::Comparisons::LessThanOrEqual>
         end
 
         rule comparison_not_equal
-          left:field space* comparator:'!=' space* right:basic <Nodes::Comparisons::NotEqual>
+          field:field space* comparator:'!=' space* argument:basic <Nodes::Comparisons::NotEqual>
         end
 
         rule comparison_equal
-          left:field space* comparator:'=' space* right:basic <Nodes::Comparisons::Equal>
+          field:field space* comparator:'=' space* argument:basic <Nodes::Comparisons::Equal>
         end
 
         rule basic

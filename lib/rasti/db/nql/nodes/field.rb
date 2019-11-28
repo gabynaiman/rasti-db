@@ -4,7 +4,7 @@ module Rasti
       module Nodes
         class Field < Treetop::Runtime::SyntaxNode
 
-          def to_filter
+          def identifier
             tables.empty? ? Sequel[column.to_sym] : Sequel[tables.join('__').to_sym][column.to_sym]
           end
 

@@ -6,7 +6,7 @@ module Rasti
           class GreaterThan < Base
 
             def to_filter
-              left.to_filter > right.value
+              field.identifier > argument.value
             end
 
           end
