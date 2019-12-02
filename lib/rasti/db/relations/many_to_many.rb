@@ -46,7 +46,7 @@ module Rasti
         end
 
         def join_to(dataset, schema=nil, prefix=nil)
-          many_to_many_relation_alias = with_prefix prefix, relation_collection_name
+          many_to_many_relation_alias = with_prefix prefix, "#{relation_collection_name}_#{SecureRandom.base64}"
 
           qualified_relation_source = prefix ? Sequel[prefix] : qualified_source_collection_name(schema)
 
