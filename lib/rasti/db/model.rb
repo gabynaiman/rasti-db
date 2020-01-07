@@ -62,6 +62,10 @@ module Rasti
         @attributes = attributes
       end
 
+      def merge(new_attributes)
+        self.class.new attributes.merge(new_attributes)
+      end
+
       def eql?(other)
         instance_of?(other.class) && to_h.eql?(other.to_h)
       end

@@ -79,4 +79,10 @@ describe 'Model' do
     refute_equal User.new(id: 1, name: 'User 1').hash, User.new(id: 2, name: 'User 2').hash
   end
 
+  it 'Merge' do
+    user = User.new(id: 1, name: 'User 1')
+    changed_user = user.merge(name: 'User 2')
+    changed_user.must_equal User.new(id: 1, name: 'User 2')
+  end
+
 end
