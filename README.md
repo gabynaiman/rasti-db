@@ -4,7 +4,6 @@
 [![Build Status](https://travis-ci.org/gabynaiman/rasti-db.svg?branch=master)](https://travis-ci.org/gabynaiman/rasti-db)
 [![Coverage Status](https://coveralls.io/repos/github/gabynaiman/rasti-db/badge.svg?branch=master)](https://coveralls.io/github/gabynaiman/rasti-db?branch=master)
 [![Code Climate](https://codeclimate.com/github/gabynaiman/rasti-db.svg)](https://codeclimate.com/github/gabynaiman/rasti-db)
-[![Dependency Status](https://gemnasium.com/gabynaiman/rasti-db.svg)](https://gemnasium.com/gabynaiman/rasti-db)
 
 Database collections and relations
 
@@ -108,7 +107,7 @@ class Posts < Rasti::DB::Collection
     chainable do
       dataset.join(with_schema(:comments), post_id: :id)
              .where(with_schema(:comments, :user_id) => user_id)
-             .select_all(with_schema(:posts))
+             .select_all(:posts)
              .distinct
     end
   end
@@ -176,6 +175,25 @@ posts.where(id: [1,2]).select_attributes(:id, :title) # => [Post, ...]
 posts.where(id: [1,2]).exclude_attributes(:id, :title) # => [Post, ...]
 posts.where(id: [1,2]).all_attributes # => [Post, ...]
 posts.join(:user).where(name: 'User 4') # => [Post, ...]
+```
+### Natural Query Language
+
+```ruby
+posts.nql('id = 1') # => Equal
+posts.nql('id != 1') # => Not equal
+posts.nql('title: My post') # => Include
+posts.nql('title !: My post') # => Not include
+posts.nql('title ~ My post') # => Insensitive like
+posts.nql('id > 1') # => Greater
+posts.nql('id >= 1') # => Greater or equal
+posts.nql('id < 10') # => Less
+posts.nql('id <= 10') # => Less or equal
+
+posts.nql('id = 1 | id = 2') # => Or
+posts.nql('id > 1 & title: "My post"') # => And
+posts.nql('(id > 3 & id < 10) | title: "My post"') # => Precedence
+
+posts.nql('comments.user.person.document_number = 7') # => Nested
 ```
 
 ## Development
