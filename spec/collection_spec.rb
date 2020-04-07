@@ -6,7 +6,7 @@ describe 'Collection' do
 
     it 'Implicit' do
       Users.collection_name.must_equal :users
-      Users.collection_fields.must_equal [:id, :name]
+      Users.collection_attributes.must_equal [:id, :name]
       Users.model.must_equal User
       Users.primary_key.must_equal :id
       Users.foreign_key.must_equal :user_id
@@ -14,7 +14,7 @@ describe 'Collection' do
 
     it 'Explicit' do
       People.collection_name.must_equal :people
-      People.collection_fields.must_equal [:document_number, :first_name, :last_name, :birth_date, :user_id]
+      People.collection_attributes.must_equal [:document_number, :first_name, :last_name, :birth_date, :user_id]
       People.model.must_equal Person
       People.primary_key.must_equal :document_number
       People.foreign_key.must_equal :document_number

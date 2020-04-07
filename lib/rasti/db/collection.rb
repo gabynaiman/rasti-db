@@ -16,8 +16,8 @@ module Rasti
           @collection_name ||= underscore(demodulize(name)).to_sym
         end
 
-        def collection_fields
-          @collection_fields ||= model.attributes - relations.keys
+        def collection_attributes
+          @collection_attributes ||= model.attributes - relations.keys
         end
 
         def primary_key
