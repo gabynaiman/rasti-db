@@ -200,7 +200,7 @@ module Rasti
       end
       
       def query
-        Query.new self.class, dataset, [], schema
+        Query.new self.class, dataset.select_all(qualified_collection_name), [], schema
       end
 
       def build_query(filter=nil, &block)
