@@ -41,7 +41,7 @@ class Posts < Rasti::DB::Collection
     chainable do
       dataset.join(with_schema(:comments), post_id: :id)
              .where(with_schema(:comments, :user_id) => user_id)
-             .select_all(with_schema(:posts))
+             .select_all(:posts)
              .distinct
     end
   end
@@ -54,7 +54,7 @@ class Comments < Rasti::DB::Collection
   def posts_commented_by(user_id)
     dataset.where(Sequel[:comments][:user_id] => user_id)
            .join(with_schema(:posts), id: :post_id)
-           .select_all(with_schema(:posts))
+           .select_all(:posts)
            .map { |row| Post.new row }
   end
 end

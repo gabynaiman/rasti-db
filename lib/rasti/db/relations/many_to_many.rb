@@ -29,7 +29,7 @@ module Rasti
           join_rows = target_collection.dataset
                                        .join(relation_name, target_foreign_key => target_collection_class.primary_key)
                                        .where(Sequel[relation_name][source_foreign_key] => pks)
-                                       .select_all(qualified_target_collection_name(schema))
+                                       .select_all(target_collection_class.collection_name)
                                        .select_append(Sequel[relation_name][source_foreign_key].as(:source_foreign_key))
                                        .all
 
@@ -69,7 +69,7 @@ module Rasti
 
           dataset.join(relation_name, source_foreign_key => target_collection_class.primary_key)
                  .where(Sequel[relation_name][target_foreign_key] => primary_keys)
-                 .select_all(qualified_source_collection_name(schema))
+                 .select_all(source_collection_class.collection_name)
                  .distinct
         end
 

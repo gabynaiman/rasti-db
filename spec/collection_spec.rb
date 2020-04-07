@@ -448,21 +448,21 @@ describe 'Collection' do
       stubs = Proc.new do |sql|
         case sql
 
-        when 'SELECT custom_schema.users.* FROM custom_schema.users', 
-             'SELECT custom_schema.users.* FROM custom_schema.users WHERE (id IN (2, 1))'
+        when 'SELECT users.* FROM custom_schema.users', 
+             'SELECT users.* FROM custom_schema.users WHERE (id IN (2, 1))'
           [
             {id: 1},
             {id: 2}
           ]
 
-        when 'SELECT custom_schema.posts.* FROM custom_schema.posts',
-             'SELECT custom_schema.posts.* FROM custom_schema.posts WHERE (user_id IN (1, 2))'
+        when 'SELECT posts.* FROM custom_schema.posts',
+             'SELECT posts.* FROM custom_schema.posts WHERE (user_id IN (1, 2))'
           [
             {id: 3, user_id: 1},
             {id: 4, user_id: 2}
           ]
 
-        when 'SELECT custom_schema.comments.* FROM custom_schema.comments WHERE (post_id IN (3, 4))'
+        when 'SELECT comments.* FROM custom_schema.comments WHERE (post_id IN (3, 4))'
           [
             {id: 5, user_id: 2, post_id: 3},
             {id: 6, user_id: 1, post_id: 3},
@@ -524,33 +524,33 @@ describe 'Collection' do
 
     it 'Chained query' do
       stub_users.where(id: [1,2]).limit(1).order(:name).all
-      stub_db.sqls.must_equal ['SELECT custom_schema.users.* FROM custom_schema.users WHERE (id IN (1, 2)) ORDER BY name LIMIT 1']
+      stub_db.sqls.must_equal ['SELECT users.* FROM custom_schema.users WHERE (id IN (1, 2)) ORDER BY name LIMIT 1']
     end
 
     it 'Graph' do
       stub_posts.graph(:user, :categories, 'comments.user.posts.categories').all
       stub_db.sqls.must_equal [
-        'SELECT custom_schema.posts.* FROM custom_schema.posts',
-        'SELECT custom_schema.users.* FROM custom_schema.users WHERE (id IN (1, 2))',
-        'SELECT custom_schema.categories.*, custom_schema.categories_posts.post_id AS source_foreign_key FROM custom_schema.categories INNER JOIN custom_schema.categories_posts ON (custom_schema.categories_posts.category_id = custom_schema.categories.id) WHERE (custom_schema.categories_posts.post_id IN (3, 4))', 
-        'SELECT custom_schema.comments.* FROM custom_schema.comments WHERE (post_id IN (3, 4))',
-        'SELECT custom_schema.users.* FROM custom_schema.users WHERE (id IN (2, 1))',
-        'SELECT custom_schema.posts.* FROM custom_schema.posts WHERE (user_id IN (1, 2))',
-        'SELECT custom_schema.categories.*, custom_schema.categories_posts.post_id AS source_foreign_key FROM custom_schema.categories INNER JOIN custom_schema.categories_posts ON (custom_schema.categories_posts.category_id = custom_schema.categories.id) WHERE (custom_schema.categories_posts.post_id IN (3, 4))'
+        'SELECT posts.* FROM custom_schema.posts',
+        'SELECT users.* FROM custom_schema.users WHERE (id IN (1, 2))',
+        'SELECT categories.*, custom_schema.categories_posts.post_id AS source_foreign_key FROM custom_schema.categories INNER JOIN custom_schema.categories_posts ON (custom_schema.categories_posts.category_id = custom_schema.categories.id) WHERE (custom_schema.categories_posts.post_id IN (3, 4))', 
+        'SELECT comments.* FROM custom_schema.comments WHERE (post_id IN (3, 4))',
+        'SELECT users.* FROM custom_schema.users WHERE (id IN (2, 1))',
+        'SELECT posts.* FROM custom_schema.posts WHERE (user_id IN (1, 2))',
+        'SELECT categories.*, custom_schema.categories_posts.post_id AS source_foreign_key FROM custom_schema.categories INNER JOIN custom_schema.categories_posts ON (custom_schema.categories_posts.category_id = custom_schema.categories.id) WHERE (custom_schema.categories_posts.post_id IN (3, 4))'
       ]
     end
 
     it 'Named query' do
       stub_posts.commented_by(1).all
       stub_db.sqls.must_equal [
-        'SELECT DISTINCT custom_schema.posts.* FROM custom_schema.posts INNER JOIN custom_schema.comments ON (custom_schema.comments.post_id = custom_schema.posts.id) WHERE (custom_schema.comments.user_id = 1)'
+        'SELECT DISTINCT posts.* FROM custom_schema.posts INNER JOIN custom_schema.comments ON (custom_schema.comments.post_id = custom_schema.posts.id) WHERE (custom_schema.comments.user_id = 1)'
       ]
     end
 
     it 'Custom query' do
       stub_comments.posts_commented_by(2)
       stub_db.sqls.must_equal [
-        'SELECT custom_schema.posts.* FROM custom_schema.comments INNER JOIN custom_schema.posts ON (custom_schema.posts.id = custom_schema.comments.post_id) WHERE (comments.user_id = 2)'
+        'SELECT posts.* FROM custom_schema.comments INNER JOIN custom_schema.posts ON (custom_schema.posts.id = custom_schema.comments.post_id) WHERE (comments.user_id = 2)'
       ]
     end
 

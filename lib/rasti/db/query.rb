@@ -19,7 +19,7 @@ module Rasti
       end
 
       def pluck(*attributes)
-        ds = dataset.select(*attributes.map { |a| qualified_collection_name[a] })
+        ds = dataset.select(*attributes.map { |a| Sequel[collection_class.collection_name][a] })
         attributes.count == 1 ? ds.map { |r| r[attributes.first] } : ds.map(&:values)
       end
 
@@ -29,7 +29,7 @@ module Rasti
 
       def select_attributes(*attributes)
         Query.new collection_class, 
-                  dataset.select(*attributes.map { |a| qualified_collection_name[a] }), 
+                  dataset.select(*attributes.map { |a| Sequel[collection_class.collection_name][a] }), 
                   relations, 
                   schema
       end
@@ -41,7 +41,7 @@ module Rasti
 
       def all_attributes
         Query.new collection_class, 
-                  dataset.select_all(qualified_collection_name), 
+                  dataset.select_all(collection_class.collection_name), 
                   relations, 
                   schema
       end
@@ -138,10 +138,6 @@ module Rasti
         rows = data.is_a?(Array) ? data : [data]
         Relations::GraphBuilder.graph_to rows, relations, collection_class, dataset.db, schema
         data
-      end
-
-      def qualified_collection_name
-        schema.nil? ? Sequel[collection_class.collection_name] : Sequel[schema][collection_class.collection_name]
       end
 
       def nql_parser
