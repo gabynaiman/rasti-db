@@ -19,12 +19,31 @@ module Rasti
       end
 
       def pluck(*attributes)
-        ds = dataset.select(*attributes.map { |attr| Sequel[collection_class.collection_name][attr] })
+        ds = dataset.select(*attributes.map { |a| qualified_collection_name[a] })
         attributes.count == 1 ? ds.map { |r| r[attributes.first] } : ds.map(&:values)
       end
 
       def primary_keys
         pluck collection_class.primary_key
+      end
+
+      def select_attributes(*attributes)
+        Query.new collection_class, 
+                  dataset.select(*attributes.map { |a| qualified_collection_name[a] }), 
+                  relations, 
+                  schema
+      end
+
+      def exclude_attributes(*excluded_attributes)
+        attributes = collection_class.collection_attributes - excluded_attributes
+        select_attributes(*attributes)
+      end
+
+      def all_attributes
+        Query.new collection_class, 
+                  dataset.select_all(qualified_collection_name), 
+                  relations, 
+                  schema
       end
 
       def all
@@ -121,6 +140,14 @@ module Rasti
         data
       end
 
+      def qualified_collection_name
+        schema.nil? ? Sequel[collection_class.collection_name] : Sequel[schema][collection_class.collection_name]
+      end
+
+      def nql_parser
+        NQL::SyntaxParser.new
+      end
+
       def method_missing(method, *args, &block)
         if collection_class.queries.key?(method)
           instance_exec(*args, &collection_class.queries[method])
@@ -131,10 +158,6 @@ module Rasti
 
       def respond_to_missing?(method, include_private=false)
         collection_class.queries.key?(method) || super
-      end
-
-      def nql_parser
-        NQL::SyntaxParser.new
       end
 
       attr_reader :collection_class, :dataset, :relations, :schema

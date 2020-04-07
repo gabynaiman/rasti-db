@@ -244,6 +244,24 @@ describe 'Collection' do
       users.find_graph(user_id, :posts).must_equal User.new id: user_id, name: 'User 1', posts: posts.all
     end
 
+    it 'Select attributes' do
+      id = db[:users].insert name: 'User 1'
+
+      users.select_attributes(:id).all.must_equal [User.new(id: id)]
+    end
+
+    it 'Exclude attributes' do
+      db[:users].insert name: 'User 1'
+
+      users.exclude_attributes(:id).all.must_equal [User.new(name: 'User 1')]
+    end
+
+    it 'All attributes' do
+      id = db[:users].insert name: 'User 1'
+
+      users.select_attributes(:id).all_attributes.all.must_equal [User.new(id: id, name: 'User 1')]
+    end
+
     it 'Count' do
       1.upto(10) { |i| db[:users].insert name: "User #{i}" }
 

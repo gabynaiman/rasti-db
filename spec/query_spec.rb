@@ -37,6 +37,18 @@ describe 'Query' do
     users_query.primary_keys.must_equal db[:users].map { |u| u[:id] }
   end
 
+  it 'Select attributes' do
+    posts_query.select_attributes(:id, :user_id).all.must_equal db[:posts].select(:id, :user_id).map { |r| Post.new r }
+  end
+
+  it 'Exclude attributes' do
+    posts_query.exclude_attributes(:body).all.must_equal db[:posts].select(:id, :user_id, :title).map { |r| Post.new r }
+  end
+
+  it 'All (raw)' do
+    posts_query.exclude_attributes(:body).all_attributes.all.must_equal db[:posts].map { |r| Post.new r }
+  end
+
   it 'Map' do
     users_query.map(&:name).must_equal db[:users].map(:name)
   end
