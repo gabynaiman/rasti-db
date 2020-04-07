@@ -207,12 +207,10 @@ describe 'Query' do
     end
     
     it 'Filter to self table' do
-      people_query = Rasti::DB::Query.new People, db[:people]
-
-      people_query.nql('user_id > 7')
+      posts_query.nql('user_id > 1')
                   .map(&:user_id)
                   .sort
-                  .must_equal [8, 9, 10]
+                  .must_equal [2, 4]
     end
 
     it 'Filter to join table' do
