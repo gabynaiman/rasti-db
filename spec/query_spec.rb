@@ -220,22 +220,28 @@ describe 'Query' do
     
     it 'Filter to self table' do
       posts_query.nql('user_id > 1')
-                  .map(&:user_id)
-                  .sort
-                  .must_equal [2, 4]
+                 .pluck(:user_id)
+                 .sort
+                 .must_equal [2, 4]
     end
 
     it 'Filter to join table' do
       posts_query.nql('categories.name = Category 2')
-                 .map(&:id)
+                 .pluck(:id)
                  .sort
                  .must_equal [1, 2]
     end
 
     it 'Filter to 2nd order relation' do
       posts_query.nql('comments.user.person.document_number = 7')
-                 .map(&:id)
+                 .pluck(:id)
                  .must_equal [1]
+    end
+
+    it 'Filter combined' do
+      posts_query.nql('(categories.id = 1 | categories.id = 3) & comments.user.person.document_number = 2')
+                 .pluck(:id)
+                 .must_equal [2]
     end
 
   end
