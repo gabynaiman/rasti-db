@@ -3,11 +3,31 @@ require 'minitest_helper'
 describe 'Query' do
 
   before do
-    1.upto(10) { |i| db[:users].insert name: "User #{i}" }
+    1.upto(10) do |i| 
+      db[:users].insert name: "User #{i}"
+
+      db[:people].insert user_id: i, 
+                         document_number: i, 
+                         first_name: "Name #{i}", 
+                         last_name: "Last Name #{i}", 
+                         birth_date: Time.now
+    end
 
     db[:posts].insert user_id: 2, title: 'Sample post', body: '...'
     db[:posts].insert user_id: 1, title: 'Another post', body: '...'
     db[:posts].insert user_id: 4, title: 'Best post', body: '...'
+
+    1.upto(3) { |i| db[:categories].insert name: "Category #{i}" }
+    
+    db[:comments].insert post_id: 1, user_id: 5, text: 'Comment 1'
+    db[:comments].insert post_id: 1, user_id: 7, text: 'Comment 2'
+    db[:comments].insert post_id: 2, user_id: 2, text: 'Comment 3'
+
+    db[:categories_posts].insert post_id: 1, category_id: 1
+    db[:categories_posts].insert post_id: 1, category_id: 2
+    db[:categories_posts].insert post_id: 2, category_id: 2
+    db[:categories_posts].insert post_id: 2, category_id: 3
+    db[:categories_posts].insert post_id: 3, category_id: 3
   end
 
   let(:users_query) { Rasti::DB::Query.new Users, db[:users] }
@@ -108,12 +128,14 @@ describe 'Query' do
     users_query.graph(:posts).where(id: 1).first.must_equal User.new(id: 1, name: 'User 1', posts: [Post.new(id: 2, user_id: 1, title: 'Another post', body: '...')])
   end
 
-  it 'Empty?' do
+  it 'Any?' do
     users_query.empty?.must_equal false
     users_query.any?.must_equal true
   end
 
-  it 'Any?' do
+  it 'Empty?' do
+    db[:comments].truncate
+
     comments_query.empty?.must_equal true
     comments_query.any?.must_equal false
   end
@@ -137,28 +159,6 @@ describe 'Query' do
   end
 
   describe 'Join' do
-
-    before do
-      1.upto(10) do |i| 
-        db[:people].insert user_id: i, 
-                           document_number: i, 
-                           first_name: "Name #{i}", 
-                           last_name: "Last Name #{i}", 
-                           birth_date: Time.now
-      end
-
-      1.upto(3) { |i| db[:categories].insert name: "Category #{i}" }
-      
-      db[:comments].insert post_id: 1, user_id: 5, text: 'Comment 1'
-      db[:comments].insert post_id: 1, user_id: 7, text: 'Comment 2'
-      db[:comments].insert post_id: 2, user_id: 2, text: 'Comment 3'
-
-      db[:categories_posts].insert post_id: 1, category_id: 1
-      db[:categories_posts].insert post_id: 1, category_id: 2
-      db[:categories_posts].insert post_id: 2, category_id: 2
-      db[:categories_posts].insert post_id: 2, category_id: 3
-      db[:categories_posts].insert post_id: 3, category_id: 3
-    end
 
     it 'One to Many' do
       users_query.join(:posts).where(title: 'Sample post').all.must_equal [User.new(id: 2, name: 'User 2')]
@@ -190,28 +190,6 @@ describe 'Query' do
   end
 
   describe 'NQL' do
-
-    before do
-      1.upto(10) do |i| 
-        db[:people].insert user_id: i, 
-                           document_number: i, 
-                           first_name: "Name #{i}", 
-                           last_name: "Last Name #{i}", 
-                           birth_date: Time.now
-      end
-
-      1.upto(3) { |i| db[:categories].insert name: "Category #{i}" }
-      
-      db[:comments].insert post_id: 1, user_id: 5, text: 'Comment 1'
-      db[:comments].insert post_id: 1, user_id: 7, text: 'Comment 2'
-      db[:comments].insert post_id: 2, user_id: 2, text: 'Comment 3'
-
-      db[:categories_posts].insert post_id: 1, category_id: 1
-      db[:categories_posts].insert post_id: 1, category_id: 2
-      db[:categories_posts].insert post_id: 2, category_id: 2
-      db[:categories_posts].insert post_id: 2, category_id: 3
-      db[:categories_posts].insert post_id: 3, category_id: 3
-    end
 
     it 'Invalid expression' do
       error = proc { posts_query.nql('a + b') }.must_raise Rasti::DB::NQL::InvalidExpressionError
