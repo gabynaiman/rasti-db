@@ -7,7 +7,7 @@ module Rasti
       include Enumerable
       include Helpers::WithSchema
 
-      def initialize(collection_class, dataset, relations=[], schema=nil)
+      def initialize(collection_class:, dataset:, relations:[], schema:nil)
         @collection_class = collection_class
         @dataset = dataset
         @relations = relations
@@ -28,10 +28,10 @@ module Rasti
       end
 
       def select_attributes(*attributes)
-        Query.new collection_class, 
-                  dataset.select(*attributes.map { |a| Sequel[collection_class.collection_name][a] }), 
-                  relations, 
-                  schema
+        Query.new collection_class: collection_class, 
+                  dataset: dataset.select(*attributes.map { |a| Sequel[collection_class.collection_name][a] }), 
+                  relations: relations, 
+                  schema: schema
       end
 
       def exclude_attributes(*excluded_attributes)
@@ -40,10 +40,10 @@ module Rasti
       end
 
       def all_attributes
-        Query.new collection_class, 
-                  dataset.select_all(collection_class.collection_name), 
-                  relations, 
-                  schema
+        Query.new collection_class: collection_class, 
+                  dataset: dataset.select_all(collection_class.collection_name), 
+                  relations: relations, 
+                  schema: schema
       end
 
       def all
@@ -59,25 +59,25 @@ module Rasti
 
       DATASET_CHAINED_METHODS.each do |method|
         define_method method do |*args, &block|
-          Query.new collection_class, 
-                    dataset.public_send(method, *args, &block), 
-                    relations, 
-                    schema
+          Query.new collection_class: collection_class, 
+                    dataset: dataset.public_send(method, *args, &block), 
+                    relations: relations, 
+                    schema: schema
         end
       end
 
       def graph(*rels)
-        Query.new collection_class, 
-                  dataset, 
-                  (relations | rels), 
-                  schema
+        Query.new collection_class: collection_class, 
+                  dataset: dataset, 
+                  relations: (relations | rels), 
+                  schema: schema
       end
 
       def join(*rels)
-        Query.new collection_class, 
-                  Relations::GraphBuilder.joins_to(dataset, rels, collection_class, schema), 
-                  relations, 
-                  schema
+        Query.new collection_class: collection_class, 
+                  dataset: Relations::GraphBuilder.joins_to(dataset, rels, collection_class, schema), 
+                  relations: relations, 
+                  schema: schema
       end
 
       def count
@@ -126,12 +126,20 @@ module Rasti
 
       def chainable(&block)
         ds = instance_eval(&block)
-        Query.new collection_class, ds, relations, schema
+
+        Query.new collection_class: collection_class, 
+                  dataset: ds, 
+                  relations: relations, 
+                  schema: schema
       end
 
       def with_related(relation_name, primary_keys)
         ds = collection_class.relations[relation_name].apply_filter dataset, schema, primary_keys
-        Query.new collection_class, ds, relations, schema
+
+        Query.new collection_class: collection_class, 
+                  dataset: ds, 
+                  relations: relations, 
+                  schema: schema
       end
 
       def with_graph(data)

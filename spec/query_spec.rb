@@ -30,11 +30,11 @@ describe 'Query' do
     db[:categories_posts].insert post_id: 3, category_id: 3
   end
 
-  let(:users_query) { Rasti::DB::Query.new Users, db[:users] }
-
-  let(:posts_query) { Rasti::DB::Query.new Posts, db[:posts] }
+  let(:users_query) { Rasti::DB::Query.new collection_class: Users, dataset: db[:users] }
   
-  let(:comments_query) { Rasti::DB::Query.new Comments, db[:comments] }
+  let(:posts_query) { Rasti::DB::Query.new collection_class: Posts, dataset: db[:posts] }
+  
+  let(:comments_query) { Rasti::DB::Query.new collection_class: Comments, dataset: db[:comments] }
 
   it 'Count' do
     users_query.count.must_equal 10

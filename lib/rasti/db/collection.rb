@@ -80,7 +80,7 @@ module Rasti
           queries[name] = lambda || block
           
           define_method name do |*args|
-            query.instance_exec(*args, &self.class.queries[name])
+            default_query.instance_exec(*args, &self.class.queries[name])
           end
         end
 
@@ -174,7 +174,7 @@ module Rasti
 
       QUERY_METHODS.each do |method|
         define_method method do |*args, &block|
-          query.public_send method, *args, &block
+          default_query.public_send method, *args, &block
         end
       end
 
@@ -199,16 +199,19 @@ module Rasti
         schema.nil? ? Sequel[self.class.collection_name] : Sequel[schema][self.class.collection_name]
       end
       
-      def query
-        Query.new self.class, dataset.select_all(self.class.collection_name), [], schema
+      def default_query
+        Query.new collection_class: self.class, 
+                  dataset: dataset.select_all(self.class.collection_name), 
+                  schema: schema
       end
 
       def build_query(filter=nil, &block)
         raise ArgumentError, 'must specify filter hash or block' if filter.nil? && block.nil?
+        
         if filter
-          query.where filter
+          default_query.where filter
         else
-          block.arity == 0 ? query.instance_eval(&block) : block.call(query)
+          block.arity == 0 ? default_query.instance_eval(&block) : block.call(default_query)
         end
       end
 
