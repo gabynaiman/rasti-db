@@ -45,7 +45,7 @@ describe 'Query' do
     posts_query.exclude_attributes(:body).all.must_equal db[:posts].select(:id, :user_id, :title).map { |r| Post.new r }
   end
 
-  it 'All (raw)' do
+  it 'All attributes' do
     posts_query.exclude_attributes(:body).all_attributes.all.must_equal db[:posts].map { |r| Post.new r }
   end
 
