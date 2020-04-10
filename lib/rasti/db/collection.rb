@@ -2,9 +2,8 @@ module Rasti
   module DB
     class Collection
 
-      QUERY_METHODS = (Query::DATASET_CHAINED_METHODS + [:graph, :join, :count, :all, :each, :first, :pluck, :select_attributes, :exclude_attributes, :all_attributes, :primary_keys, :any?, :empty?, :raw, :nql]).freeze
+      QUERY_METHODS = Query.public_instance_methods - Object.public_instance_methods
 
-      include Enumerable
       include Helpers::WithSchema
 
       class << self
@@ -93,6 +92,12 @@ module Rasti
         @schema = schema ? schema.to_sym : nil
       end
 
+      QUERY_METHODS.each do |method|
+        define_method method do |*args, &block|
+          default_query.public_send method, *args, &block
+        end
+      end
+
       def dataset
         db[qualified_collection_name]
       end
@@ -170,12 +175,6 @@ module Rasti
 
       def find_graph(primary_key, *relations)
         where(self.class.primary_key => primary_key).graph(*relations).first
-      end
-
-      QUERY_METHODS.each do |method|
-        define_method method do |*args, &block|
-          default_query.public_send method, *args, &block
-        end
       end
 
       def exists?(filter=nil, &block)
