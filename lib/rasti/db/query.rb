@@ -28,10 +28,7 @@ module Rasti
       end
 
       def select_attributes(*attributes)
-        Query.new collection_class: collection_class, 
-                  dataset: dataset.select(*attributes.map { |a| Sequel[collection_class.collection_name][a] }), 
-                  relations: relations, 
-                  schema: schema
+        build_query dataset: dataset.select(*attributes.map { |a| Sequel[collection_class.collection_name][a] })
       end
 
       def exclude_attributes(*excluded_attributes)
@@ -40,10 +37,7 @@ module Rasti
       end
 
       def all_attributes
-        Query.new collection_class: collection_class, 
-                  dataset: dataset.select_all(collection_class.collection_name), 
-                  relations: relations, 
-                  schema: schema
+        build_query dataset: dataset.select_all(collection_class.collection_name)
       end
 
       def all
@@ -59,25 +53,16 @@ module Rasti
 
       DATASET_CHAINED_METHODS.each do |method|
         define_method method do |*args, &block|
-          Query.new collection_class: collection_class, 
-                    dataset: dataset.public_send(method, *args, &block), 
-                    relations: relations, 
-                    schema: schema
+          build_query dataset: dataset.public_send(method, *args, &block)
         end
       end
 
       def graph(*rels)
-        Query.new collection_class: collection_class, 
-                  dataset: dataset, 
-                  relations: (relations | rels), 
-                  schema: schema
+        build_query relations: (relations | rels)
       end
 
       def join(*rels)
-        Query.new collection_class: collection_class, 
-                  dataset: Relations::GraphBuilder.joins_to(dataset, rels, collection_class, schema), 
-                  relations: relations, 
-                  schema: schema
+        build_query dataset: Relations::GraphBuilder.joins_to(dataset, rels, collection_class, schema)
       end
 
       def count
@@ -124,22 +109,26 @@ module Rasti
 
       private
 
-      def chainable(&block)
-        ds = instance_eval(&block)
+      attr_reader :collection_class, :dataset, :relations, :schema
 
-        Query.new collection_class: collection_class, 
-                  dataset: ds, 
-                  relations: relations, 
-                  schema: schema
+      def build_query(**args)
+        current_args = {
+          collection_class: collection_class,
+          dataset: dataset,
+          relations: relations,
+          schema: schema
+        }
+
+        Query.new(**current_args.merge(args))
+      end
+
+      def chainable(&block)
+        build_query dataset: instance_eval(&block)
       end
 
       def with_related(relation_name, primary_keys)
         ds = collection_class.relations[relation_name].apply_filter dataset, schema, primary_keys
-
-        Query.new collection_class: collection_class, 
-                  dataset: ds, 
-                  relations: relations, 
-                  schema: schema
+        build_query dataset: ds
       end
 
       def with_graph(data)
@@ -163,8 +152,6 @@ module Rasti
       def respond_to_missing?(method, include_private=false)
         collection_class.queries.key?(method) || super
       end
-
-      attr_reader :collection_class, :dataset, :relations, :schema
 
     end
   end
