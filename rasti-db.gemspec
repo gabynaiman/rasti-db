@@ -38,10 +38,4 @@ Gem::Specification.new do |spec|
   else
     spec.add_development_dependency 'sqlite3', '~> 1.3'
   end
-
-  if RUBY_VERSION < '2'
-    spec.add_development_dependency 'term-ansicolor', '~> 1.3.0'
-    spec.add_development_dependency 'tins', '~> 1.6.0'
-    spec.add_development_dependency 'json', '~> 1.8'
-  end
 end
