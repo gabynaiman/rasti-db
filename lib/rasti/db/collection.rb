@@ -79,7 +79,7 @@ module Rasti
           queries[name] = lambda || block
           
           define_method name do |*args|
-            default_query.instance_exec(*args, &self.class.queries[name])
+            default_query.instance_exec(*args, &self.class.queries.fetch(name))
           end
         end
 

@@ -37,7 +37,7 @@ describe 'Relations' do
       1.upto(2) { |i| db[:posts].insert user_id: user_id, title: "Post #{i}", body: '...' }
       rows = db[:users].all
       
-      Users.relations[:posts].graph_to rows, db
+      Users.relations[:posts].fetch_graph rows, db
       
       rows[0][:posts].must_equal posts.where(user_id: user_id).all
     end
@@ -79,7 +79,7 @@ describe 'Relations' do
       db[:posts].insert user_id: user_id, title: 'Post 1', body: '...'
       rows = db[:posts].all
 
-      Posts.relations[:user].graph_to rows, db
+      Posts.relations[:user].fetch_graph rows, db
 
       rows[0][:user].must_equal users.first
     end
@@ -136,7 +136,7 @@ describe 'Relations' do
 
       rows = db[:posts].all
 
-      Posts.relations[:categories].graph_to rows, db
+      Posts.relations[:categories].fetch_graph rows, db
 
       rows[0][:categories].must_equal categories.where(id: [1,2]).all
       rows[1][:categories].must_equal categories.where(id: [3,4]).all
@@ -186,7 +186,7 @@ describe 'Relations' do
 
       rows = db[:users].all
 
-      Users.relations[:person].graph_to rows, db
+      Users.relations[:person].fetch_graph rows, db
 
       2.times do |i|
         rows[i][:person].must_equal people.find("document_#{i}")

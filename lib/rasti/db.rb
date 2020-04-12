@@ -3,6 +3,7 @@ require 'consty'
 require 'time'
 require 'timing'
 require 'treetop'
+require 'hierarchical_graph'
 require 'class_config'
 require 'multi_require'
 

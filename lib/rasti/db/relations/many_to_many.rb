@@ -19,7 +19,7 @@ module Rasti
           schema.nil? ? Sequel[relation_collection_name] : Sequel[schema][relation_collection_name]
         end
 
-        def graph_to(rows, db, schema=nil, relations=[])
+        def fetch_graph(rows, db, schema=nil, query_graph=nil)
           pks = rows.map { |row| row[source_collection_class.primary_key] }
 
           target_collection = target_collection_class.new db, schema
@@ -33,7 +33,7 @@ module Rasti
                                        .select_append(Sequel[relation_name][source_foreign_key].as(:source_foreign_key))
                                        .all
 
-          GraphBuilder.graph_to join_rows, relations, target_collection_class, db, schema
+          query_graph.fetch_graph join_rows, target_collection_class if query_graph
 
           relation_rows = join_rows.each_with_object(Hash.new { |h,k| h[k] = [] }) do |row, hash| 
             attributes = row.select { |attr,_| target_collection_class.model.attributes.include? attr }
@@ -45,7 +45,7 @@ module Rasti
           end
         end
 
-        def join_to(dataset, schema=nil, prefix=nil)
+        def add_join(dataset, schema=nil, prefix=nil)
           many_to_many_relation_alias = with_prefix prefix, "#{relation_collection_name}_#{SecureRandom.base64}"
 
           qualified_relation_source = prefix ? Sequel[prefix] : qualified_source_collection_name(schema)

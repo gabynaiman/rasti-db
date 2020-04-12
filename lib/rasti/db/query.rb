@@ -7,11 +7,17 @@ module Rasti
       include Enumerable
       include Helpers::WithSchema
 
-      def initialize(collection_class:, dataset:, relations:[], schema:nil)
+      def initialize(collection_class:, dataset:, relations_graph:nil, schema:nil)
         @collection_class = collection_class
         @dataset = dataset
-        @relations = relations
+        @relations_graph = relations_graph || Relations::Graph.new(dataset.db, schema)
         @schema = schema
+      end
+
+      DATASET_CHAINED_METHODS.each do |method|
+        define_method method do |*args, &block|
+          build_query dataset: dataset.public_send(method, *args, &block)
+        end
       end
 
       def raw
@@ -51,18 +57,18 @@ module Rasti
         all.each(&block)
       end
 
-      DATASET_CHAINED_METHODS.each do |method|
-        define_method method do |*args, &block|
-          build_query dataset: dataset.public_send(method, *args, &block)
-        end
+      def graph(*relations)
+        build_query relations_graph: relations_graph.merge(relations)
       end
 
-      def graph(*rels)
-        build_query relations: (relations | rels)
-      end
-
-      def join(*rels)
-        build_query dataset: Relations::GraphBuilder.joins_to(dataset, rels, collection_class, schema)
+      def join(*relations)
+        graph = Relations::Graph.new dataset.db, schema, relations
+        
+        ds = graph.add_joins(dataset, collection_class)
+                  .distinct
+                  .select_all(collection_class.collection_name)
+        
+        build_query dataset: ds
       end
 
       def count
@@ -109,13 +115,13 @@ module Rasti
 
       private
 
-      attr_reader :collection_class, :dataset, :relations, :schema
+      attr_reader :collection_class, :dataset, :relations_graph, :schema
 
       def build_query(**args)
         current_args = {
           collection_class: collection_class,
           dataset: dataset,
-          relations: relations,
+          relations_graph: relations_graph,
           schema: schema
         }
 
@@ -133,7 +139,7 @@ module Rasti
 
       def with_graph(data)
         rows = data.is_a?(Array) ? data : [data]
-        Relations::GraphBuilder.graph_to rows, relations, collection_class, dataset.db, schema
+        relations_graph.fetch_graph rows, collection_class
         data
       end
 
@@ -142,8 +148,8 @@ module Rasti
       end
 
       def method_missing(method, *args, &block)
-        if collection_class.queries.key?(method)
-          instance_exec(*args, &collection_class.queries[method])
+        if collection_class.queries.key? method
+          instance_exec(*args, &collection_class.queries.fetch(method))
         else
           super
         end

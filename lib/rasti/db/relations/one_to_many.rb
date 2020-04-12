@@ -7,21 +7,22 @@ module Rasti
           @foreign_key ||= options[:foreign_key] || source_collection_class.foreign_key
         end
 
-        def graph_to(rows, db, schema=nil, relations=[])
+        def fetch_graph(rows, db, schema=nil, query_graph=nil)
           pks = rows.map { |row| row[source_collection_class.primary_key] }.uniq
 
           target_collection = target_collection_class.new db, schema
 
-          relation_rows = target_collection.where(foreign_key => pks)
-                                           .graph(*relations)
-                                           .group_by { |r| r.public_send(foreign_key) }
+          query = target_collection.where(foreign_key => pks)
+          query = query_graph.apply_to query if query_graph
+
+          relation_rows = query.group_by(&foreign_key)
 
           rows.each do |row| 
             row[name] = build_graph_result relation_rows.fetch(row[source_collection_class.primary_key], [])
           end
         end
 
-        def join_to(dataset, schema=nil, prefix=nil)
+        def add_join(dataset, schema=nil, prefix=nil)
           relation_alias = join_relation_name prefix
 
           qualified_relation_source = prefix ? Sequel[prefix] : qualified_source_collection_name(schema)
