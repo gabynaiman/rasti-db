@@ -19,7 +19,7 @@ module Rasti
           schema.nil? ? Sequel[relation_collection_name] : Sequel[schema][relation_collection_name]
         end
 
-        def fetch_graph(rows, db, schema=nil, query_graph=nil)
+        def fetch_graph(rows, db, schema=nil, relations_graph=nil)
           pks = rows.map { |row| row[source_collection_class.primary_key] }
 
           target_collection = target_collection_class.new db, schema
@@ -33,7 +33,7 @@ module Rasti
                                        .select_append(Sequel[relation_name][source_foreign_key].as(:source_foreign_key))
                                        .all
 
-          query_graph.fetch_graph join_rows, target_collection_class if query_graph
+          relations_graph.fetch_graph join_rows if relations_graph
 
           relation_rows = join_rows.each_with_object(Hash.new { |h,k| h[k] = [] }) do |row, hash| 
             attributes = row.select { |attr,_| target_collection_class.model.attributes.include? attr }

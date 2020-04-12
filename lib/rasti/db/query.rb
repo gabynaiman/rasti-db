@@ -10,7 +10,7 @@ module Rasti
       def initialize(collection_class:, dataset:, relations_graph:nil, schema:nil)
         @collection_class = collection_class
         @dataset = dataset
-        @relations_graph = relations_graph || Relations::Graph.new(dataset.db, schema)
+        @relations_graph = relations_graph || Relations::Graph.new(dataset.db, schema, collection_class)
         @schema = schema
       end
 
@@ -62,9 +62,9 @@ module Rasti
       end
 
       def join(*relations)
-        graph = Relations::Graph.new dataset.db, schema, relations
+        graph = Relations::Graph.new dataset.db, schema, collection_class, relations
         
-        ds = graph.add_joins(dataset, collection_class)
+        ds = graph.add_joins(dataset)
                   .distinct
                   .select_all(collection_class.collection_name)
         
@@ -139,7 +139,7 @@ module Rasti
 
       def with_graph(data)
         rows = data.is_a?(Array) ? data : [data]
-        relations_graph.fetch_graph rows, collection_class
+        relations_graph.fetch_graph rows
         data
       end
 

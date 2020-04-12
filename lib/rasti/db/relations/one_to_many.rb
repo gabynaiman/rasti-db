@@ -7,13 +7,13 @@ module Rasti
           @foreign_key ||= options[:foreign_key] || source_collection_class.foreign_key
         end
 
-        def fetch_graph(rows, db, schema=nil, query_graph=nil)
+        def fetch_graph(rows, db, schema=nil, relations_graph=nil)
           pks = rows.map { |row| row[source_collection_class.primary_key] }.uniq
 
           target_collection = target_collection_class.new db, schema
 
           query = target_collection.where(foreign_key => pks)
-          query = query_graph.apply_to query if query_graph
+          query = relations_graph.apply_to query if relations_graph
 
           relation_rows = query.group_by(&foreign_key)
 
