@@ -78,7 +78,7 @@ describe 'Query' do
 
     posts_query.where(id: 1)
                .graph('user.person')
-               .select_graph_attributes(user: [:id], 'user.person': [:first_name, :last_name, :user_id])
+               .select_graph_attributes(user: [:id], 'user.person' => [:first_name, :last_name, :user_id])
                .all
                .must_equal [post]
   end
@@ -92,7 +92,7 @@ describe 'Query' do
 
     posts_query.where(id: 1)
                .graph('user.person')
-               .exclude_graph_attributes(user: [:name], 'user.person': [:first_name, :birth_date])
+               .exclude_graph_attributes(user: [:name], 'user.person' => [:first_name, :birth_date])
                .all
                .must_equal [post]
   end
@@ -106,7 +106,7 @@ describe 'Query' do
 
     posts_query.where(id: 1)
                .graph('user.person')
-               .exclude_graph_attributes(user: [:name], 'user.person': [:birth_date, :first_name, :last_name])
+               .exclude_graph_attributes(user: [:name], 'user.person' => [:birth_date, :first_name, :last_name])
                .all_graph_attributes('user.person')
                .all
                .must_equal [post]
