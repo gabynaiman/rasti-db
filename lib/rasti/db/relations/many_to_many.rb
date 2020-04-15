@@ -19,7 +19,7 @@ module Rasti
           schema.nil? ? Sequel[relation_collection_name] : Sequel[schema][relation_collection_name]
         end
 
-        def fetch_graph(rows, db, schema=nil, relations_graph=nil)
+        def fetch_graph(rows, db, schema=nil, selected_attributes=nil, excluded_attributes=nil, relations_graph=nil)
           pks = rows.map { |row| row[source_collection_class.primary_key] }
 
           target_collection = target_collection_class.new db, schema

@@ -5,6 +5,7 @@ require 'timing'
 require 'treetop'
 require 'hierarchical_graph'
 require 'class_config'
+require 'hash_ext'
 require 'multi_require'
 
 module Rasti

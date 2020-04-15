@@ -69,6 +69,49 @@ describe 'Query' do
     posts_query.exclude_attributes(:body).all_attributes.all.must_equal db[:posts].map { |r| Post.new r }
   end
 
+  it 'Select graph attributes' do
+    person = Person.new db[:people].where(document_number: 2).select(:first_name, :last_name, :user_id).first
+
+    user = User.new db[:users].where(id: 2).select(:id).first.merge(person: person)
+
+    post = Post.new db[:posts].where(id: 1).first.merge(user: user)
+
+    posts_query.where(id: 1)
+               .graph('user.person')
+               .select_graph_attributes(user: [:id], 'user.person': [:first_name, :last_name, :user_id])
+               .all
+               .must_equal [post]
+  end
+  
+  it 'Exclude graph attributes' do
+    person = Person.new db[:people].where(document_number: 2).select(:document_number, :last_name, :user_id).first
+
+    user = User.new db[:users].where(id: 2).select(:id).first.merge(person: person)
+
+    post = Post.new db[:posts].where(id: 1).first.merge(user: user)
+
+    posts_query.where(id: 1)
+               .graph('user.person')
+               .exclude_graph_attributes(user: [:name], 'user.person': [:first_name, :birth_date])
+               .all
+               .must_equal [post]
+  end
+  
+  it 'All graph attributes' do
+    person = Person.new db[:people].where(document_number: 2).first
+
+    user = User.new db[:users].where(id: 2).select(:id).first.merge(person: person)
+
+    post = Post.new db[:posts].where(id: 1).first.merge(user: user)
+
+    posts_query.where(id: 1)
+               .graph('user.person')
+               .exclude_graph_attributes(user: [:name], 'user.person': [:birth_date, :first_name, :last_name])
+               .all_graph_attributes('user.person')
+               .all
+               .must_equal [post]
+  end
+
   it 'Map' do
     users_query.map(&:name).must_equal db[:users].map(:name)
   end

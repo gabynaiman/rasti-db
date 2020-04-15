@@ -46,6 +46,18 @@ module Rasti
         build_query dataset: dataset.select_all(collection_class.collection_name)
       end
 
+      def select_graph_attributes(selected_attributes)
+        build_query relations_graph: relations_graph.merge(selected_attributes: selected_attributes)
+      end
+
+      def exclude_graph_attributes(excluded_attributes)
+        build_query relations_graph: relations_graph.merge(excluded_attributes: excluded_attributes)
+      end
+
+      def all_graph_attributes(*relations)
+        build_query relations_graph: relations_graph.with_all_attributes_for(relations)
+      end
+
       def all
         with_graph(dataset.all).map do |row| 
           collection_class.model.new row
@@ -58,7 +70,7 @@ module Rasti
       end
 
       def graph(*relations)
-        build_query relations_graph: relations_graph.merge(relations)
+        build_query relations_graph: relations_graph.merge(relations: relations)
       end
 
       def join(*relations)

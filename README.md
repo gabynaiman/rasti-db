@@ -161,20 +161,30 @@ end
 posts.all # => [Post, ...]
 posts.first # => Post
 posts.count # => 1
+
 posts.where(id: [1,2]) # => [Post, ...]
 posts.where{id > 1}.limit(10).offset(20) } # => [Post, ...]
-posts.graph(:user, :categories, 'comments.user') # => [Post(User, [Categories, ...], [Comments(User)]), ...]
-posts.created_by(1) # => [Post, ...]
-posts.created_by(1).entitled('...').commented_by(2) # => [Post, ...]
-posts.with_categories([1,2]) # => [Post, ...]
+
 posts.where(id: [1,2]).raw # => [{id:1, ...}, {id:2, ...}]
 posts.where(id: [1,2]).primary_keys # => [1,2]
 posts.where(id: [1,2]).pluck(:id) # => [1,2]
 posts.where(id: [1,2]).pluck(:id, :title) # => [[1, ...], [2, ...]]
+
+posts.created_by(1) # => [Post, ...]
+posts.created_by(1).entitled('...').commented_by(2) # => [Post, ...]
+posts.with_categories([1,2]) # => [Post, ...]
+
+posts.graph(:user, :categories, 'comments.user') # => [Post(User, [Categories, ...], [Comments(User)]), ...]
+
+posts.join(:user).where(name: 'User 4') # => [Post, ...]
+
 posts.select_attributes(:id, :title) # => [Post, ...]
 posts.exclude_attributes(:id, :title) # => [Post, ...]
 posts.all_attributes # => [Post, ...]
-posts.join(:user).where(name: 'User 4') # => [Post, ...]
+
+posts.graph('user.person').select_graph_attributes(user: [:id], 'user.person': [:last_name, :user_id]) # => [Post, ...]
+posts.graph('user.person').exclude_graph_attributes(user: [:name], 'user.person': [:first_name, :last_name]) # => [Post, ...]
+posts.graph('user.person').all_graph_attributes('user.person') # => [Post, ...]
 ```
 ### Natural Query Language
 

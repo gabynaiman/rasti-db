@@ -3,26 +3,47 @@ module Rasti
     module Relations
       class Graph
 
-        def initialize(db, schema, collection_class, relations=[])
+        def initialize(db, schema, collection_class, relations=[], selected_attributes={}, excluded_attributes={})
           @db = db
           @schema = schema
           @collection_class = collection_class
           @graph = build_graph relations
+          @selected_attributes = Hash::Indifferent.new(selected_attributes)
+          @excluded_attributes = Hash::Indifferent.new(excluded_attributes)
         end
 
-        def merge(relations)
-          Graph.new db, schema, collection_class, (flat_relations | relations)
+        def merge(relations:[], selected_attributes:{}, excluded_attributes:{})
+          Graph.new db, 
+                    schema, 
+                    collection_class, 
+                    (flat_relations | relations), 
+                    @selected_attributes.merge(selected_attributes),
+                    @excluded_attributes.merge(excluded_attributes)
+        end
+
+        def with_all_attributes_for(relations)
+          relations_without_attributes = relations.map { |r| [r, nil] }.to_h
+
+          merge selected_attributes: relations_without_attributes, 
+                excluded_attributes: relations_without_attributes
         end
 
         def apply_to(query)
           query.graph(*flat_relations)
+               .select_graph_attributes(selected_attributes)
+               .exclude_graph_attributes(excluded_attributes)
         end
 
         def fetch_graph(rows)
           return if rows.empty?
 
           graph.roots.each do |node|
-            relation_of(node).fetch_graph rows, db, schema, subgraph_of(node)
+            relation_of(node).fetch_graph rows, 
+                                          db, 
+                                          schema, 
+                                          selected_attributes[node.id], 
+                                          excluded_attributes[node.id], 
+                                          subgraph_of(node)
           end
         end
 
@@ -38,14 +59,10 @@ module Rasti
 
         private
 
-        attr_reader :db, :schema, :collection_class, :graph
+        attr_reader :db, :schema, :collection_class, :graph, :selected_attributes, :excluded_attributes
 
         def relation_of(node)
           collection_class.relations.fetch(node[:name])
-        end
-
-        def join_alias(node, prefix=nil)
-          [prefix, node[:name]].compact.join('__').to_sym
         end
 
         def flat_relations
@@ -53,9 +70,23 @@ module Rasti
         end
 
         def subgraph_of(node)
-          relation = collection_class.relations.fetch(node[:name])
-          descendants = node.descendants.map { |d| d.id[node[:name].length+1..-1] }
-          Graph.new db, schema, relation.target_collection_class, descendants
+          relations = []
+          selected = {}
+          excluded = {}
+
+          node.descendants.each do |descendant|
+            id = descendant.id[node[:name].length+1..-1]
+            relations << id
+            selected[id] = selected_attributes[descendant.id]
+            excluded[id] = excluded_attributes[descendant.id]
+          end
+
+          Graph.new db, 
+                    schema, 
+                    relation_of(node).target_collection_class, 
+                    relations, 
+                    selected, 
+                    excluded
         end
 
         def build_graph(relations)
