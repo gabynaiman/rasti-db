@@ -13,8 +13,8 @@ module Rasti
           target_collection = target_collection_class.new db, schema
 
           query = target_collection.where(source_collection_class.primary_key => fks)
-          query = query.select_attributes(*selected_attributes) if selected_attributes
           query = query.exclude_attributes(*excluded_attributes) if excluded_attributes
+          query = query.select_attributes(*selected_attributes) if selected_attributes
           query = relations_graph.apply_to query if relations_graph
 
           relation_rows = query.each_with_object({}) do |row, hash| 
