@@ -22,10 +22,10 @@ module Rasti
         end
 
         def with_all_attributes_for(relations)
-          relations_without_attributes = relations.map { |r| [r, nil] }.to_h
+          relations_with_all_attributes = relations.map { |r| [r, nil] }.to_h
 
-          merge selected_attributes: relations_without_attributes, 
-                excluded_attributes: relations_without_attributes
+          merge selected_attributes: relations_with_all_attributes, 
+                excluded_attributes: relations_with_all_attributes
         end
 
         def apply_to(query)
