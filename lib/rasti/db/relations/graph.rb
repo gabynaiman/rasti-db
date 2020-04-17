@@ -7,9 +7,9 @@ module Rasti
           @db = db
           @schema = schema
           @collection_class = collection_class
-          @graph = build_graph relations
-          @selected_attributes = Hash::Indifferent.new(selected_attributes)
-          @excluded_attributes = Hash::Indifferent.new(excluded_attributes)
+          @graph = build_graph relations, 
+                               Hash::Indifferent.new(selected_attributes), 
+                               Hash::Indifferent.new(excluded_attributes)
         end
 
         def merge(relations:[], selected_attributes:{}, excluded_attributes:{})
@@ -17,8 +17,8 @@ module Rasti
                     schema, 
                     collection_class, 
                     (flat_relations | relations), 
-                    @selected_attributes.merge(selected_attributes),
-                    @excluded_attributes.merge(excluded_attributes)
+                    flat_selected_attributes.merge(selected_attributes),
+                    flat_excluded_attributes.merge(excluded_attributes)
         end
 
         def with_all_attributes_for(relations)
@@ -30,8 +30,8 @@ module Rasti
 
         def apply_to(query)
           query.graph(*flat_relations)
-               .select_graph_attributes(selected_attributes)
-               .exclude_graph_attributes(excluded_attributes)
+               .select_graph_attributes(flat_selected_attributes)
+               .exclude_graph_attributes(flat_excluded_attributes)
         end
 
         def fetch_graph(rows)
@@ -41,8 +41,8 @@ module Rasti
             relation_of(node).fetch_graph rows, 
                                           db, 
                                           schema, 
-                                          selected_attributes[node.id], 
-                                          excluded_attributes[node.id], 
+                                          node[:selected_attributes],
+                                          node[:excluded_attributes] ,
                                           subgraph_of(node)
           end
         end
@@ -59,7 +59,7 @@ module Rasti
 
         private
 
-        attr_reader :db, :schema, :collection_class, :graph, :selected_attributes, :excluded_attributes
+        attr_reader :db, :schema, :collection_class, :graph
 
         def relation_of(node)
           collection_class.relations.fetch(node[:name])
@@ -69,16 +69,28 @@ module Rasti
           graph.map(&:id)
         end
 
+        def flat_selected_attributes
+          graph.each_with_object(Hash::Indifferent.new) do |node, hash|
+            hash[node.id] = node[:selected_attributes]
+          end
+        end
+
+        def flat_excluded_attributes
+          graph.each_with_object(Hash::Indifferent.new) do |node, hash|
+            hash[node.id] = node[:excluded_attributes]
+          end
+        end
+
         def subgraph_of(node)
           relations = []
-          selected = {}
-          excluded = {}
+          selected = Hash::Indifferent.new
+          excluded = Hash::Indifferent.new
 
           node.descendants.each do |descendant|
             id = descendant.id[node[:name].length+1..-1]
             relations << id
-            selected[id] = selected_attributes[descendant.id]
-            excluded[id] = excluded_attributes[descendant.id]
+            selected[id] = descendant[:selected_attributes]
+            excluded[id] = descendant[:excluded_attributes]
           end
 
           Graph.new db, 
@@ -89,14 +101,19 @@ module Rasti
                     excluded
         end
 
-        def build_graph(relations)
+        def build_graph(relations, selected_attributes, excluded_attributes)
           HierarchicalGraph.new.tap do |graph|
             flatten(relations).each do |relation| 
               sections = relation.split('.')
-              graph.add_node relation, name: sections.last.to_sym
+              
+              graph.add_node relation, name: sections.last.to_sym,
+                                       selected_attributes: selected_attributes[relation],
+                                       excluded_attributes: excluded_attributes[relation]
+              
               if sections.count > 1
                 parent_id = sections[0..-2].join('.')
-                graph.add_relation parent_id: parent_id, child_id: relation
+                graph.add_relation parent_id: parent_id, 
+                                   child_id: relation
               end
             end
           end
