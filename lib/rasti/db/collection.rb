@@ -98,10 +98,6 @@ module Rasti
         end
       end
 
-      def dataset
-        db[qualified_collection_name]
-      end
-
       def insert(attributes)
         db.transaction do
           db_attributes = transform_attributes_to_db attributes
@@ -187,6 +183,10 @@ module Rasti
 
       private
 
+      def dataset
+        db[qualified_collection_name]
+      end
+
       def transform_attributes_to_db(attributes)
         attributes.each_with_object({}) do |(attribute_name, value), result| 
           transformed_value = Rasti::DB.to_db db, qualified_collection_name, attribute_name, value
@@ -195,7 +195,7 @@ module Rasti
       end
 
       def qualified_collection_name
-        schema.nil? ? Sequel[self.class.collection_name] : Sequel[schema][self.class.collection_name]
+        with_schema self.class.collection_name
       end
       
       def default_query
@@ -208,7 +208,7 @@ module Rasti
         raise ArgumentError, 'must specify filter hash or block' if filter.nil? && block.nil?
         
         if filter
-          default_query.where filter
+          default_query.where(filter)
         else
           block.arity == 0 ? default_query.instance_eval(&block) : block.call(default_query)
         end

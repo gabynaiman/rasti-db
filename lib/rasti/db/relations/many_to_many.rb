@@ -22,16 +22,14 @@ module Rasti
         def fetch_graph(rows, db, schema=nil, selected_attributes=nil, excluded_attributes=nil, relations_graph=nil)
           pks = rows.map { |row| row[source_collection_class.primary_key] }
 
-          target_collection = target_collection_class.new db, schema
-
           relation_name = qualified_relation_collection_name schema
 
-          join_rows = target_collection.dataset
-                                       .join(relation_name, target_foreign_key => target_collection_class.primary_key)
-                                       .where(Sequel[relation_name][source_foreign_key] => pks)
-                                       .select_all(target_collection_class.collection_name)
-                                       .select_append(Sequel[relation_name][source_foreign_key].as(:source_foreign_key))
-                                       .all
+          join_rows = db.from(qualified_target_collection_name(schema))
+                        .join(relation_name, target_foreign_key => target_collection_class.primary_key)
+                        .where(Sequel[relation_name][source_foreign_key] => pks)
+                        .select_all(target_collection_class.collection_name)
+                        .select_append(Sequel[relation_name][source_foreign_key].as(:source_foreign_key))
+                        .all
 
           relations_graph.fetch_graph join_rows if relations_graph
 
