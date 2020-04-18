@@ -475,12 +475,7 @@ describe 'Collection' do
         end
       end
 
-      Sequel.mock(fetch: stubs, autoid: 1).tap do |mock|
-        get_schema_block = ->(table_name) { db.schema table_name }
-        mock.define_singleton_method(:schema_parse_table) do |table_name, opts| 
-          get_schema_block.call table_name
-        end
-      end
+      Sequel.mock fetch: stubs, autoid: 1
     end
 
     let(:stub_users)    { Users.new    stub_db, :custom_schema }
