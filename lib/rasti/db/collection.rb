@@ -85,8 +85,6 @@ module Rasti
 
       end
 
-      attr_reader :db, :schema
-
       def initialize(db, schema=nil)
         @db = db
         @schema = schema ? schema.to_sym : nil
@@ -182,6 +180,8 @@ module Rasti
       end
 
       private
+
+      attr_reader :db, :schema
 
       def dataset
         db[qualified_collection_name]
