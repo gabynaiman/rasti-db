@@ -15,21 +15,43 @@ module Rasti
           @relation_collection_name ||= options[:relation_collection_name] || [source_collection_class.collection_name, target_collection_class.collection_name].sort.join('_').to_sym
         end
 
-        def qualified_relation_collection_name(schema=nil)
-          schema.nil? ? Sequel[relation_collection_name] : Sequel[schema][relation_collection_name]
+        def relation_repository_name
+          @relation_repository_name ||= options[:relation_repository_name] || source_collection_class.repository_name
         end
 
-        def fetch_graph(rows, db, schema=nil, selected_attributes=nil, excluded_attributes=nil, relations_graph=nil)
+        def qualified_relation_collection_name(environment)
+          environment.qualify relation_repository_name, relation_collection_name
+        end
+
+        def fetch_graph(environment, rows, selected_attributes=nil, excluded_attributes=nil, relations_graph=nil)
           pks = rows.map { |row| row[source_collection_class.primary_key] }
 
-          relation_name = qualified_relation_collection_name schema
+          if target_collection_class.repository_name == relation_repository_name
+            target_repository = environment.repository_of target_collection_class
+            
+            relation_name = qualified_relation_collection_name environment
 
-          join_rows = db.from(qualified_target_collection_name(schema))
-                        .join(relation_name, target_foreign_key => target_collection_class.primary_key)
-                        .where(Sequel[relation_name][source_foreign_key] => pks)
-                        .select_all(target_collection_class.collection_name)
-                        .select_append(Sequel[relation_name][source_foreign_key].as(:source_foreign_key))
-                        .all
+            join_rows = target_repository.db.from(qualified_target_collection_name(environment))
+                                            .join(relation_name, target_foreign_key => target_collection_class.primary_key)
+                                            .where(Sequel[relation_name][source_foreign_key] => pks)
+                                            .select_all(target_collection_class.collection_name)
+                                            .select_append(Sequel[relation_name][source_foreign_key].as(:source_foreign_key))
+                                            .all
+          else
+            relation_repository = environment.repository relation_repository_name
+
+            relation_index = relation_repository.db.from(relation_repository.qualify(relation_collection_name))
+                                                   .where(source_foreign_key => pks)
+                                                   .select_hash_groups(target_foreign_key, source_foreign_key)
+
+            target_collection = target_collection_class.new environment
+
+            join_rows = target_collection.where(target_collection_class.primary_key => relation_index.keys).raw.flat_map do |row|
+              relation_index[row[target_collection_class.primary_key]].map do |source_primary_key|
+                row.merge(source_foreign_key: source_primary_key)
+              end
+            end
+          end
 
           relations_graph.fetch_graph join_rows if relations_graph
 
@@ -39,14 +61,16 @@ module Rasti
           end
 
           rows.each do |row| 
-            row[name] = relation_rows.fetch row[target_collection_class.primary_key], []
+            row[name] = relation_rows.fetch row[source_collection_class.primary_key], []
           end
         end
 
-        def add_join(dataset, schema=nil, prefix=nil)
+        def add_join(environment, dataset, prefix=nil)
+          validate_join!
+          
           many_to_many_relation_alias = with_prefix prefix, "#{relation_collection_name}_#{SecureRandom.base64}"
 
-          qualified_relation_source = prefix ? Sequel[prefix] : qualified_source_collection_name(schema)
+          qualified_relation_source = prefix ? Sequel[prefix] : qualified_source_collection_name(environment)
 
           many_to_many_condition = {
             Sequel[many_to_many_relation_alias][source_foreign_key] => qualified_relation_source[source_collection_class.primary_key]
@@ -58,12 +82,12 @@ module Rasti
             Sequel[relation_alias][target_collection_class.primary_key] => Sequel[many_to_many_relation_alias][target_foreign_key]
           }
 
-          dataset.join(qualified_relation_collection_name(schema).as(many_to_many_relation_alias), many_to_many_condition)
-                 .join(qualified_target_collection_name(schema).as(relation_alias), relation_condition)
+          dataset.join(qualified_relation_collection_name(environment).as(many_to_many_relation_alias), many_to_many_condition)
+                 .join(qualified_target_collection_name(environment).as(relation_alias), relation_condition)
         end
 
-        def apply_filter(dataset, schema=nil, primary_keys=[])
-          relation_name = qualified_relation_collection_name schema
+        def apply_filter(environment, dataset, primary_keys)
+          relation_name = qualified_relation_collection_name environment
 
           dataset.join(relation_name, source_foreign_key => target_collection_class.primary_key)
                  .where(Sequel[relation_name][target_foreign_key] => primary_keys)

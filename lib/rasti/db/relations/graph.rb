@@ -3,9 +3,8 @@ module Rasti
     module Relations
       class Graph
 
-        def initialize(db, schema, collection_class, relations=[], selected_attributes={}, excluded_attributes={})
-          @db = db
-          @schema = schema
+        def initialize(environment, collection_class, relations=[], selected_attributes={}, excluded_attributes={})
+          @environment = environment
           @collection_class = collection_class
           @graph = build_graph relations, 
                                Hash::Indifferent.new(selected_attributes), 
@@ -13,8 +12,7 @@ module Rasti
         end
 
         def merge(relations:[], selected_attributes:{}, excluded_attributes:{})
-          Graph.new db, 
-                    schema, 
+          Graph.new environment, 
                     collection_class, 
                     (flat_relations | relations), 
                     flat_selected_attributes.merge(selected_attributes),
@@ -38,9 +36,8 @@ module Rasti
           return if rows.empty?
 
           graph.roots.each do |node|
-            relation_of(node).fetch_graph rows, 
-                                          db, 
-                                          schema, 
+            relation_of(node).fetch_graph environment,
+                                          rows, 
                                           node[:selected_attributes],
                                           node[:excluded_attributes] ,
                                           subgraph_of(node)
@@ -48,18 +45,16 @@ module Rasti
         end
 
         def add_joins(dataset, prefix=nil)
-          graph.roots.each do |node|
+          graph.roots.inject(dataset) do |ds, node|
             relation = relation_of node
-            dataset = relation.add_join dataset, schema, prefix
-            dataset = subgraph_of(node).add_joins dataset, relation.join_relation_name(prefix)
+            dataset_with_relation = relation.add_join environment, ds, prefix
+            subgraph_of(node).add_joins dataset_with_relation, relation.join_relation_name(prefix)
           end
-
-          dataset
         end
 
         private
 
-        attr_reader :db, :schema, :collection_class, :graph
+        attr_reader :environment, :collection_class, :graph
 
         def relation_of(node)
           collection_class.relations.fetch(node[:name])
@@ -93,8 +88,7 @@ module Rasti
             excluded[id] = descendant[:excluded_attributes]
           end
 
-          Graph.new db, 
-                    schema, 
+          Graph.new environment, 
                     relation_of(node).target_collection_class, 
                     relations, 
                     selected, 

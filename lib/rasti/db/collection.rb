@@ -4,8 +4,6 @@ module Rasti
 
       QUERY_METHODS = Query.public_instance_methods - Object.public_instance_methods
 
-      include Helpers::WithSchema
-
       class << self
 
         extend Sequel::Inflections
@@ -37,6 +35,10 @@ module Rasti
           end
         end
 
+        def repository_name
+          @repository_name ||= :default
+        end
+
         def relations
           @relations ||= {}
         end
@@ -63,6 +65,10 @@ module Rasti
           @model = model
         end
 
+        def use(repository_name)
+          @repository_name = repository_name
+        end
+
         [Relations::OneToMany, Relations::ManyToOne, Relations::ManyToMany, Relations::OneToOne].each do |relation_class|
           define_method underscore(demodulize(relation_class.name)) do |name, options={}|
             relations[name] = relation_class.new name, self, options
@@ -85,9 +91,8 @@ module Rasti
 
       end
 
-      def initialize(db, schema=nil)
-        @db = db
-        @schema = schema ? schema.to_sym : nil
+      def initialize(environment)
+        @environment = environment
       end
 
       QUERY_METHODS.each do |method|
@@ -181,27 +186,32 @@ module Rasti
 
       private
 
-      attr_reader :db, :schema
+      attr_reader :environment
+
+      def repository
+        environment.repository_of self.class
+      end
+
+      def db
+        repository.db
+      end
 
       def dataset
         db[qualified_collection_name]
       end
 
-      def transform_attributes_to_db(attributes)
-        attributes.each_with_object({}) do |(attribute_name, value), result| 
-          transformed_value = Rasti::DB.to_db db, qualified_collection_name, attribute_name, value
-          result[attribute_name] = transformed_value
-        end
-      end
-
       def qualified_collection_name
-        with_schema self.class.collection_name
+        repository.qualify self.class.collection_name
       end
       
+      def qualify(repository_name, *names)
+        environment.qualify(repository_name, *names)
+      end
+
       def default_query
         Query.new collection_class: self.class, 
                   dataset: dataset.select_all(self.class.collection_name), 
-                  schema: schema
+                  environment: environment
       end
 
       def build_query(filter=nil, &block)
@@ -211,6 +221,13 @@ module Rasti
           default_query.where(filter)
         else
           block.arity == 0 ? default_query.instance_eval(&block) : block.call(default_query)
+        end
+      end
+
+      def transform_attributes_to_db(attributes)
+        attributes.each_with_object({}) do |(attribute_name, value), result| 
+          transformed_value = Rasti::DB.to_db db, qualified_collection_name, attribute_name, value
+          result[attribute_name] = transformed_value
         end
       end
 
@@ -239,18 +256,22 @@ module Rasti
         end
 
         relations.select { |r| r.one_to_many? || r.one_to_one? }.each do |relation|
-          relation_collection_name = with_schema(relation.target_collection_class.collection_name)
-          relations_ids = db[relation_collection_name].where(relation.foreign_key => primary_keys)
-                                                      .select(relation.target_collection_class.primary_key)
-                                                      .map(relation.target_collection_class.primary_key)
+          relation_repository = environment.repository_of relation.target_collection_class
+          relation_collection_name = relation_repository.qualify relation.target_collection_class.collection_name
 
-          target_collection = relation.target_collection_class.new db, schema
+          relations_ids = relation_repository.db[relation_collection_name]
+                                             .where(relation.foreign_key => primary_keys)
+                                             .select(relation.target_collection_class.primary_key)
+                                             .map(relation.target_collection_class.primary_key)
+
+          target_collection = relation.target_collection_class.new environment
           target_collection.delete_cascade(*relations_ids) unless relations_ids.empty?
         end
       end
 
       def insert_relation_table(relation, primary_key, relation_primary_keys)
-        relation_collection_name = relation.qualified_relation_collection_name(schema)
+        relation_repository = environment.repository relation.relation_repository_name
+        relation_collection_name = relation_repository.qualify relation.relation_collection_name
 
         values = relation_primary_keys.map do |relation_pk| 
           {
@@ -259,12 +280,14 @@ module Rasti
           }
         end
 
-        db[relation_collection_name].multi_insert values
+        relation_repository.db[relation_collection_name].multi_insert values
       end
 
       def delete_relation_table(relation, primary_keys, relation_primary_keys=nil)
-        relation_collection_name = relation.qualified_relation_collection_name(schema)
-        ds = db[relation_collection_name].where(relation.source_foreign_key => primary_keys)
+        relation_repository = environment.repository relation.relation_repository_name
+        relation_collection_name = relation_repository.qualify relation.relation_collection_name
+
+        ds = relation_repository.db[relation_collection_name].where(relation.source_foreign_key => primary_keys)
         ds = ds.where(relation.target_foreign_key => relation_primary_keys) if relation_primary_keys
         ds.delete
       end

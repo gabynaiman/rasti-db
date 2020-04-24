@@ -7,10 +7,10 @@ module Rasti
           @foreign_key ||= options[:foreign_key] || target_collection_class.foreign_key
         end
 
-        def fetch_graph(rows, db, schema=nil, selected_attributes=nil, excluded_attributes=nil, relations_graph=nil)
+        def fetch_graph(environment, rows, selected_attributes=nil, excluded_attributes=nil, relations_graph=nil)
           fks = rows.map { |row| row[foreign_key] }.uniq
 
-          target_collection = target_collection_class.new db, schema
+          target_collection = target_collection_class.new environment
 
           query = target_collection.where(source_collection_class.primary_key => fks)
           query = query.exclude_attributes(*excluded_attributes) if excluded_attributes
@@ -26,19 +26,21 @@ module Rasti
           end
         end
 
-        def add_join(dataset, schema=nil, prefix=nil)
+        def add_join(environment, dataset, prefix=nil)
+          validate_join!
+          
           relation_alias = join_relation_name prefix
 
-          qualified_relation_source = prefix ? Sequel[prefix] : qualified_source_collection_name(schema)
+          qualified_relation_source = prefix ? Sequel[prefix] : qualified_source_collection_name(environment)
 
           relation_condition = {
             Sequel[relation_alias][target_collection_class.primary_key] => qualified_relation_source[foreign_key]
           }
 
-          dataset.join(qualified_target_collection_name(schema).as(relation_alias), relation_condition)
+          dataset.join(qualified_target_collection_name(environment).as(relation_alias), relation_condition)
         end
 
-        def apply_filter(dataset, schema=nil, primary_keys=[])
+        def apply_filter(environment, dataset, primary_keys)
           dataset.where(foreign_key => primary_keys)
         end
 

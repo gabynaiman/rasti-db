@@ -34,10 +34,10 @@ describe 'Relations' do
 
     it 'Graph' do
       user_id = db[:users].insert name: 'User 1'
-      1.upto(2) { |i| db[:posts].insert user_id: user_id, title: "Post #{i}", body: '...' }
+      1.upto(2) { |i| db[:posts].insert user_id: user_id, title: "Post #{i}", body: '...', language_id: 1 }
       rows = db[:users].all
       
-      Users.relations[:posts].fetch_graph rows, db
+      Users.relations[:posts].fetch_graph environment, rows
       
       rows[0][:posts].must_equal posts.where(user_id: user_id).all
     end
@@ -76,10 +76,10 @@ describe 'Relations' do
 
     it 'Graph' do
       user_id = db[:users].insert name: 'User 1'
-      db[:posts].insert user_id: user_id, title: 'Post 1', body: '...'
+      db[:posts].insert user_id: user_id, title: 'Post 1', body: '...', language_id: 1
       rows = db[:posts].all
 
-      Posts.relations[:user].fetch_graph rows, db
+      Posts.relations[:user].fetch_graph environment, rows
 
       rows[0][:user].must_equal users.first
     end
@@ -125,7 +125,7 @@ describe 'Relations' do
     it 'Graph' do
       user_id = db[:users].insert name: 'User 1'
 
-      1.upto(2) { |i| db[:posts].insert user_id: user_id, title: "Post #{i}", body: '...' }
+      1.upto(2) { |i| db[:posts].insert user_id: user_id, title: "Post #{i}", body: '...', language_id: 1 }
 
       1.upto(4) { |i| db[:categories].insert name: "Category #{i}" }
 
@@ -136,7 +136,7 @@ describe 'Relations' do
 
       rows = db[:posts].all
 
-      Posts.relations[:categories].fetch_graph rows, db
+      Posts.relations[:categories].fetch_graph environment, rows
 
       rows[0][:categories].must_equal categories.where(id: [1,2]).all
       rows[1][:categories].must_equal categories.where(id: [3,4]).all
@@ -186,7 +186,7 @@ describe 'Relations' do
 
       rows = db[:users].all
 
-      Users.relations[:person].fetch_graph rows, db
+      Users.relations[:person].fetch_graph environment, rows
 
       2.times do |i|
         rows[i][:person].must_equal people.find("document_#{i}")

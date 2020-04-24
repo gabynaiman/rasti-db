@@ -37,20 +37,26 @@ module Rasti
           with_prefix prefix, name
         end
 
+        def qualified_source_collection_name(environment)
+          environment.qualify_collection source_collection_class
+        end
+
+        def qualified_target_collection_name(environment)
+          environment.qualify_collection target_collection_class
+        end
+
         private
 
         attr_reader :options
 
-        def qualified_source_collection_name(schema=nil)
-          schema.nil? ? Sequel[source_collection_class.collection_name] : Sequel[schema][source_collection_class.collection_name]
-        end
-
-        def qualified_target_collection_name(schema=nil)
-          schema.nil? ? Sequel[target_collection_class.collection_name] : Sequel[schema][target_collection_class.collection_name]
-        end
-
         def with_prefix(prefix, name)
           [prefix, name].compact.join('__').to_sym
+        end
+
+        def validate_join!
+          if source_collection_class.repository_name != target_collection_class.repository_name
+            raise "Invalid join of multiple repositories: #{source_collection_class.repository_name}.#{source_collection_class.collection_name} > #{target_collection_class.repository_name}.#{target_collection_class.collection_name}" 
+          end
         end
         
       end

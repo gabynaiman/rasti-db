@@ -14,7 +14,6 @@ module Rasti
     extend MultiRequire
     extend ClassConfig
 
-    require_relative 'db/helpers'
     require_relative 'db/query'
     require_relative_pattern  'db/relations/*'
     require_relative_pattern  'db/type_converters/postgres_types/*'

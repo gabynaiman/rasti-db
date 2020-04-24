@@ -10,6 +10,7 @@ describe 'Collection' do
       Users.model.must_equal User
       Users.primary_key.must_equal :id
       Users.foreign_key.must_equal :user_id
+      Users.repository_name.must_equal :default
     end
 
     it 'Explicit' do
@@ -18,6 +19,8 @@ describe 'Collection' do
       People.model.must_equal Person
       People.primary_key.must_equal :document_number
       People.foreign_key.must_equal :document_number
+
+      Languages.repository_name.must_equal :custom
     end
 
     it 'Lazy model name' do
@@ -42,11 +45,11 @@ describe 'Collection' do
       user_id = db[:users].insert name: 'User 1'
 
       1.upto(2) do |i| 
-        db[:posts].insert user_id: user_id, title: "Post #{i}", body: '...'
+        db[:posts].insert user_id: user_id, title: "Post #{i}", body: '...', language_id: 1
         db[:categories].insert name: "Category #{i}"
       end
 
-      post_id = posts.insert user_id: user_id, title: 'Post title', body: '...', categories: [1,2]
+      post_id = posts.insert user_id: user_id, title: 'Post title', body: '...', categories: [1,2], language_id: 1
       category_id = categories.insert name: 'Category', posts: [1,2]
 
       db[:categories_posts].where(post_id: post_id).map(:category_id).must_equal [1,2]
@@ -59,7 +62,7 @@ describe 'Collection' do
       end
 
       user_id = db[:users].insert name: 'User 1'
-      post_id = db[:posts].insert user_id: user_id, title: 'Post title', body: '...'
+      post_id = db[:posts].insert user_id: user_id, title: 'Post title', body: '...', language_id: 1
       1.upto(2) { |category_id| db[:categories_posts].insert post_id: post_id, category_id: category_id }
 
       posts.insert_relations post_id, categories: [3]
@@ -91,7 +94,7 @@ describe 'Collection' do
       user_id = db[:users].insert name: 'User 1'
 
       1.upto(3) do |i| 
-        db[:posts].insert user_id: user_id, title: "Post #{i}", body: '...'
+        db[:posts].insert user_id: user_id, title: "Post #{i}", body: '...', language_id: 1
         db[:categories].insert name: "Category #{i}"
       end
 
@@ -114,7 +117,7 @@ describe 'Collection' do
 
     it 'Bulk update' do
       user_id = db[:users].insert name: 'User 1'
-      1.upto(3) { |i| db[:posts].insert user_id: user_id, title: "Post #{i}", body: '...' }
+      1.upto(3) { |i| db[:posts].insert user_id: user_id, title: "Post #{i}", body: '...', language_id: 1 }
 
       posts.bulk_update(body: 'Updated ...') { where id: [1,2] }
 
@@ -139,7 +142,7 @@ describe 'Collection' do
       end
 
       user_id = db[:users].insert name: 'User 1'
-      post_id = db[:posts].insert user_id: user_id, title: 'Post title', body: '...'
+      post_id = db[:posts].insert user_id: user_id, title: 'Post title', body: '...', language_id: 1
       1.upto(3) { |category_id| db[:categories_posts].insert post_id: post_id, category_id: category_id }
 
       posts.delete_relations post_id, categories: [3]
@@ -170,7 +173,7 @@ describe 'Collection' do
           category_id = db[:categories].insert name: "Category #{i}" 
           
           1.upto(3) do |n|
-            post_id = db[:posts].insert user_id: user_id, title: "Post #{i}.#{n}", body: '...'
+            post_id = db[:posts].insert user_id: user_id, title: "Post #{i}.#{n}", body: '...', language_id: 1
             db[:categories_posts].insert post_id: post_id, category_id: category_id
           end
         end
@@ -227,6 +230,65 @@ describe 'Collection' do
 
     end
 
+    describe 'Custom repository' do
+
+      before do
+        1.upto(3) do |i| 
+          db[:users].insert name: "User #{i}"
+          db[:people].insert document_number: "document_#{i}", 
+                             first_name: "John #{i}",
+                             last_name: "Doe #{i}",
+                             birth_date: Time.now - i,
+                             user_id: i
+        end
+      end
+
+      it 'Insert' do
+        id = languages.insert name: 'Spanish', people: ['document_1', 'document_2']
+
+        custom_db[:languages][id: id][:name].must_equal 'Spanish'
+        db[:languages_people].where(language_id: id).select_map(:document_number).must_equal ['document_1', 'document_2']
+      end
+
+      it 'Update' do
+        id = custom_db[:languages].insert name: 'Spanish'
+        db[:languages_people].insert language_id: id, document_number: 'document_1'
+
+        custom_db[:languages][id: id][:name].must_equal 'Spanish'
+        db[:languages_people].where(language_id: id).select_map(:document_number).must_equal ['document_1']
+
+        languages.update id, name: 'English', people: ['document_2', 'document_3']
+
+        custom_db[:languages][id: id][:name].must_equal 'English'
+        db[:languages_people].where(language_id: id).select_map(:document_number).must_equal ['document_2', 'document_3']
+      end
+
+      it 'Delete' do
+        id = custom_db[:languages].insert name: 'Spanish'
+        db[:languages_people].insert language_id: id, document_number: 'document_1'
+        db[:posts].insert user_id: 1, title: 'Post 1', body: '...', language_id: id
+
+        languages.delete id
+
+        custom_db[:languages].count.must_equal 0
+        db[:languages_people].where(language_id: id).count.must_equal 1
+        db[:posts].where(language_id: id).count.must_equal 1
+      end
+
+      it 'Delete cascade' do
+        id = custom_db[:languages].insert name: 'Spanish'
+        db[:languages_people].insert language_id: id, document_number: 'document_1'
+        db[:posts].insert user_id: 1, title: 'Post 1', body: '...', language_id: id
+
+        languages.delete_cascade id
+
+        custom_db[:languages].count.must_equal 0
+        db[:languages_people].where(language_id: id).count.must_equal 0
+        db[:posts].where(language_id: id).count.must_equal 0
+      end
+
+    end
+
   end
 
   describe 'Queries' do
@@ -239,7 +301,7 @@ describe 'Collection' do
 
     it 'Find graph' do
       user_id = db[:users].insert name: 'User 1'
-      db[:posts].insert user_id: user_id, title: 'Post 1', body: '...'
+      db[:posts].insert user_id: user_id, title: 'Post 1', body: '...', language_id: 1
 
       users.find_graph(user_id, :posts).must_equal User.new id: user_id, name: 'User 1', posts: posts.all
     end
@@ -316,20 +378,20 @@ describe 'Collection' do
 
     it 'Chain dataset as query' do
       1.upto(2) { |i| db[:users].insert name: "User #{i}" }
-      1.upto(3) { |i| db[:posts].insert user_id: 1, title: "Post #{i}", body: '...' }
+      1.upto(3) { |i| db[:posts].insert user_id: 1, title: "Post #{i}", body: '...', language_id: 1 }
       1.upto(2) { |i| db[:comments].insert post_id: i, user_id: 2, text: 'Comment' }
 
       models = posts.commented_by(2).all
-      models.must_equal [1,2].map { |i| Post.new(id: i, user_id: 1, title: "Post #{i}", body: '...') }
+      models.must_equal [1,2].map { |i| Post.new(id: i, user_id: 1, title: "Post #{i}", body: '...', language_id: 1) }
     end
 
     it 'Custom query' do
       1.upto(2) { |i| db[:users].insert name: "User #{i}" }
-      1.upto(3) { |i| db[:posts].insert user_id: 1, title: "Post #{i}", body: '...' }
+      1.upto(3) { |i| db[:posts].insert user_id: 1, title: "Post #{i}", body: '...', language_id: 1 }
       1.upto(2) { |i| db[:comments].insert post_id: i, user_id: 2, text: 'Comment' }
 
       models = comments.posts_commented_by(2)
-      models.must_equal [1,2].map { |i| Post.new(id: i, user_id: 1, title: "Post #{i}", body: '...') }
+      models.must_equal [1,2].map { |i| Post.new(id: i, user_id: 1, title: "Post #{i}", body: '...', language_id: 1) }
     end
 
     describe 'Named queries' do
@@ -346,12 +408,12 @@ describe 'Collection' do
         end
 
         1.upto(3) do |i| 
-          db[:posts].insert user_id: 1, title: "Post #{i}", body: '...'
+          db[:posts].insert user_id: 1, title: "Post #{i}", body: '...', language_id: 1
           db[:categories_posts].insert category_id: 1, post_id: i
         end
         
         4.upto(5) do |i| 
-          db[:posts].insert user_id: 2, title: "Post #{i}", body: '...'
+          db[:posts].insert user_id: 2, title: "Post #{i}", body: '...', language_id: 1
           db[:categories_posts].insert category_id: 2, post_id: i
         end
       end
@@ -400,7 +462,7 @@ describe 'Collection' do
                            birth_date: Time.now - i,
                            user_id: i
         db[:categories].insert name: "Category #{i}"
-        db[:posts].insert user_id: i, title: "Post #{i}", body: '...'
+        db[:posts].insert user_id: i, title: "Post #{i}", body: '...', language_id: 1
         db[:categories_posts].insert post_id: i, category_id: i
       end
 
@@ -448,21 +510,21 @@ describe 'Collection' do
       stubs = Proc.new do |sql|
         case sql
 
-        when 'SELECT users.* FROM custom_schema.users', 
-             'SELECT users.* FROM custom_schema.users WHERE (id IN (2, 1))'
+        when 'SELECT users.* FROM schema_1.users', 
+             'SELECT users.* FROM schema_1.users WHERE (id IN (2, 1))'
           [
             {id: 1},
             {id: 2}
           ]
 
-        when 'SELECT posts.* FROM custom_schema.posts',
-             'SELECT posts.* FROM custom_schema.posts WHERE (user_id IN (1, 2))'
+        when 'SELECT posts.* FROM schema_1.posts',
+             'SELECT posts.* FROM schema_1.posts WHERE (user_id IN (1, 2))'
           [
-            {id: 3, user_id: 1},
-            {id: 4, user_id: 2}
+            {id: 3, user_id: 1, language_id: 1},
+            {id: 4, user_id: 2, language_id: 2}
           ]
 
-        when 'SELECT comments.* FROM custom_schema.comments WHERE (post_id IN (3, 4))'
+        when 'SELECT comments.* FROM schema_1.comments WHERE (post_id IN (3, 4))'
           [
             {id: 5, user_id: 2, post_id: 3},
             {id: 6, user_id: 1, post_id: 3},
@@ -470,35 +532,77 @@ describe 'Collection' do
             {id: 8, user_id: 2, post_id: 4}
           ]
 
-        else
-          nil
         end
       end
 
-      Sequel.mock fetch: stubs, autoid: 1
+      last_id = 0
+      autoid = Proc.new do |sql|
+        case sql
+        when "INSERT INTO schema_1.people (document_number, first_name, last_name, birth_date, user_id) VALUES ('document_1', 'John', 'Doe', '2020-04-24 00:00:00.000000', 1)"
+          'document_1'
+        else
+          last_id += 1
+        end
+      end
+
+      Sequel.mock fetch: stubs, autoid: autoid
     end
 
-    let(:stub_users)    { Users.new    stub_db, :custom_schema }
-    let(:stub_posts)    { Posts.new    stub_db, :custom_schema }
-    let(:stub_comments) { Comments.new stub_db, :custom_schema }
+    let :stub_environment do 
+      Rasti::DB::Environment.new default: Rasti::DB::Repository.new(stub_db, :schema_1),
+                                 custom: Rasti::DB::Repository.new(stub_db, :schema_2)
+    end
+
+    let(:stub_users)     { Users.new stub_environment }
+    let(:stub_posts)     { Posts.new stub_environment }
+    let(:stub_comments)  { Comments.new stub_environment }
+    let(:stub_people)    { People.new stub_environment }
+    let(:stub_languages) { Languages.new stub_environment }
 
     it 'Insert' do
       stub_users.insert name: 'User 1'
       stub_db.sqls.must_equal [
         'BEGIN',
-        "INSERT INTO custom_schema.users (name) VALUES ('User 1')",
+        "INSERT INTO schema_1.users (name) VALUES ('User 1')",
         'COMMIT'
       ]
     end
 
     it 'Insert with many to many relation' do
-      stub_posts.insert user_id: 1, title: 'Post 1', body: '...', categories: [2,3]
+      stub_posts.insert user_id: 1, title: 'Post 1', body: '...', categories: [2,3], language_id: 1
       stub_db.sqls.must_equal [
         'BEGIN',
-        "INSERT INTO custom_schema.posts (user_id, title, body) VALUES (1, 'Post 1', '...')",
-        'DELETE FROM custom_schema.categories_posts WHERE (post_id IN (1))',
-        'INSERT INTO custom_schema.categories_posts (post_id, category_id) VALUES (1, 2)',
-        'INSERT INTO custom_schema.categories_posts (post_id, category_id) VALUES (1, 3)',
+        "INSERT INTO schema_1.posts (user_id, title, body, language_id) VALUES (1, 'Post 1', '...', 1)",
+        'DELETE FROM schema_1.categories_posts WHERE (post_id IN (1))',
+        'INSERT INTO schema_1.categories_posts (post_id, category_id) VALUES (1, 2)',
+        'INSERT INTO schema_1.categories_posts (post_id, category_id) VALUES (1, 3)',
+        'COMMIT'
+      ]
+    end
+
+    it 'Insert in multiple schemas' do
+      stub_languages.insert name: 'Spanish'
+
+      stub_users.insert name: 'User 1'
+
+      stub_people.insert document_number: 'document_1', 
+                         first_name: 'John',
+                         last_name: 'Doe',
+                         birth_date: Time.parse('2020-04-24'),
+                         user_id: 1,
+                         languages: [1]
+
+      stub_db.sqls.must_equal [
+        'BEGIN',
+        "INSERT INTO schema_2.languages (name) VALUES ('Spanish')",
+        'COMMIT',
+        'BEGIN',
+        "INSERT INTO schema_1.users (name) VALUES ('User 1')",
+        'COMMIT',
+        'BEGIN',
+        "INSERT INTO schema_1.people (document_number, first_name, last_name, birth_date, user_id) VALUES ('document_1', 'John', 'Doe', '2020-04-24 00:00:00.000000', 1)",
+        "DELETE FROM schema_1.languages_people WHERE (document_number IN ('document_1'))",
+        "INSERT INTO schema_1.languages_people (document_number, language_id) VALUES ('document_1', 1)",
         'COMMIT'
       ]
     end
@@ -507,46 +611,46 @@ describe 'Collection' do
       stub_users.update 1, name: 'Updated name'
       stub_db.sqls.must_equal [
         'BEGIN',
-        "UPDATE custom_schema.users SET name = 'Updated name' WHERE (id = 1)",
+        "UPDATE schema_1.users SET name = 'Updated name' WHERE (id = 1)",
         'COMMIT'
       ]
     end
 
     it 'Delete' do
       stub_users.delete 1
-      stub_db.sqls.must_equal ['DELETE FROM custom_schema.users WHERE (id = 1)']
+      stub_db.sqls.must_equal ['DELETE FROM schema_1.users WHERE (id = 1)']
     end
 
     it 'Chained query' do
       stub_users.where(id: [1,2]).limit(1).order(:name).all
-      stub_db.sqls.must_equal ['SELECT users.* FROM custom_schema.users WHERE (id IN (1, 2)) ORDER BY name LIMIT 1']
+      stub_db.sqls.must_equal ['SELECT users.* FROM schema_1.users WHERE (id IN (1, 2)) ORDER BY name LIMIT 1']
     end
 
     it 'Graph' do
       stub_posts.graph(:user, :categories, 'comments.user.posts.categories').all
 
       stub_db.sqls.must_equal [
-        'SELECT posts.* FROM custom_schema.posts',
-        'SELECT categories.*, custom_schema.categories_posts.post_id AS source_foreign_key FROM custom_schema.categories INNER JOIN custom_schema.categories_posts ON (custom_schema.categories_posts.category_id = custom_schema.categories.id) WHERE (custom_schema.categories_posts.post_id IN (3, 4))', 
-        'SELECT comments.* FROM custom_schema.comments WHERE (post_id IN (3, 4))',
-        'SELECT users.* FROM custom_schema.users WHERE (id IN (2, 1))',
-        'SELECT posts.* FROM custom_schema.posts WHERE (user_id IN (1, 2))',
-        'SELECT categories.*, custom_schema.categories_posts.post_id AS source_foreign_key FROM custom_schema.categories INNER JOIN custom_schema.categories_posts ON (custom_schema.categories_posts.category_id = custom_schema.categories.id) WHERE (custom_schema.categories_posts.post_id IN (3, 4))',
-        'SELECT users.* FROM custom_schema.users WHERE (id IN (1, 2))'
+        'SELECT posts.* FROM schema_1.posts',
+        'SELECT categories.*, schema_1.categories_posts.post_id AS source_foreign_key FROM schema_1.categories INNER JOIN schema_1.categories_posts ON (schema_1.categories_posts.category_id = schema_1.categories.id) WHERE (schema_1.categories_posts.post_id IN (3, 4))', 
+        'SELECT comments.* FROM schema_1.comments WHERE (post_id IN (3, 4))',
+        'SELECT users.* FROM schema_1.users WHERE (id IN (2, 1))',
+        'SELECT posts.* FROM schema_1.posts WHERE (user_id IN (1, 2))',
+        'SELECT categories.*, schema_1.categories_posts.post_id AS source_foreign_key FROM schema_1.categories INNER JOIN schema_1.categories_posts ON (schema_1.categories_posts.category_id = schema_1.categories.id) WHERE (schema_1.categories_posts.post_id IN (3, 4))',
+        'SELECT users.* FROM schema_1.users WHERE (id IN (1, 2))'
       ]
     end
 
     it 'Named query' do
       stub_posts.commented_by(1).all
       stub_db.sqls.must_equal [
-        'SELECT DISTINCT posts.* FROM custom_schema.posts INNER JOIN custom_schema.comments ON (custom_schema.comments.post_id = custom_schema.posts.id) WHERE (custom_schema.comments.user_id = 1)'
+        'SELECT DISTINCT posts.* FROM schema_1.posts INNER JOIN schema_1.comments ON (schema_1.comments.post_id = schema_1.posts.id) WHERE (schema_1.comments.user_id = 1)'
       ]
     end
 
     it 'Custom query' do
       stub_comments.posts_commented_by(2)
       stub_db.sqls.must_equal [
-        'SELECT posts.* FROM custom_schema.comments INNER JOIN custom_schema.posts ON (custom_schema.posts.id = custom_schema.comments.post_id) WHERE (comments.user_id = 2)'
+        'SELECT posts.* FROM schema_1.comments INNER JOIN schema_1.posts ON (schema_1.posts.id = schema_1.comments.post_id) WHERE (comments.user_id = 2)'
       ]
     end
 

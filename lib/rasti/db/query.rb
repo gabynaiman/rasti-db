@@ -5,13 +5,12 @@ module Rasti
       DATASET_CHAINED_METHODS = [:where, :exclude, :or, :order, :reverse_order, :limit, :offset].freeze
 
       include Enumerable
-      include Helpers::WithSchema
 
-      def initialize(collection_class:, dataset:, relations_graph:nil, schema:nil)
+      def initialize(collection_class:, dataset:, environment:, relations_graph:nil)
         @collection_class = collection_class
         @dataset = dataset
-        @relations_graph = relations_graph || Relations::Graph.new(dataset.db, schema, collection_class)
-        @schema = schema
+        @environment = environment
+        @relations_graph = relations_graph || Relations::Graph.new(environment, collection_class)
       end
 
       DATASET_CHAINED_METHODS.each do |method|
@@ -74,7 +73,7 @@ module Rasti
       end
 
       def join(*relations)
-        graph = Relations::Graph.new dataset.db, schema, collection_class, relations
+        graph = Relations::Graph.new environment, collection_class, relations
         
         ds = graph.add_joins(dataset)
                   .distinct
@@ -127,14 +126,14 @@ module Rasti
 
       private
 
-      attr_reader :collection_class, :dataset, :relations_graph, :schema
+      attr_reader :collection_class, :dataset, :environment, :relations_graph
 
       def build_query(**args)
         current_args = {
           collection_class: collection_class,
           dataset: dataset,
-          relations_graph: relations_graph,
-          schema: schema
+          environment: environment,
+          relations_graph: relations_graph
         }
 
         Query.new(**current_args.merge(args))
@@ -145,7 +144,7 @@ module Rasti
       end
 
       def with_related(relation_name, primary_keys)
-        ds = collection_class.relations[relation_name].apply_filter dataset, schema, primary_keys
+        ds = collection_class.relations[relation_name].apply_filter environment, dataset, primary_keys
         build_query dataset: ds
       end
 
@@ -153,6 +152,10 @@ module Rasti
         rows = data.is_a?(Array) ? data : [data]
         relations_graph.fetch_graph rows
         data
+      end
+
+      def qualify(repository_name, *names)
+        environment.qualify(repository_name, *names)
       end
 
       def nql_parser
