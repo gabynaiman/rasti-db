@@ -10,7 +10,7 @@ describe 'Model' do
     end
 
     it 'Invalid definition' do
-      error = proc { model = Rasti::DB::Model[:id, :name, :name] }.must_raise ArgumentError
+      error = proc { Rasti::DB::Model[:id, :name, :name] }.must_raise ArgumentError
       error.message.must_equal 'Attribute name already exists'
     end
 
@@ -82,6 +82,8 @@ describe 'Model' do
   it 'Merge' do
     user = User.new(id: 1, name: 'User 1')
     changed_user = user.merge(name: 'User 2')
+    
+    user.must_equal User.new(id: 1, name: 'User 1')
     changed_user.must_equal User.new(id: 1, name: 'User 2')
   end
 
