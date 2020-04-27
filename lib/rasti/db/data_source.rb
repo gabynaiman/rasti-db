@@ -1,6 +1,6 @@
 module Rasti
   module DB
-    class Repository
+    class DataSource
 
       attr_reader :db, :schema
 

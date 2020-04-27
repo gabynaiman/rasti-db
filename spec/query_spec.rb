@@ -177,7 +177,7 @@ describe 'Query' do
     users_query.graph(:posts).where(id: 1).first.must_equal User.new(id: 1, name: 'User 1', posts: [Post.new(id: 2, user_id: 1, title: 'Another post', body: '...', language_id: 1)])
   end
 
-  it 'Graph with multiple repositories' do
+  it 'Graph with multiple data sources' do
     language = Language.new id: 1, name: 'Spanish'
 
     person = Person.new user_id: 2,
@@ -261,21 +261,21 @@ describe 'Query' do
                  .must_equal [Post.new(id: 1, user_id: 2, title: 'Sample post', body: '...', language_id: 1)]
     end
 
-    describe 'Multiple repositories' do
+    describe 'Multiple data sources' do
 
       it 'One to Many' do
         error = proc { languages_query.join(:posts).all }.must_raise RuntimeError
-        error.message.must_equal 'Invalid join of multiple repositories: custom.languages > default.posts'
+        error.message.must_equal 'Invalid join of multiple data sources: custom.languages > default.posts'
       end
 
       it 'Many to One' do
         error = proc { posts_query.join(:language).all }.must_raise RuntimeError
-        error.message.must_equal 'Invalid join of multiple repositories: default.posts > custom.languages'
+        error.message.must_equal 'Invalid join of multiple data sources: default.posts > custom.languages'
       end
 
       it 'Many to Many' do
         error = proc { languages_query.join(:people).all }.must_raise RuntimeError
-        error.message.must_equal 'Invalid join of multiple repositories: custom.languages > default.people'
+        error.message.must_equal 'Invalid join of multiple data sources: custom.languages > default.people'
       end
     end
 

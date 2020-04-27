@@ -54,8 +54,8 @@ module Rasti
         end
 
         def validate_join!
-          if source_collection_class.repository_name != target_collection_class.repository_name
-            raise "Invalid join of multiple repositories: #{source_collection_class.repository_name}.#{source_collection_class.collection_name} > #{target_collection_class.repository_name}.#{target_collection_class.collection_name}" 
+          if source_collection_class.data_source_name != target_collection_class.data_source_name
+            raise "Invalid join of multiple data sources: #{source_collection_class.data_source_name}.#{source_collection_class.collection_name} > #{target_collection_class.data_source_name}.#{target_collection_class.collection_name}" 
           end
         end
         

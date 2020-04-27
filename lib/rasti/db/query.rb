@@ -154,8 +154,8 @@ module Rasti
         data
       end
 
-      def qualify(repository_name, *names)
-        environment.qualify(repository_name, *names)
+      def qualify(data_source_name, *names)
+        environment.qualify(data_source_name, *names)
       end
 
       def nql_parser

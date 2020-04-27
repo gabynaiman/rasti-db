@@ -35,8 +35,8 @@ module Rasti
           end
         end
 
-        def repository_name
-          @repository_name ||= :default
+        def data_source_name
+          @data_source_name ||= :default
         end
 
         def relations
@@ -65,8 +65,8 @@ module Rasti
           @model = model
         end
 
-        def use(repository_name)
-          @repository_name = repository_name
+        def use(data_source_name)
+          @data_source_name = data_source_name
         end
 
         [Relations::OneToMany, Relations::ManyToOne, Relations::ManyToMany, Relations::OneToOne].each do |relation_class|
@@ -188,12 +188,12 @@ module Rasti
 
       attr_reader :environment
 
-      def repository
-        environment.repository_of self.class
+      def data_source
+        @data_source ||= environment.data_source_of self.class
       end
 
       def db
-        repository.db
+        data_source.db
       end
 
       def dataset
@@ -201,11 +201,11 @@ module Rasti
       end
 
       def qualified_collection_name
-        repository.qualify self.class.collection_name
+        data_source.qualify self.class.collection_name
       end
       
-      def qualify(repository_name, *names)
-        environment.qualify(repository_name, *names)
+      def qualify(data_source_name, *names)
+        environment.qualify(data_source_name, *names)
       end
 
       def default_query
@@ -256,13 +256,13 @@ module Rasti
         end
 
         relations.select { |r| r.one_to_many? || r.one_to_one? }.each do |relation|
-          relation_repository = environment.repository_of relation.target_collection_class
-          relation_collection_name = relation_repository.qualify relation.target_collection_class.collection_name
+          relation_data_source = environment.data_source_of relation.target_collection_class
+          relation_collection_name = relation_data_source.qualify relation.target_collection_class.collection_name
 
-          relations_ids = relation_repository.db[relation_collection_name]
-                                             .where(relation.foreign_key => primary_keys)
-                                             .select(relation.target_collection_class.primary_key)
-                                             .map(relation.target_collection_class.primary_key)
+          relations_ids = relation_data_source.db[relation_collection_name]
+                                              .where(relation.foreign_key => primary_keys)
+                                              .select(relation.target_collection_class.primary_key)
+                                              .map(relation.target_collection_class.primary_key)
 
           target_collection = relation.target_collection_class.new environment
           target_collection.delete_cascade(*relations_ids) unless relations_ids.empty?
@@ -270,8 +270,8 @@ module Rasti
       end
 
       def insert_relation_table(relation, primary_key, relation_primary_keys)
-        relation_repository = environment.repository relation.relation_repository_name
-        relation_collection_name = relation_repository.qualify relation.relation_collection_name
+        relation_data_source = environment.data_source relation.relation_data_source_name
+        relation_collection_name = relation_data_source.qualify relation.relation_collection_name
 
         values = relation_primary_keys.map do |relation_pk| 
           {
@@ -280,14 +280,14 @@ module Rasti
           }
         end
 
-        relation_repository.db[relation_collection_name].multi_insert values
+        relation_data_source.db[relation_collection_name].multi_insert values
       end
 
       def delete_relation_table(relation, primary_keys, relation_primary_keys=nil)
-        relation_repository = environment.repository relation.relation_repository_name
-        relation_collection_name = relation_repository.qualify relation.relation_collection_name
+        relation_data_source = environment.data_source relation.relation_data_source_name
+        relation_collection_name = relation_data_source.qualify relation.relation_collection_name
 
-        ds = relation_repository.db[relation_collection_name].where(relation.source_foreign_key => primary_keys)
+        ds = relation_data_source.db[relation_collection_name].where(relation.source_foreign_key => primary_keys)
         ds = ds.where(relation.target_foreign_key => relation_primary_keys) if relation_primary_keys
         ds.delete
       end

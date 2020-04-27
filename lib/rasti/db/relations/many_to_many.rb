@@ -15,32 +15,32 @@ module Rasti
           @relation_collection_name ||= options[:relation_collection_name] || [source_collection_class.collection_name, target_collection_class.collection_name].sort.join('_').to_sym
         end
 
-        def relation_repository_name
-          @relation_repository_name ||= options[:relation_repository_name] || source_collection_class.repository_name
+        def relation_data_source_name
+          @relation_data_source_name ||= options[:relation_data_source_name] || source_collection_class.data_source_name
         end
 
         def qualified_relation_collection_name(environment)
-          environment.qualify relation_repository_name, relation_collection_name
+          environment.qualify relation_data_source_name, relation_collection_name
         end
 
         def fetch_graph(environment, rows, selected_attributes=nil, excluded_attributes=nil, relations_graph=nil)
           pks = rows.map { |row| row[source_collection_class.primary_key] }
 
-          if target_collection_class.repository_name == relation_repository_name
-            target_repository = environment.repository_of target_collection_class
+          if target_collection_class.data_source_name == relation_data_source_name
+            target_data_source = environment.data_source_of target_collection_class
             
             relation_name = qualified_relation_collection_name environment
 
-            join_rows = target_repository.db.from(qualified_target_collection_name(environment))
+            join_rows = target_data_source.db.from(qualified_target_collection_name(environment))
                                             .join(relation_name, target_foreign_key => target_collection_class.primary_key)
                                             .where(Sequel[relation_name][source_foreign_key] => pks)
                                             .select_all(target_collection_class.collection_name)
                                             .select_append(Sequel[relation_name][source_foreign_key].as(:source_foreign_key))
                                             .all
           else
-            relation_repository = environment.repository relation_repository_name
+            relation_data_source = environment.data_source relation_data_source_name
 
-            relation_index = relation_repository.db.from(relation_repository.qualify(relation_collection_name))
+            relation_index = relation_data_source.db.from(relation_data_source.qualify(relation_collection_name))
                                                    .where(source_foreign_key => pks)
                                                    .select_hash_groups(target_foreign_key, source_foreign_key)
 

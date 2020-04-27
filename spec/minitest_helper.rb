@@ -78,7 +78,7 @@ end
 class Languages < Rasti::DB::Collection
   use :custom
 
-  many_to_many :people, collection: People, relation_repository_name: :default
+  many_to_many :people, collection: People, relation_data_source_name: :default
   one_to_many :posts
 end
 
@@ -100,8 +100,8 @@ class Minitest::Spec
   let(:driver) { (RUBY_ENGINE == 'jruby') ? 'jdbc:sqlite::memory:' : {adapter: :sqlite} }
 
   let :environment do 
-    Rasti::DB::Environment.new default: Rasti::DB::Repository.new(db),
-                               custom: Rasti::DB::Repository.new(custom_db)
+    Rasti::DB::Environment.new default: Rasti::DB::DataSource.new(db),
+                               custom: Rasti::DB::DataSource.new(custom_db)
   end
 
   let :db do

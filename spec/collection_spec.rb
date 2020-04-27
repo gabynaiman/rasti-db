@@ -10,7 +10,7 @@ describe 'Collection' do
       Users.model.must_equal User
       Users.primary_key.must_equal :id
       Users.foreign_key.must_equal :user_id
-      Users.repository_name.must_equal :default
+      Users.data_source_name.must_equal :default
     end
 
     it 'Explicit' do
@@ -20,7 +20,7 @@ describe 'Collection' do
       People.primary_key.must_equal :document_number
       People.foreign_key.must_equal :document_number
 
-      Languages.repository_name.must_equal :custom
+      Languages.data_source_name.must_equal :custom
     end
 
     it 'Lazy model name' do
@@ -230,7 +230,7 @@ describe 'Collection' do
 
     end
 
-    describe 'Custom repository' do
+    describe 'Custom data_source' do
 
       before do
         1.upto(3) do |i| 
@@ -549,8 +549,8 @@ describe 'Collection' do
     end
 
     let :stub_environment do 
-      Rasti::DB::Environment.new default: Rasti::DB::Repository.new(stub_db, :schema_1),
-                                 custom: Rasti::DB::Repository.new(stub_db, :schema_2)
+      Rasti::DB::Environment.new default: Rasti::DB::DataSource.new(stub_db, :schema_1),
+                                 custom: Rasti::DB::DataSource.new(stub_db, :schema_2)
     end
 
     let(:stub_users)     { Users.new stub_environment }

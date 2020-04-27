@@ -2,30 +2,30 @@ module Rasti
   module DB
     class Environment
 
-      def initialize(repositories)
-        @repositories = repositories
+      def initialize(data_sources)
+        @data_sources = data_sources
       end
 
-      def repository(name)
-        raise "Undefined repository #{name}" unless repositories.key? name
-        repositories[name]
+      def data_source(name)
+        raise "Undefined data source #{name}" unless data_sources.key? name
+        data_sources[name]
       end
 
-      def repository_of(collection_class)
-        repository collection_class.repository_name
+      def data_source_of(collection_class)
+        data_source collection_class.data_source_name
       end
 
-      def qualify(repository_name, *names)
-        repository(repository_name).qualify(*names)
+      def qualify(data_source_name, *names)
+        data_source(data_source_name).qualify(*names)
       end
 
       def qualify_collection(collection_class)
-        repository_of(collection_class).qualify(collection_class.collection_name)
+        data_source_of(collection_class).qualify(collection_class.collection_name)
       end
 
       private
 
-      attr_reader :repositories
+      attr_reader :data_sources
 
     end
   end
