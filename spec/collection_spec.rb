@@ -456,7 +456,7 @@ describe 'Collection' do
           end
 
           it 'Many to Many' do
-            # languages.with_people(['document_1']).primary_keys.must_equal [1]
+            languages.with_people(['document_1']).primary_keys.must_equal [1]
             people.with_languages([2]).primary_keys.must_equal ['document_2']
           end
 

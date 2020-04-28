@@ -37,14 +37,6 @@ module Rasti
           with_prefix prefix, name
         end
 
-        def qualified_source_collection_name(environment)
-          environment.qualify_collection source_collection_class
-        end
-
-        def qualified_target_collection_name(environment)
-          environment.qualify_collection target_collection_class
-        end
-
         private
 
         attr_reader :options

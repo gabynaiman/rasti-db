@@ -35,12 +35,12 @@ module Rasti
             Sequel[relation_alias][foreign_key] => relation_name[source_collection_class.primary_key]
           }
 
-          dataset.join(qualified_target_collection_name(environment).as(relation_alias), relation_condition)
+          dataset.join(environment.qualify_collection(target_collection_class).as(relation_alias), relation_condition)
         end
 
         def apply_filter(environment, dataset, primary_keys)
           if source_collection_class.data_source_name == target_collection_class.data_source_name
-            dataset.join(qualified_target_collection_name(environment), foreign_key => source_collection_class.primary_key)
+            dataset.join(environment.qualify_collection(target_collection_class), foreign_key => source_collection_class.primary_key)
                    .where(Sequel[target_collection_class.collection_name][target_collection_class.primary_key] => primary_keys)
                    .select_all(target_collection_class.collection_name)
                    .distinct

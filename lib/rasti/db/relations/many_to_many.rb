@@ -19,17 +19,13 @@ module Rasti
           @relation_data_source_name ||= options[:relation_data_source_name] || source_collection_class.data_source_name
         end
 
-        def qualified_relation_collection_name(environment)
-          environment.qualify relation_data_source_name, relation_collection_name
-        end
-
         def fetch_graph(environment, rows, selected_attributes=nil, excluded_attributes=nil, relations_graph=nil)
           pks = rows.map { |row| row[source_collection_class.primary_key] }
 
           if target_collection_class.data_source_name == relation_data_source_name
             target_data_source = environment.data_source_of target_collection_class
 
-            dataset = target_data_source.db.from(qualified_target_collection_name(environment))
+            dataset = target_data_source.db.from(environment.qualify_collection(target_collection_class))
                                            .join(qualified_relation_collection_name(environment), target_foreign_key => target_collection_class.primary_key)
                                            .where(Sequel[relation_collection_name][source_foreign_key] => pks)
                                            .select_all(target_collection_class.collection_name)
@@ -86,7 +82,7 @@ module Rasti
           }
 
           dataset.join(qualified_relation_collection_name(environment).as(many_to_many_relation_alias), many_to_many_condition)
-                 .join(qualified_target_collection_name(environment).as(relation_alias), relation_condition)
+                 .join(environment.qualify_collection(target_collection_class).as(relation_alias), relation_condition)
         end
 
         def apply_filter(environment, dataset, primary_keys)
@@ -103,6 +99,12 @@ module Rasti
                                 .uniq
             dataset.where(source_collection_class.primary_key => fks)
           end
+        end
+
+        private
+
+        def qualified_relation_collection_name(environment)
+          environment.qualify relation_data_source_name, relation_collection_name
         end
 
       end

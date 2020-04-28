@@ -37,7 +37,7 @@ module Rasti
             Sequel[relation_alias][target_collection_class.primary_key] => relation_name[foreign_key]
           }
 
-          dataset.join(qualified_target_collection_name(environment).as(relation_alias), relation_condition)
+          dataset.join(environment.qualify_collection(target_collection_class).as(relation_alias), relation_condition)
         end
 
         def apply_filter(environment, dataset, primary_keys)
