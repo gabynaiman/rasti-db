@@ -6,10 +6,10 @@ module Rasti
 
       include Enumerable
 
-      def initialize(collection_class:, dataset:, environment:, relations_graph:nil)
+      def initialize(environment:, collection_class:, dataset:, relations_graph:nil)
+        @environment = environment
         @collection_class = collection_class
         @dataset = dataset
-        @environment = environment
         @relations_graph = relations_graph || Relations::Graph.new(environment, collection_class)
       end
 
@@ -126,13 +126,13 @@ module Rasti
 
       private
 
-      attr_reader :collection_class, :dataset, :environment, :relations_graph
+      attr_reader :environment, :collection_class, :dataset, :relations_graph
 
       def build_query(**args)
         current_args = {
+          environment: environment,
           collection_class: collection_class,
           dataset: dataset,
-          environment: environment,
           relations_graph: relations_graph
         }
 
