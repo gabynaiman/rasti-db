@@ -30,17 +30,17 @@ module Rasti
             target_data_source = environment.data_source_of target_collection_class
 
             join_rows = target_data_source.db.from(qualified_target_collection_name(environment))
-                                            .join(qualified_relation_collection_name(environment), target_foreign_key => target_collection_class.primary_key)
-                                            .where(Sequel[relation_collection_name][source_foreign_key] => pks)
-                                            .select_all(target_collection_class.collection_name)
-                                            .select_append(Sequel[relation_collection_name][source_foreign_key].as(:source_foreign_key))
-                                            .all
+                                             .join(qualified_relation_collection_name(environment), target_foreign_key => target_collection_class.primary_key)
+                                             .where(Sequel[relation_collection_name][source_foreign_key] => pks)
+                                             .select_all(target_collection_class.collection_name)
+                                             .select_append(Sequel[relation_collection_name][source_foreign_key].as(:source_foreign_key))
+                                             .all
           else
             relation_data_source = environment.data_source relation_data_source_name
 
             relation_index = relation_data_source.db.from(relation_data_source.qualify(relation_collection_name))
-                                                   .where(source_foreign_key => pks)
-                                                   .select_hash_groups(target_foreign_key, source_foreign_key)
+                                                    .where(source_foreign_key => pks)
+                                                    .select_hash_groups(target_foreign_key, source_foreign_key)
 
             target_collection = target_collection_class.new environment
 

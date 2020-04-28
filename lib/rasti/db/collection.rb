@@ -65,8 +65,8 @@ module Rasti
           @model = model
         end
 
-        def use(data_source_name)
-          @data_source_name = data_source_name
+        def data_source(name)
+          @data_source_name = name
         end
 
         [Relations::OneToMany, Relations::ManyToOne, Relations::ManyToMany, Relations::OneToOne].each do |relation_class|
