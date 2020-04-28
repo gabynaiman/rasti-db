@@ -76,29 +76,51 @@ describe 'Query' do
   end
 
   it 'Select graph attributes' do
-    person = Person.new db[:people].where(document_number: 'document_2').select(:first_name, :last_name, :user_id).first
+    language = Language.new custom_db[:languages].where(id: 1).select(:id).first
+
+    person = Person.new db[:people].where(document_number: 'document_2').select(:document_number, :user_id).first.merge(languages: [language])
 
     user = User.new db[:users].where(id: 2).select(:id).first.merge(person: person)
 
-    post = Post.new db[:posts].where(id: 1).first.merge(user: user)
+    categories = db[:categories].where(id: [1,2]).select(:id).map { |c| Category.new c }
+
+    post = Post.new db[:posts].where(id: 1).first.merge(user: user, categories: categories)
+
+    selected_attributes = {
+      user: [:id], 
+      'user.person' => [:document_number, :user_id], 
+      'user.person.languages' => [:id],
+      categories: [:id]
+    }
 
     posts_query.where(id: 1)
-               .graph('user.person')
-               .select_graph_attributes(user: [:id], 'user.person' => [:first_name, :last_name, :user_id])
+               .graph(*selected_attributes.keys)
+               .select_graph_attributes(selected_attributes)
                .all
                .must_equal [post]
   end
   
   it 'Exclude graph attributes' do
-    person = Person.new db[:people].where(document_number: 'document_2').select(:document_number, :last_name, :user_id).first
+    language = Language.new custom_db[:languages].where(id: 1).select(:id).first
+
+    person = Person.new db[:people].where(document_number: 'document_2').select(:document_number, :user_id).first.merge(languages: [language])
 
     user = User.new db[:users].where(id: 2).select(:id).first.merge(person: person)
 
-    post = Post.new db[:posts].where(id: 1).first.merge(user: user)
+    categories = db[:categories].where(id: [1,2]).select(:id).map { |c| Category.new c }
+
+    post = Post.new db[:posts].where(id: 1).first.merge(user: user, categories: categories)
+
+    excluded_attributes = {
+      user: [:name], 
+      'user.person' => [:first_name, :last_name, :birth_date], 
+      'user.person.languages' => [:name],
+      categories: [:name]
+    }
 
     posts_query.where(id: 1)
-               .graph('user.person')
-               .exclude_graph_attributes(user: [:name], 'user.person' => [:first_name, :birth_date])
+               .graph(*excluded_attributes.keys)
+               .exclude_graph_attributes(excluded_attributes)
                .all
                .must_equal [post]
   end

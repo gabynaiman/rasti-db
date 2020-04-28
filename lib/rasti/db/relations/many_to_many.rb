@@ -29,12 +29,15 @@ module Rasti
           if target_collection_class.data_source_name == relation_data_source_name
             target_data_source = environment.data_source_of target_collection_class
 
-            join_rows = target_data_source.db.from(qualified_target_collection_name(environment))
-                                             .join(qualified_relation_collection_name(environment), target_foreign_key => target_collection_class.primary_key)
-                                             .where(Sequel[relation_collection_name][source_foreign_key] => pks)
-                                             .select_all(target_collection_class.collection_name)
-                                             .select_append(Sequel[relation_collection_name][source_foreign_key].as(:source_foreign_key))
-                                             .all
+            dataset = target_data_source.db.from(qualified_target_collection_name(environment))
+                                           .join(qualified_relation_collection_name(environment), target_foreign_key => target_collection_class.primary_key)
+                                           .where(Sequel[relation_collection_name][source_foreign_key] => pks)
+                                           .select_all(target_collection_class.collection_name)
+
+            selected_attributes ||= target_collection_class.collection_attributes - excluded_attributes if excluded_attributes
+            dataset = dataset.select(*selected_attributes.map { |a| Sequel[target_collection_class.collection_name][a] }) if selected_attributes
+
+            join_rows = dataset.select_append(Sequel[relation_collection_name][source_foreign_key].as(:source_foreign_key)).all
           else
             relation_data_source = environment.data_source relation_data_source_name
 
@@ -42,9 +45,11 @@ module Rasti
                                                     .where(source_foreign_key => pks)
                                                     .select_hash_groups(target_foreign_key, source_foreign_key)
 
-            target_collection = target_collection_class.new environment
+            query = target_collection_class.new environment
+            query = query.exclude_attributes(*excluded_attributes) if excluded_attributes
+            query = query.select_attributes(*selected_attributes) if selected_attributes
 
-            join_rows = target_collection.where(target_collection_class.primary_key => relation_index.keys).raw.flat_map do |row|
+            join_rows = query.where(target_collection_class.primary_key => relation_index.keys).raw.flat_map do |row|
               relation_index[row[target_collection_class.primary_key]].map do |source_primary_key|
                 row.merge(source_foreign_key: source_primary_key)
               end
