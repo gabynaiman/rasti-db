@@ -119,8 +119,8 @@ class Posts < Rasti::DB::Collection
 
   query :commented_by do |user_id|
     chainable do
-      dataset.join(with_schema(:comments), post_id: :id)
-             .where(with_schema(:comments, :user_id) => user_id)
+      dataset.join(qualify(:comments), post_id: :id)
+             .where(Sequel[:comments][:user_id] => user_id)
              .select_all(:posts)
              .distinct
     end
