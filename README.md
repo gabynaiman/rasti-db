@@ -28,48 +28,61 @@ Or install it yourself as:
 ### Database connection
 
 ```ruby
-DB = Sequel.connect ...
+DB_1 = Sequel.connect ...
+DB_2 = Sequel.connect ...
 ```
 
 ### Database schema
 
 ```ruby
-DB.create_table :users do
+DB_1.create_table :users do
   primary_key :id
   String :name, null: false, unique: true
 end
 
-DB.create_table :posts do
+DB_1.create_table :posts do
   primary_key :id
   String :title, null: false, unique: true
   String :body, null: false
+  Integer :language_id, null: false, index: true
   foreign_key :user_id, :users, null: false, index: true
 end
 
-DB.create_table :comments do
+DB_1.create_table :comments do
   primary_key :id
   String :text, null: false
   foreign_key :user_id, :users, null: false, index: true
   foreign_key :post_id, :posts, null: false, index: true
 end
 
-DB.create_table :categories do
+DB_1.create_table :categories do
   primary_key :id
   String :name, null: false, unique: true
 end
 
-DB.create_table :categories_posts do
+DB_1.create_table :categories_posts do
   foreign_key :category_id, :categories, null: false, index: true
   foreign_key :post_id, :posts, null: false, index: true
   primary_key [:category_id, :post_id]
 end
 
-DB.create_table :people do
+DB_1.create_table :people do
   String :document_number, null: false, primary_key: true
   String :first_name, null: false
   String :last_name, null: false
   Date :birth_date, null: false
   foreign_key :user_id, :users, null: false, unique: true
+end
+
+DB_1.create_table :languages_people do
+  Integer :language_id, null: false, index: true
+  foreign_key :document_number, :people, type: String, null: false, index: true
+  primary_key [:language_id, :document_number]
+end
+
+DB_2.create_table :languages do
+  primary_key :id
+  String :name, null: false, unique: true
 end
 ```
 
@@ -81,6 +94,7 @@ Post     = Rasti::DB::Model[:id, :title, :body, :user_id, :user, :comments, :cat
 Comment  = Rasti::DB::Model[:id, :text, :user_id, :user, :post_id, :post]
 Category = Rasti::DB::Model[:id, :name, :posts]
 Person   = Rasti::DB::Model[:document_number, :first_name, :last_name, :birth_date, :user_id, :user]
+Language = Rasti::DB::Model[:id, :name, :people]
 ```
 
 ### Collections
@@ -129,19 +143,30 @@ class People < Rasti::DB::Collection
   set_model Person
 
   many_to_one :user
+  many_to_many :languages
 end
 
-users      = Users.new DB
-posts      = Posts.new DB
-comments   = Comments.new DB
-categories = Categories.new DB
-people     = People.new DB
+class Languages < Rasti::DB::Collection
+  data_source :other
+
+  one_to_many :posts
+  many_to_many :people, collection: People, relation_data_source_name: :default
+end
+
+environment = Rasti::DB::Environment.new default: Rasti::DB::DataSource.new(DB_1),
+                                         other: Rasti::DB::DataSource.new(DB_2, 'custom_schema')
+
+users      = Users.new environment
+posts      = Posts.new environment
+comments   = Comments.new environment
+categories = Categories.new environment
+people     = People.new environment
 ```
 
 ### Persistence
 
 ```ruby
-DB.transaction do
+DB_1.transaction do
   id = users.insert name: 'User 1'
   users.update id, name: 'User updated'
   users.delete id
@@ -174,7 +199,7 @@ posts.created_by(1) # => [Post, ...]
 posts.created_by(1).entitled('...').commented_by(2) # => [Post, ...]
 posts.with_categories([1,2]) # => [Post, ...]
 
-posts.graph(:user, :categories, 'comments.user') # => [Post(User, [Categories, ...], [Comments(User)]), ...]
+posts.graph(:user, :language, :categories, 'comments.user') # => [Post(User, Language, [Categories, ...], [Comments(User)]), ...]
 
 posts.join(:user).where(name: 'User 4') # => [Post, ...]
 
