@@ -230,7 +230,7 @@ describe 'Collection' do
 
     end
 
-    describe 'Custom data_source' do
+    describe 'Multiple data sources' do
 
       before do
         1.upto(3) do |i| 
@@ -397,15 +397,24 @@ describe 'Collection' do
     describe 'Named queries' do
 
       before do
+        custom_db[:languages].insert name: 'Spanish'
+        custom_db[:languages].insert name: 'English'
+
         1.upto(2) do |i|
           db[:categories].insert name: "Category #{i}"
+          
           db[:users].insert name: "User #{i}"
+          
           db[:people].insert document_number: "document_#{i}", 
                              first_name: "John #{i}",
                              last_name: "Doe #{i}",
                              birth_date: Time.now - i,
                              user_id: i
+          
         end
+
+        db[:languages_people].insert language_id: 1, document_number: 'document_1'
+        db[:languages_people].insert language_id: 2, document_number: 'document_2'
 
         1.upto(3) do |i| 
           db[:posts].insert user_id: 1, title: "Post #{i}", body: '...', language_id: 1
@@ -413,7 +422,7 @@ describe 'Collection' do
         end
         
         4.upto(5) do |i| 
-          db[:posts].insert user_id: 2, title: "Post #{i}", body: '...', language_id: 1
+          db[:posts].insert user_id: 2, title: "Post #{i}", body: '...', language_id: 2
           db[:categories_posts].insert category_id: 2, post_id: i
         end
       end
@@ -434,6 +443,23 @@ describe 'Collection' do
 
         it 'One to One' do
           users.with_people('document_1').primary_keys.must_equal [1]
+        end
+
+        describe 'Multiple data sources' do
+
+          it 'One to many' do
+            languages.with_posts([1,2]).primary_keys.must_equal [1]
+          end
+
+          it 'Many to one' do
+            posts.with_languages([2]).primary_keys.must_equal [4,5]
+          end
+
+          it 'Many to Many' do
+            # languages.with_people(['document_1']).primary_keys.must_equal [1]
+            people.with_languages([2]).primary_keys.must_equal ['document_2']
+          end
+
         end
 
       end

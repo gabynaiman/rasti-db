@@ -40,11 +40,11 @@ module Rasti
         end
 
         def relations
-          @relations ||= {}
+          @relations ||= Hash::Indifferent.new
         end
 
         def queries
-          @queries ||= {}
+          @queries ||= Hash::Indifferent.new
         end
 
         private
@@ -66,14 +66,16 @@ module Rasti
         end
 
         def data_source(name)
-          @data_source_name = name
+          @data_source_name = name.to_sym
         end
 
         [Relations::OneToMany, Relations::ManyToOne, Relations::ManyToMany, Relations::OneToOne].each do |relation_class|
           define_method underscore(demodulize(relation_class.name)) do |name, options={}|
             relations[name] = relation_class.new name, self, options
 
-            query "with_#{pluralize(name)}".to_sym do |primary_keys|
+            query_name = "with_#{underscore(options.fetch(:collection, pluralize(name)).to_s)}"
+
+            query query_name do |primary_keys|
               with_related name, primary_keys
             end
           end

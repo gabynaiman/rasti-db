@@ -85,10 +85,19 @@ module Rasti
         end
 
         def apply_filter(environment, dataset, primary_keys)
-          dataset.join(qualified_relation_collection_name(environment), source_foreign_key => target_collection_class.primary_key)
-                 .where(Sequel[relation_collection_name][target_foreign_key] => primary_keys)
-                 .select_all(source_collection_class.collection_name)
-                 .distinct
+          if source_collection_class.data_source_name == relation_data_source_name
+            dataset.join(qualified_relation_collection_name(environment), source_foreign_key => source_collection_class.primary_key)
+                   .where(Sequel[relation_collection_name][target_foreign_key] => primary_keys)
+                   .select_all(source_collection_class.collection_name)
+                   .distinct
+          else
+            data_source = environment.data_source relation_data_source_name
+            fks = data_source.db.from(data_source.qualify(relation_collection_name))
+                                .where(target_collection_class.foreign_key => primary_keys)
+                                .select_map(source_collection_class.foreign_key)
+                                .uniq
+            dataset.where(source_collection_class.primary_key => fks)
+          end
         end
 
       end
