@@ -31,10 +31,10 @@ module Rasti
           
           relation_alias = join_relation_name prefix
 
-          qualified_relation_source = prefix ? Sequel[prefix] : qualified_source_collection_name(environment)
+          relation_name = prefix ? Sequel[prefix] : Sequel[source_collection_class.collection_name]
 
           relation_condition = {
-            Sequel[relation_alias][target_collection_class.primary_key] => qualified_relation_source[foreign_key]
+            Sequel[relation_alias][target_collection_class.primary_key] => relation_name[foreign_key]
           }
 
           dataset.join(qualified_target_collection_name(environment).as(relation_alias), relation_condition)

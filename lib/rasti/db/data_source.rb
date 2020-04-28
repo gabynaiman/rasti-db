@@ -9,10 +9,8 @@ module Rasti
         @schema = schema
       end
 
-      def qualify(*names)
-        ([schema] + names).compact.inject(Sequel) do |scope, name| 
-          scope[name.to_sym]
-        end
+      def qualify(collection_name)
+        schema ? Sequel[schema][collection_name] : Sequel[collection_name]
       end
       
     end

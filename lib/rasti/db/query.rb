@@ -154,8 +154,9 @@ module Rasti
         data
       end
 
-      def qualify(data_source_name, *names)
-        environment.qualify(data_source_name, *names)
+      def qualify(collection_name, data_source_name: nil)
+        data_source_name ||= collection_class.data_source_name
+        environment.qualify data_source_name, collection_name
       end
 
       def nql_parser

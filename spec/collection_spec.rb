@@ -532,6 +532,12 @@ describe 'Collection' do
             {id: 8, user_id: 2, post_id: 4}
           ]
 
+        when 'SELECT languages.* FROM schema_2.languages WHERE (id IN (1, 2))'
+          [
+            {id: 1},
+            {id: 2}
+          ]
+
         end
       end
 
@@ -561,6 +567,7 @@ describe 'Collection' do
 
     it 'Insert' do
       stub_users.insert name: 'User 1'
+
       stub_db.sqls.must_equal [
         'BEGIN',
         "INSERT INTO schema_1.users (name) VALUES ('User 1')",
@@ -570,6 +577,7 @@ describe 'Collection' do
 
     it 'Insert with many to many relation' do
       stub_posts.insert user_id: 1, title: 'Post 1', body: '...', categories: [2,3], language_id: 1
+
       stub_db.sqls.must_equal [
         'BEGIN',
         "INSERT INTO schema_1.posts (user_id, title, body, language_id) VALUES (1, 'Post 1', '...', 1)",
@@ -609,6 +617,7 @@ describe 'Collection' do
 
     it 'Update' do
       stub_users.update 1, name: 'Updated name'
+
       stub_db.sqls.must_equal [
         'BEGIN',
         "UPDATE schema_1.users SET name = 'Updated name' WHERE (id = 1)",
@@ -618,37 +627,55 @@ describe 'Collection' do
 
     it 'Delete' do
       stub_users.delete 1
-      stub_db.sqls.must_equal ['DELETE FROM schema_1.users WHERE (id = 1)']
+
+      stub_db.sqls.must_equal [
+        'DELETE FROM schema_1.users WHERE (id = 1)'
+      ]
     end
 
     it 'Chained query' do
       stub_users.where(id: [1,2]).limit(1).order(:name).all
-      stub_db.sqls.must_equal ['SELECT users.* FROM schema_1.users WHERE (id IN (1, 2)) ORDER BY name LIMIT 1']
+
+      stub_db.sqls.must_equal [
+        'SELECT users.* FROM schema_1.users WHERE (id IN (1, 2)) ORDER BY name LIMIT 1'
+      ]
     end
 
     it 'Graph' do
-      stub_posts.graph(:user, :categories, 'comments.user.posts.categories').all
+      stub_posts.graph(:user, :categories, 'comments.user.posts.categories', 'language.people').all
 
       stub_db.sqls.must_equal [
         'SELECT posts.* FROM schema_1.posts',
-        'SELECT categories.*, schema_1.categories_posts.post_id AS source_foreign_key FROM schema_1.categories INNER JOIN schema_1.categories_posts ON (schema_1.categories_posts.category_id = schema_1.categories.id) WHERE (schema_1.categories_posts.post_id IN (3, 4))', 
+        'SELECT categories.*, categories_posts.post_id AS source_foreign_key FROM schema_1.categories INNER JOIN schema_1.categories_posts ON (schema_1.categories_posts.category_id = schema_1.categories.id) WHERE (categories_posts.post_id IN (3, 4))', 
         'SELECT comments.* FROM schema_1.comments WHERE (post_id IN (3, 4))',
         'SELECT users.* FROM schema_1.users WHERE (id IN (2, 1))',
         'SELECT posts.* FROM schema_1.posts WHERE (user_id IN (1, 2))',
-        'SELECT categories.*, schema_1.categories_posts.post_id AS source_foreign_key FROM schema_1.categories INNER JOIN schema_1.categories_posts ON (schema_1.categories_posts.category_id = schema_1.categories.id) WHERE (schema_1.categories_posts.post_id IN (3, 4))',
+        'SELECT categories.*, categories_posts.post_id AS source_foreign_key FROM schema_1.categories INNER JOIN schema_1.categories_posts ON (schema_1.categories_posts.category_id = schema_1.categories.id) WHERE (categories_posts.post_id IN (3, 4))',
+        'SELECT languages.* FROM schema_2.languages WHERE (id IN (1, 2))',
+        'SELECT people.*, languages_people.language_id AS source_foreign_key FROM schema_1.people INNER JOIN schema_1.languages_people ON (schema_1.languages_people.document_number = schema_1.people.document_number) WHERE (languages_people.language_id IN (1, 2))',
         'SELECT users.* FROM schema_1.users WHERE (id IN (1, 2))'
+      ]
+    end
+
+    it 'Join' do
+      stub_posts.join('user.person').where(document_number: 'document_1').all
+
+      stub_db.sqls.must_equal [
+        "SELECT DISTINCT posts.* FROM schema_1.posts INNER JOIN schema_1.users AS user ON (user.id = posts.user_id) INNER JOIN schema_1.people AS user__person ON (user__person.user_id = user.id) WHERE (document_number = 'document_1')"
       ]
     end
 
     it 'Named query' do
       stub_posts.commented_by(1).all
+
       stub_db.sqls.must_equal [
-        'SELECT DISTINCT posts.* FROM schema_1.posts INNER JOIN schema_1.comments ON (schema_1.comments.post_id = schema_1.posts.id) WHERE (schema_1.comments.user_id = 1)'
+        'SELECT DISTINCT posts.* FROM schema_1.posts INNER JOIN schema_1.comments ON (schema_1.comments.post_id = schema_1.posts.id) WHERE (comments.user_id = 1)'
       ]
     end
 
     it 'Custom query' do
       stub_comments.posts_commented_by(2)
+
       stub_db.sqls.must_equal [
         'SELECT posts.* FROM schema_1.comments INNER JOIN schema_1.posts ON (schema_1.posts.id = schema_1.comments.post_id) WHERE (comments.user_id = 2)'
       ]

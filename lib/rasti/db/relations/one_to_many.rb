@@ -29,21 +29,19 @@ module Rasti
           
           relation_alias = join_relation_name prefix
 
-          qualified_relation_source = prefix ? Sequel[prefix] : qualified_source_collection_name(environment)
+          relation_name = prefix ? Sequel[prefix] : Sequel[source_collection_class.collection_name]
 
           relation_condition = {
-            Sequel[relation_alias][foreign_key] => qualified_relation_source[source_collection_class.primary_key]
+            Sequel[relation_alias][foreign_key] => relation_name[source_collection_class.primary_key]
           }
 
           dataset.join(qualified_target_collection_name(environment).as(relation_alias), relation_condition)
         end
 
         def apply_filter(environment, dataset, primary_keys)
-          target_name = qualified_target_collection_name environment
-
-          dataset.join(target_name, foreign_key => source_collection_class.primary_key)
-                 .where(Sequel[target_name][target_collection_class.primary_key] => primary_keys)
-                 .select_all(qualified_source_collection_name(environment))
+          dataset.join(qualified_target_collection_name(environment), foreign_key => source_collection_class.primary_key)
+                 .where(Sequel[target_collection_class.collection_name][target_collection_class.primary_key] => primary_keys)
+                 .select_all(target_collection_class.collection_name)
                  .distinct
         end
 

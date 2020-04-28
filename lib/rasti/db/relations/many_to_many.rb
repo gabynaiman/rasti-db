@@ -28,14 +28,12 @@ module Rasti
 
           if target_collection_class.data_source_name == relation_data_source_name
             target_data_source = environment.data_source_of target_collection_class
-            
-            relation_name = qualified_relation_collection_name environment
 
             join_rows = target_data_source.db.from(qualified_target_collection_name(environment))
-                                            .join(relation_name, target_foreign_key => target_collection_class.primary_key)
-                                            .where(Sequel[relation_name][source_foreign_key] => pks)
+                                            .join(qualified_relation_collection_name(environment), target_foreign_key => target_collection_class.primary_key)
+                                            .where(Sequel[relation_collection_name][source_foreign_key] => pks)
                                             .select_all(target_collection_class.collection_name)
-                                            .select_append(Sequel[relation_name][source_foreign_key].as(:source_foreign_key))
+                                            .select_append(Sequel[relation_collection_name][source_foreign_key].as(:source_foreign_key))
                                             .all
           else
             relation_data_source = environment.data_source relation_data_source_name
@@ -70,10 +68,10 @@ module Rasti
           
           many_to_many_relation_alias = with_prefix prefix, "#{relation_collection_name}_#{SecureRandom.base64}"
 
-          qualified_relation_source = prefix ? Sequel[prefix] : qualified_source_collection_name(environment)
+          relation_name = prefix ? Sequel[prefix] : Sequel[source_collection_class.collection_name]
 
           many_to_many_condition = {
-            Sequel[many_to_many_relation_alias][source_foreign_key] => qualified_relation_source[source_collection_class.primary_key]
+            Sequel[many_to_many_relation_alias][source_foreign_key] => relation_name[source_collection_class.primary_key]
           }
 
           relation_alias = join_relation_name prefix
@@ -87,10 +85,8 @@ module Rasti
         end
 
         def apply_filter(environment, dataset, primary_keys)
-          relation_name = qualified_relation_collection_name environment
-
-          dataset.join(relation_name, source_foreign_key => target_collection_class.primary_key)
-                 .where(Sequel[relation_name][target_foreign_key] => primary_keys)
+          dataset.join(qualified_relation_collection_name(environment), source_foreign_key => target_collection_class.primary_key)
+                 .where(Sequel[relation_collection_name][target_foreign_key] => primary_keys)
                  .select_all(source_collection_class.collection_name)
                  .distinct
         end

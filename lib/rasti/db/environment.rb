@@ -15,12 +15,12 @@ module Rasti
         data_source collection_class.data_source_name
       end
 
-      def qualify(data_source_name, *names)
-        data_source(data_source_name).qualify(*names)
+      def qualify(data_source_name, collection_name)
+        data_source(data_source_name).qualify collection_name
       end
 
       def qualify_collection(collection_class)
-        data_source_of(collection_class).qualify(collection_class.collection_name)
+        data_source_of(collection_class).qualify collection_class.collection_name
       end
 
       private
