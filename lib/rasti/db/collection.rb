@@ -73,9 +73,7 @@ module Rasti
           define_method underscore(demodulize(relation_class.name)) do |name, options={}|
             relations[name] = relation_class.new name, self, options
 
-            query_name = "with_#{underscore(options.fetch(:collection, pluralize(name)).to_s)}"
-
-            query query_name do |primary_keys|
+            query "with_#{pluralize(singularize(name))}" do |primary_keys|
               with_related name, primary_keys
             end
           end
