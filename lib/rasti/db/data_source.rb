@@ -6,7 +6,7 @@ module Rasti
 
       def initialize(db, schema=nil)
         @db = db
-        @schema = schema
+        @schema = schema ? schema.to_sym : nil
       end
 
       def qualify(collection_name)
