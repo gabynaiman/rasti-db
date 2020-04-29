@@ -76,7 +76,7 @@ class People < Rasti::DB::Collection
 end
 
 class Languages < Rasti::DB::Collection
-  data_source :custom
+  set_data_source_name :custom
 
   many_to_many :people, collection: People, relation_data_source_name: :default
   one_to_many :posts

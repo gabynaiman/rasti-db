@@ -36,7 +36,7 @@ module Rasti
         end
 
         def data_source_name
-          @data_source_name ||= :default
+          @data_source_name ||= superclass.respond_to?(:data_source_name) ? superclass.data_source_name : :default
         end
 
         def relations
@@ -65,7 +65,7 @@ module Rasti
           @model = model
         end
 
-        def data_source(name)
+        def set_data_source_name(name)
           @data_source_name = name.to_sym
         end
 
