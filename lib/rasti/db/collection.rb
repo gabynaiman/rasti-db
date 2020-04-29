@@ -102,7 +102,7 @@ module Rasti
       end
 
       def insert(attributes)
-        db.transaction do
+        data_source.db.transaction do
           db_attributes = transform_attributes_to_db attributes
           collection_attributes, relations_primary_keys = split_related_attributes db_attributes
           primary_key = dataset.insert collection_attributes
@@ -125,7 +125,7 @@ module Rasti
       end
 
       def update(primary_key, attributes)
-        db.transaction do
+        data_source.db.transaction do
           db_attributes = transform_attributes_to_db attributes
           collection_attributes, relations_primary_keys = split_related_attributes db_attributes
           dataset.where(self.class.primary_key => primary_key).update(collection_attributes) unless collection_attributes.empty?
@@ -151,7 +151,7 @@ module Rasti
       end
 
       def delete_relations(primary_key, relations)
-        db.transaction do
+        data_source.db.transaction do
           relations.each do |relation_name, relation_primary_keys|
             relation = self.class.relations[relation_name]
             delete_relation_table relation, primary_key, relation_primary_keys
@@ -161,7 +161,7 @@ module Rasti
       end
 
       def delete_cascade(*primary_keys)
-        db.transaction do
+        data_source.db.transaction do
           delete_cascade_relations primary_keys
           bulk_delete { |q| q.where self.class.primary_key => primary_keys }
         end
@@ -192,12 +192,8 @@ module Rasti
         @data_source ||= environment.data_source_of self.class
       end
 
-      def db
-        data_source.db
-      end
-
       def dataset
-        db[qualified_collection_name]
+        data_source.db[qualified_collection_name]
       end
 
       def qualified_collection_name
@@ -227,7 +223,7 @@ module Rasti
 
       def transform_attributes_to_db(attributes)
         attributes.each_with_object({}) do |(attribute_name, value), result| 
-          transformed_value = Rasti::DB.to_db db, qualified_collection_name, attribute_name, value
+          transformed_value = Rasti::DB.to_db data_source.db, qualified_collection_name, attribute_name, value
           result[attribute_name] = transformed_value
         end
       end
