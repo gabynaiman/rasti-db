@@ -33,6 +33,22 @@ module Rasti
           self.class == OneToOne
         end
 
+        def from_one?
+          one_to_one? || one_to_many?
+        end
+
+        def from_many?
+          many_to_one? || many_to_many?
+        end
+
+        def to_one?
+          one_to_one? || many_to_one?
+        end
+
+        def to_many?
+          one_to_many? || many_to_many?
+        end
+
         def join_relation_name(prefix)
           with_prefix prefix, name
         end

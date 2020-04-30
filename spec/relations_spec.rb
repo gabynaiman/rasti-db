@@ -30,6 +30,11 @@ describe 'Relations' do
       relation.many_to_one?.must_equal false
       relation.many_to_many?.must_equal false
       relation.one_to_one?.must_equal false
+
+      relation.from_one?.must_equal true
+      relation.from_many?.must_equal false
+      relation.to_one?.must_equal false
+      relation.to_many?.must_equal true
     end
 
     it 'Graph' do
@@ -72,6 +77,11 @@ describe 'Relations' do
       relation.many_to_one?.must_equal true
       relation.many_to_many?.must_equal false
       relation.one_to_one?.must_equal false
+
+      relation.from_one?.must_equal false
+      relation.from_many?.must_equal true
+      relation.to_one?.must_equal true
+      relation.to_many?.must_equal false
     end
 
     it 'Graph' do
@@ -120,6 +130,11 @@ describe 'Relations' do
       relation.many_to_one?.must_equal false
       relation.many_to_many?.must_equal true
       relation.one_to_one?.must_equal false
+
+      relation.from_one?.must_equal false
+      relation.from_many?.must_equal true
+      relation.to_one?.must_equal false
+      relation.to_many?.must_equal true
     end
 
     it 'Graph' do
@@ -172,6 +187,11 @@ describe 'Relations' do
       relation.many_to_one?.must_equal false
       relation.many_to_many?.must_equal false
       relation.one_to_one?.must_equal true
+
+      relation.from_one?.must_equal true
+      relation.from_many?.must_equal false
+      relation.to_one?.must_equal true
+      relation.to_many?.must_equal false
     end
 
     it 'Graph' do
