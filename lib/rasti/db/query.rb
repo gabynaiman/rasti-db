@@ -9,7 +9,7 @@ module Rasti
       def initialize(environment:, collection_class:, dataset:, relations_graph:nil)
         @environment = environment
         @collection_class = collection_class
-        @dataset = dataset
+        @dataset = dataset.qualify collection_class.collection_name
         @relations_graph = relations_graph || Relations::Graph.new(environment, collection_class)
       end
 
@@ -74,11 +74,9 @@ module Rasti
 
       def join(*relations)
         graph = Relations::Graph.new environment, collection_class, relations
-        
-        ds = graph.add_joins(dataset)
-                  .distinct
-                  .select_all(collection_class.collection_name)
-        
+
+        ds = graph.add_joins(dataset).distinct
+
         build_query dataset: ds
       end
 
