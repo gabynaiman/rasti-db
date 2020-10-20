@@ -237,7 +237,7 @@ describe 'Query' do
   end
 
   it 'To String' do
-    users_query.where(id: [1,2,3]).order(:name).to_s.must_equal '#<Rasti::DB::Query: "SELECT * FROM `users` WHERE (`id` IN (1, 2, 3)) ORDER BY `name`">'
+    users_query.where(id: [1,2,3]).order(:name).to_s.must_equal '#<Rasti::DB::Query: "SELECT `users`.* FROM `users` WHERE (`users`.`id` IN (1, 2, 3)) ORDER BY `users`.`name`">'
   end
 
   describe 'Named queries' do
@@ -257,19 +257,19 @@ describe 'Query' do
   describe 'Join' do
 
     it 'One to Many' do
-      users_query.join(:posts).where(title: 'Sample post').all.must_equal [User.new(id: 2, name: 'User 2')]
+      users_query.join(:posts).where(Sequel[:posts][:title] => 'Sample post').all.must_equal [User.new(id: 2, name: 'User 2')]
     end
 
     it 'Many to One' do
-      posts_query.join(:user).where(name: 'User 4').all.must_equal [Post.new(id: 3, user_id: 4, title: 'Best post', body: '...', language_id: 1)]
+      posts_query.join(:user).where(Sequel[:user][:name] => 'User 4').all.must_equal [Post.new(id: 3, user_id: 4, title: 'Best post', body: '...', language_id: 1)]
     end
 
     it 'One to One' do
-      users_query.join(:person).where(document_number: 'document_1').all.must_equal [User.new(id: 1, name: 'User 1')]
+      users_query.join(:person).where(Sequel[:person][:document_number] => 'document_1').all.must_equal [User.new(id: 1, name: 'User 1')]
     end
 
     it 'Many to Many' do
-      posts_query.join(:categories).where(name: 'Category 3').order(:id).all.must_equal [
+      posts_query.join(:categories).where(Sequel[:categories][:name] => 'Category 3').order(:id).all.must_equal [
         Post.new(id: 2, user_id: 1, title: 'Another post', body: '...', language_id: 1),
         Post.new(id: 3, user_id: 4, title: 'Best post', body: '...', language_id: 1),
       ]
@@ -281,6 +281,20 @@ describe 'Query' do
                  .where(Sequel[:comments__user__person][:document_number] => 'document_7')
                  .all
                  .must_equal [Post.new(id: 1, user_id: 2, title: 'Sample post', body: '...', language_id: 1)]
+    end
+
+    it 'Excluded attributes permanents excluded when join' do
+      posts_query.join(:user)
+                 .exclude_attributes(:body)
+                 .where(Sequel[:user][:name] => 'User 4')
+                 .all
+                 .must_equal [Post.new(id: 3, title: 'Best post', user_id: 4, language_id: 1)]
+
+      posts_query.exclude_attributes(:body)
+                 .join(:user)
+                 .where(Sequel[:user][:name] => 'User 4')
+                 .all
+                 .must_equal [Post.new(id: 3, title: 'Best post', user_id: 4, language_id: 1)]
     end
 
     describe 'Multiple data sources' do
