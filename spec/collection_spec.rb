@@ -537,20 +537,20 @@ describe 'Collection' do
         case sql
 
         when 'SELECT users.* FROM schema_1.users', 
-             'SELECT users.* FROM schema_1.users WHERE (id IN (2, 1))'
+             'SELECT users.* FROM schema_1.users WHERE (users.id IN (2, 1))'
           [
             {id: 1},
             {id: 2}
           ]
 
         when 'SELECT posts.* FROM schema_1.posts',
-             'SELECT posts.* FROM schema_1.posts WHERE (user_id IN (1, 2))'
+             'SELECT posts.* FROM schema_1.posts WHERE (posts.user_id IN (1, 2))'
           [
             {id: 3, user_id: 1, language_id: 1},
             {id: 4, user_id: 2, language_id: 2}
           ]
 
-        when 'SELECT comments.* FROM schema_1.comments WHERE (post_id IN (3, 4))'
+        when 'SELECT comments.* FROM schema_1.comments WHERE (comments.post_id IN (3, 4))'
           [
             {id: 5, user_id: 2, post_id: 3},
             {id: 6, user_id: 1, post_id: 3},
@@ -558,7 +558,7 @@ describe 'Collection' do
             {id: 8, user_id: 2, post_id: 4}
           ]
 
-        when 'SELECT languages.* FROM schema_2.languages WHERE (id IN (1, 2))'
+        when 'SELECT languages.* FROM schema_2.languages WHERE (languages.id IN (1, 2))'
           [
             {id: 1},
             {id: 2}
@@ -672,9 +672,13 @@ describe 'Collection' do
 
       stub_db.sqls.must_equal [
         'SELECT posts.* FROM schema_1.posts',
-        'SELECT categories.*, categories_posts.post_id AS source_foreign_key FROM schema_1.categories INNER JOIN schema_1.categories_posts ON (schema_1.categories_posts.category_id = schema_1.categories.id) WHERE (categories_posts.post_id IN (3, 4))',
+        'SELECT categories.*, categories_posts.post_id AS source_foreign_key FROM schema_1.categories INNER JOIN schema_1.categories_posts ON (schema_1.categories_posts.category_id = schema_1.categories.id) WHERE (categories_posts.post_id IN (3, 4))', 
         'SELECT comments.* FROM schema_1.comments WHERE (comments.post_id IN (3, 4))',
+        'SELECT users.* FROM schema_1.users WHERE (users.id IN (2, 1))',
+        'SELECT posts.* FROM schema_1.posts WHERE (posts.user_id IN (1, 2))',
+        'SELECT categories.*, categories_posts.post_id AS source_foreign_key FROM schema_1.categories INNER JOIN schema_1.categories_posts ON (schema_1.categories_posts.category_id = schema_1.categories.id) WHERE (categories_posts.post_id IN (3, 4))',
         'SELECT languages.* FROM schema_2.languages WHERE (languages.id IN (1, 2))',
+        'SELECT people.*, languages_people.language_id AS source_foreign_key FROM schema_1.people INNER JOIN schema_1.languages_people ON (schema_1.languages_people.document_number = schema_1.people.document_number) WHERE (languages_people.language_id IN (1, 2))',
         'SELECT users.* FROM schema_1.users WHERE (users.id IN (1, 2))'
       ]
     end
