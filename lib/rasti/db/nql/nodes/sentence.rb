@@ -8,6 +8,10 @@ module Rasti
             proposition.dependency_tables
           end
 
+          def computed_fields
+            [] + proposition.computed_fields
+          end
+
           def filter_condition
             proposition.filter_condition
           end

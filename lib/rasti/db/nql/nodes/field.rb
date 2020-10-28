@@ -16,6 +16,10 @@ module Rasti
             _column.text_value
           end
 
+          def computed_fields
+            []
+          end
+
         end
       end
     end

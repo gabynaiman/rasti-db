@@ -9,6 +9,10 @@ module Rasti
               field.tables.empty? ? [] : [field.tables.join('.')]
             end
 
+            def computed_fields
+              field.computed_fields
+            end
+
           end
         end
       end
