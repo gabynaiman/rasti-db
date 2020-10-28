@@ -42,8 +42,17 @@ module Rasti
           comparison_equal
         end
 
-        rule field
+        rule computed_field
+          name:basic '()' <Nodes::ComputedField>
+        end
+
+        rule static_field
           _tables:(table:field_name '.')* _column:field_name <Nodes::Field>
+        end
+
+        rule field
+          computed_field /
+          static_field
         end
 
         rule comparison_include

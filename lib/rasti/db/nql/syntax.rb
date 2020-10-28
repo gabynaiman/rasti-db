@@ -433,14 +433,58 @@ module Rasti
           r0
         end
 
-        module Field0
+        module ComputedField0
+          def name
+            elements[0]
+          end
+
+        end
+
+        def _nt_computed_field
+          start_index = index
+          if node_cache[:computed_field].has_key?(index)
+            cached = node_cache[:computed_field][index]
+            if cached
+              cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+              @index = cached.interval.end
+            end
+            return cached
+          end
+
+          i0, s0 = index, []
+          r1 = _nt_basic
+          s0 << r1
+          if r1
+            if has_terminal?('()', false, index)
+              r2 = instantiate_node(SyntaxNode,input, index...(index + 2))
+              @index += 2
+            else
+              terminal_parse_failure('()')
+              r2 = nil
+            end
+            s0 << r2
+          end
+          if s0.last
+            r0 = instantiate_node(Nodes::ComputedField,input, i0...index, s0)
+            r0.extend(ComputedField0)
+          else
+            @index = i0
+            r0 = nil
+          end
+
+          node_cache[:computed_field][start_index] = r0
+
+          r0
+        end
+
+        module StaticField0
           def table
             elements[0]
           end
 
         end
 
-        module Field1
+        module StaticField1
           def _tables
             elements[0]
           end
@@ -450,10 +494,10 @@ module Rasti
           end
         end
 
-        def _nt_field
+        def _nt_static_field
           start_index = index
-          if node_cache[:field].has_key?(index)
-            cached = node_cache[:field][index]
+          if node_cache[:static_field].has_key?(index)
+            cached = node_cache[:static_field][index]
             if cached
               cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
               @index = cached.interval.end
@@ -479,7 +523,7 @@ module Rasti
             end
             if s2.last
               r2 = instantiate_node(SyntaxNode,input, i2...index, s2)
-              r2.extend(Field0)
+              r2.extend(StaticField0)
             else
               @index = i2
               r2 = nil
@@ -498,10 +542,40 @@ module Rasti
           end
           if s0.last
             r0 = instantiate_node(Nodes::Field,input, i0...index, s0)
-            r0.extend(Field1)
+            r0.extend(StaticField1)
           else
             @index = i0
             r0 = nil
+          end
+
+          node_cache[:static_field][start_index] = r0
+
+          r0
+        end
+
+        def _nt_field
+          start_index = index
+          if node_cache[:field].has_key?(index)
+            cached = node_cache[:field][index]
+            if cached
+              cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+              @index = cached.interval.end
+            end
+            return cached
+          end
+
+          i0 = index
+          r1 = _nt_computed_field
+          if r1
+            r0 = r1
+          else
+            r2 = _nt_static_field
+            if r2
+              r0 = r2
+            else
+              @index = i0
+              r0 = nil
+            end
           end
 
           node_cache[:field][start_index] = r0
