@@ -389,7 +389,7 @@ describe 'Query' do
                   .must_equal [ User.new(id: 5, name: 'User 5') ]
       end
 
-      it 'Filter single computed attribute' do
+      it 'Filter simple computed attribute' do
         person_expected = Person.new user_id: 1,
                                      document_number: 'document_1',
                                      first_name: 'Name 1',

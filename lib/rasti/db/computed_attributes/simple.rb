@@ -3,29 +3,22 @@ module Rasti
     module ComputedAttributes
       class Simple
 
-        def initialize(value:, collection_class:)
+        def initialize(value:, table:, primary_key:)
           @value = value
-          @collection_class = collection_class
+          @table = table
+          @primary_key = primary_key
         end
 
         def apply_to(dataset, name)
-          dataset.join(query_to(dataset, name), primary_key => primary_key)
+          dataset.join(query_to(name), primary_key => primary_key)
         end
 
         private
 
-        attr_reader :value, :collection_class
+        attr_reader :value, :table, :primary_key
 
-        def query_to(dataset, name)
-          db_for(dataset).select{|v| [value.as(:value), primary_key] }.as(name)
-        end
-
-        def db_for(dataset)
-          dataset.db[collection_class.collection_name]
-        end
-
-        def primary_key
-          collection_class.primary_key
+        def query_to(name)
+          table.select{ |v| [value.as(:value), primary_key] }.as(name)
         end
 
       end
