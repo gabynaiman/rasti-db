@@ -140,6 +140,14 @@ describe 'Query' do
                .must_equal [post]
   end
 
+  it 'Append computed attribute' do
+    db[:comments].insert post_id: 1, user_id: 5, text: 'Comment 4'
+    users_query.append_computed_attribute(:comments_count)
+               .where(Sequel[:comments_count][:value] > 1)
+               .all
+               .must_equal [User.new(id: 5, name: 'User 5')]
+  end
+
   it 'Map' do
     users_query.map(&:name).must_equal db[:users].map(:name)
   end
