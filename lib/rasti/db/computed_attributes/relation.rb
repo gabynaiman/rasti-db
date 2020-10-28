@@ -3,21 +3,22 @@ module Rasti
     module ComputedAttributes
       class Relation
 
-        def initialize(value:, table:, type:, foreign_key:, attributes: [])
+        def initialize(value:, table:, type:, foreign_key:, primary_key: :id, attributes: [])
           @value = value
           @table = table
           @type = type
-          @attributes = attributes.push foreign_key
           @foreign_key = foreign_key
+          @primary_key = primary_key
+          @attributes = attributes.push foreign_key
         end
 
         def apply_to(dataset, name)
-          dataset.join_table(type, query_to(name), foreign_key => :id)
+          dataset.join_table(type, query_to(name), foreign_key => primary_key)
         end
 
         private
 
-        attr_reader :value, :table, :type, :attributes, :foreign_key
+        attr_reader :value, :table, :type, :foreign_key, :primary_key, :attributes
 
         def query_to(name)
           table.select{ |v| [value.as(:value), *attributes] }.group(foreign_key).as(name)
