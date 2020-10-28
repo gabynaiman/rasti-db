@@ -28,10 +28,10 @@ class Users < Rasti::DB::Collection
 
   computed_attribute :comments_count do |db|
     Rasti::DB::ComputedAttributes::Relation.new value: Sequel.function('count', :id),
-                                            relation: db[:comments],
-                                            type: :inner,
-                                            attributes: [:user_id],
-                                            foreign_key: :user_id
+                                                relation: db[:comments],
+                                                type: :inner,
+                                                attributes: [:user_id],
+                                                foreign_key: :user_id
   end
 
 end
@@ -82,6 +82,11 @@ class People < Rasti::DB::Collection
 
   many_to_one :user
   many_to_many :languages
+
+  computed_attribute :full_name do |db|
+    Rasti::DB::ComputedAttributes::Simple.new value: Sequel.join([:first_name, ' ', :last_name]),
+                                              collection_class: self
+  end
 end
 
 class Languages < Rasti::DB::Collection

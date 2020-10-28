@@ -40,6 +40,8 @@ describe 'Query' do
   
   let(:comments_query) { Rasti::DB::Query.new collection_class: Comments, dataset: db[:comments], environment: environment }
 
+  let(:people_query) { Rasti::DB::Query.new collection_class: People, dataset: db[:people], environment: environment }
+
   let(:languages_query) { Rasti::DB::Query.new collection_class: Languages, dataset: custom_db[:languages], environment: environment }
 
   it 'Count' do
@@ -385,6 +387,18 @@ describe 'Query' do
                   .order(:id)
                   .all
                   .must_equal [ User.new(id: 5, name: 'User 5') ]
+      end
+
+      it 'Filter single computed attribute' do
+        person_expected = Person.new user_id: 1,
+                                     document_number: 'document_1',
+                                     first_name: 'Name 1',
+                                     last_name: 'Last Name 1',
+                                     birth_date: Date.parse('2020-04-24')
+
+        people_query.nql('full_name() = Name 1 Last Name 1')
+                    .all
+                    .must_equal [person_expected]
       end
 
     end
