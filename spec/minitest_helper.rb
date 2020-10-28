@@ -30,7 +30,6 @@ class Users < Rasti::DB::Collection
     Rasti::DB::ComputedAttributes::Relation.new value: Sequel.function('count', :id),
                                                 table: db[:comments],
                                                 type: :inner,
-                                                attributes: [:user_id],
                                                 foreign_key: :user_id
   end
 

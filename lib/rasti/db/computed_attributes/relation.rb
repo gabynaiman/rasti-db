@@ -3,11 +3,11 @@ module Rasti
     module ComputedAttributes
       class Relation
 
-        def initialize(value:, table:, type:, attributes:, foreign_key:)
+        def initialize(value:, table:, type:, foreign_key:, attributes: [])
           @value = value
           @table = table
           @type = type
-          @attributes = attributes
+          @attributes = attributes.push foreign_key
           @foreign_key = foreign_key
         end
 
