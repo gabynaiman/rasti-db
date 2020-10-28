@@ -116,9 +116,16 @@ module Rasti
 
         raise NQL::InvalidExpressionError.new(filter_expression) if sentence.nil?
 
+        ds = sentence.computed_fields.inject(dataset) do |ds, name|
+          custom_field = collection_class.computed_field_for name, ds.db
+          custom_field.apply_to ds, name
+        end
+
+        query = build_query dataset: ds
+
         dependency_tables = sentence.dependency_tables
-        query = dependency_tables.empty? ? self : join(*dependency_tables)
-        
+        query = query.join(*dependency_tables) unless dependency_tables.empty?
+
         query.where sentence.filter_condition
       end
 

@@ -47,6 +47,15 @@ module Rasti
           @queries ||= Hash::Indifferent.new
         end
 
+        def computed_fields
+          @computed_fields ||= Hash::Indifferent.new
+        end
+
+        def computed_field_for(name, db)
+          raise "Computed Field #{name} doesn't exists" unless computed_fields.key? name
+          computed_fields[name].call db
+        end
+
         private
 
         def set_collection_name(collection_name)
@@ -89,6 +98,11 @@ module Rasti
           define_method name do |*args|
             default_query.instance_exec(*args, &self.class.queries.fetch(name))
           end
+        end
+
+        def computed_field(name, &block)
+          raise "Computed Field #{name} already exists" if computed_fields.key? name
+          computed_fields[name] = block
         end
 
       end
