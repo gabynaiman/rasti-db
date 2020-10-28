@@ -358,20 +358,20 @@ describe 'Query' do
                  .must_equal [2]
     end
 
-    describe 'Computed Fields' do
+    describe 'Computed Attributes' do
 
-      it 'Filter relation computed field' do
+      it 'Filter relation computed attribute' do
         db[:comments].insert post_id: 1, user_id: 5, text: 'Comment 4'
         users_query.nql('comments_count() = 2').all.must_equal [User.new(id: 5, name: 'User 5')]
       end
 
-      it 'Filter with relation computed field with "and" combined' do
+      it 'Filter with relation computed attribute with "and" combined' do
         db[:comments].insert post_id: 1, user_id: 5, text: 'Comment 4'
         db[:comments].insert post_id: 1, user_id: 4, text: 'Comment 3'
         users_query.nql('(comments_count() > 1) & (id = 5)').all.must_equal [User.new(id: 5, name: 'User 5')]
       end
 
-      it 'Filter relation computed field with "or" combined' do
+      it 'Filter relation computed attribute with "or" combined' do
         db[:comments].insert post_id: 1, user_id: 2, text: 'Comment 3'
         users_query.nql('(comments_count() = 2) | (id = 5)')
                   .order(:id)
@@ -379,7 +379,7 @@ describe 'Query' do
                   .must_equal [ User.new(id: 2, name: 'User 2'), User.new(id: 5, name: 'User 5') ]
       end
 
-      it 'Filter relation computed field with "and" and "or" combined' do
+      it 'Filter relation computed attribute with "and" and "or" combined' do
         db[:comments].insert post_id: 1, user_id: 2, text: 'Comment 3'
         users_query.nql('((comments_count() = 2) | (id = 5)) & (name: User 5)')
                   .order(:id)

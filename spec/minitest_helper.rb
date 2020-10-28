@@ -26,11 +26,11 @@ class Users < Rasti::DB::Collection
   one_to_many :comments
   one_to_one :person
 
-  computed_field :comments_count do |db|
-    Rasti::DB::ComputedFields::Relation.new value: Sequel.function('count', :id),
+  computed_attribute :comments_count do |db|
+    Rasti::DB::ComputedAttributes::Relation.new value: Sequel.function('count', :id),
                                             relation: db[:comments],
                                             type: :inner,
-                                            fields: [:user_id],
+                                            attributes: [:user_id],
                                             foreign_key: :user_id
   end
 

@@ -58,8 +58,8 @@ module Rasti
       end
 
       def append_computed_attribute(name)
-        custom_field = collection_class.computed_field_for name, dataset.db
-        build_query dataset: custom_field.apply_to(dataset, name)
+        computed_attribute = collection_class.computed_attribute_for name, dataset.db
+        build_query dataset: computed_attribute.apply_to(dataset, name)
       end
 
 

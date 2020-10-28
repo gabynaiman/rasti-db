@@ -47,13 +47,13 @@ module Rasti
           @queries ||= Hash::Indifferent.new
         end
 
-        def computed_fields
-          @computed_fields ||= Hash::Indifferent.new
+        def computed_attributes
+          @computed_attributes ||= Hash::Indifferent.new
         end
 
-        def computed_field_for(name, db)
-          raise "Computed Field #{name} doesn't exists" unless computed_fields.key? name
-          computed_fields[name].call db
+        def computed_attribute_for(name, db)
+          raise "Computed Attribute #{name} doesn't exists" unless computed_attributes.key? name
+          computed_attributes[name].call db
         end
 
         private
@@ -100,9 +100,9 @@ module Rasti
           end
         end
 
-        def computed_field(name, &block)
-          raise "Computed Field #{name} already exists" if computed_fields.key? name
-          computed_fields[name] = block
+        def computed_attribute(name, &block)
+          raise "Computed Attribute #{name} already exists" if computed_attributes.key? name
+          computed_attributes[name] = block
         end
 
       end

@@ -1,13 +1,13 @@
 module Rasti
   module DB
-    module ComputedFields
+    module ComputedAttributes
       class Relation
 
-        def initialize(value:, relation:, type:, fields:, foreign_key:)
+        def initialize(value:, relation:, type:, attributes:, foreign_key:)
           @value = value
           @relation = relation
           @type = type
-          @fields = fields
+          @attributes = attributes
           @foreign_key = foreign_key
         end
 
@@ -17,10 +17,10 @@ module Rasti
 
         private
 
-        attr_reader :value, :relation, :type, :fields, :foreign_key
+        attr_reader :value, :relation, :type, :attributes, :foreign_key
 
         def query_to(name)
-          relation.select_append(value.as(:value), *fields)
+          relation.select_append(value.as(:value), *attributes)
                   .group(foreign_key)
                   .as(name)
         end
