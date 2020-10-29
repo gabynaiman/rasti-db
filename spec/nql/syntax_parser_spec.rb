@@ -136,6 +136,14 @@ describe 'NQL::SyntaxParser' do
       left_hand_operand.column.must_equal 'column'
     end
 
+    it 'must parse expression with computed field' do
+      tree = parse 'computed_field() = 1'
+
+      computed = tree.proposition.field
+      computed.tables.must_equal []
+      computed.computed_fields.must_equal [:computed_field]
+    end
+
   end
 
   describe 'Parenthesis Sentence' do

@@ -9,7 +9,7 @@ module Rasti
           end
 
           def computed_fields
-            [] + proposition.computed_fields
+            [] + proposition.computed_fields.uniq
           end
 
           def filter_condition
