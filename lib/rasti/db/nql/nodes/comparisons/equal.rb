@@ -6,7 +6,7 @@ module Rasti
           class Equal < Base
 
             def filter_condition
-              { field.identifier => argument.value }
+              { attribute.identifier => argument.value }
             end
 
           end

@@ -6,7 +6,7 @@ module Rasti
           class GreaterThanOrEqual < Base
 
             def filter_condition
-              field.identifier >= argument.value
+              attribute.identifier >= argument.value
             end
 
           end

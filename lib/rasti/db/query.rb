@@ -125,7 +125,7 @@ module Rasti
         dependency_tables = sentence.dependency_tables
         query = dependency_tables.empty? ? self : join(*dependency_tables)
 
-        query = sentence.computed_fields.inject(query) do |q, name|
+        query = sentence.computed_attributes.inject(query) do |q, name|
           q.append_computed_attribute name
         end
 

@@ -6,7 +6,7 @@ module Rasti
           class Like < Base
 
             def filter_condition
-              Sequel.ilike(field.identifier, argument.value)
+              Sequel.ilike(attribute.identifier, argument.value)
             end
 
           end

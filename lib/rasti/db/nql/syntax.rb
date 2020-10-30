@@ -433,17 +433,17 @@ module Rasti
           r0
         end
 
-        module ComputedField0
+        module ComputedAttribute0
           def name
             elements[0]
           end
 
         end
 
-        def _nt_computed_field
+        def _nt_computed_attribute
           start_index = index
-          if node_cache[:computed_field].has_key?(index)
-            cached = node_cache[:computed_field][index]
+          if node_cache[:computed_attribute].has_key?(index)
+            cached = node_cache[:computed_attribute][index]
             if cached
               cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
               @index = cached.interval.end
@@ -465,26 +465,26 @@ module Rasti
             s0 << r2
           end
           if s0.last
-            r0 = instantiate_node(Nodes::ComputedField,input, i0...index, s0)
-            r0.extend(ComputedField0)
+            r0 = instantiate_node(Nodes::ComputedAttributes,input, i0...index, s0)
+            r0.extend(ComputedAttribute0)
           else
             @index = i0
             r0 = nil
           end
 
-          node_cache[:computed_field][start_index] = r0
+          node_cache[:computed_attribute][start_index] = r0
 
           r0
         end
 
-        module StaticField0
+        module StaticAttribute0
           def table
             elements[0]
           end
 
         end
 
-        module StaticField1
+        module StaticAttribute1
           def _tables
             elements[0]
           end
@@ -494,10 +494,10 @@ module Rasti
           end
         end
 
-        def _nt_static_field
+        def _nt_static_attribute
           start_index = index
-          if node_cache[:static_field].has_key?(index)
-            cached = node_cache[:static_field][index]
+          if node_cache[:static_attribute].has_key?(index)
+            cached = node_cache[:static_attribute][index]
             if cached
               cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
               @index = cached.interval.end
@@ -509,7 +509,7 @@ module Rasti
           s1, i1 = [], index
           loop do
             i2, s2 = index, []
-            r3 = _nt_field_name
+            r3 = _nt_attribute_name
             s2 << r3
             if r3
               if has_terminal?('.', false, index)
@@ -523,7 +523,7 @@ module Rasti
             end
             if s2.last
               r2 = instantiate_node(SyntaxNode,input, i2...index, s2)
-              r2.extend(StaticField0)
+              r2.extend(StaticAttribute0)
             else
               @index = i2
               r2 = nil
@@ -537,26 +537,26 @@ module Rasti
           r1 = instantiate_node(SyntaxNode,input, i1...index, s1)
           s0 << r1
           if r1
-            r5 = _nt_field_name
+            r5 = _nt_attribute_name
             s0 << r5
           end
           if s0.last
-            r0 = instantiate_node(Nodes::Field,input, i0...index, s0)
-            r0.extend(StaticField1)
+            r0 = instantiate_node(Nodes::Attribute,input, i0...index, s0)
+            r0.extend(StaticAttribute1)
           else
             @index = i0
             r0 = nil
           end
 
-          node_cache[:static_field][start_index] = r0
+          node_cache[:static_attribute][start_index] = r0
 
           r0
         end
 
-        def _nt_field
+        def _nt_attribute
           start_index = index
-          if node_cache[:field].has_key?(index)
-            cached = node_cache[:field][index]
+          if node_cache[:attribute].has_key?(index)
+            cached = node_cache[:attribute][index]
             if cached
               cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
               @index = cached.interval.end
@@ -565,11 +565,11 @@ module Rasti
           end
 
           i0 = index
-          r1 = _nt_computed_field
+          r1 = _nt_computed_attribute
           if r1
             r0 = r1
           else
-            r2 = _nt_static_field
+            r2 = _nt_static_attribute
             if r2
               r0 = r2
             else
@@ -578,13 +578,13 @@ module Rasti
             end
           end
 
-          node_cache[:field][start_index] = r0
+          node_cache[:attribute][start_index] = r0
 
           r0
         end
 
         module ComparisonInclude0
-          def field
+          def attribute
             elements[0]
           end
 
@@ -609,7 +609,7 @@ module Rasti
           end
 
           i0, s0 = index, []
-          r1 = _nt_field
+          r1 = _nt_attribute
           s0 << r1
           if r1
             s2, i2 = [], index
@@ -665,7 +665,7 @@ module Rasti
         end
 
         module ComparisonNotInclude0
-          def field
+          def attribute
             elements[0]
           end
 
@@ -690,7 +690,7 @@ module Rasti
           end
 
           i0, s0 = index, []
-          r1 = _nt_field
+          r1 = _nt_attribute
           s0 << r1
           if r1
             s2, i2 = [], index
@@ -746,7 +746,7 @@ module Rasti
         end
 
         module ComparisonLike0
-          def field
+          def attribute
             elements[0]
           end
 
@@ -771,7 +771,7 @@ module Rasti
           end
 
           i0, s0 = index, []
-          r1 = _nt_field
+          r1 = _nt_attribute
           s0 << r1
           if r1
             s2, i2 = [], index
@@ -827,7 +827,7 @@ module Rasti
         end
 
         module ComparisonGreaterThan0
-          def field
+          def attribute
             elements[0]
           end
 
@@ -852,7 +852,7 @@ module Rasti
           end
 
           i0, s0 = index, []
-          r1 = _nt_field
+          r1 = _nt_attribute
           s0 << r1
           if r1
             s2, i2 = [], index
@@ -908,7 +908,7 @@ module Rasti
         end
 
         module ComparisonGreaterThanOrEqual0
-          def field
+          def attribute
             elements[0]
           end
 
@@ -933,7 +933,7 @@ module Rasti
           end
 
           i0, s0 = index, []
-          r1 = _nt_field
+          r1 = _nt_attribute
           s0 << r1
           if r1
             s2, i2 = [], index
@@ -989,7 +989,7 @@ module Rasti
         end
 
         module ComparisonLessThan0
-          def field
+          def attribute
             elements[0]
           end
 
@@ -1014,7 +1014,7 @@ module Rasti
           end
 
           i0, s0 = index, []
-          r1 = _nt_field
+          r1 = _nt_attribute
           s0 << r1
           if r1
             s2, i2 = [], index
@@ -1070,7 +1070,7 @@ module Rasti
         end
 
         module ComparisonLessThanOrEqual0
-          def field
+          def attribute
             elements[0]
           end
 
@@ -1095,7 +1095,7 @@ module Rasti
           end
 
           i0, s0 = index, []
-          r1 = _nt_field
+          r1 = _nt_attribute
           s0 << r1
           if r1
             s2, i2 = [], index
@@ -1151,7 +1151,7 @@ module Rasti
         end
 
         module ComparisonNotEqual0
-          def field
+          def attribute
             elements[0]
           end
 
@@ -1176,7 +1176,7 @@ module Rasti
           end
 
           i0, s0 = index, []
-          r1 = _nt_field
+          r1 = _nt_attribute
           s0 << r1
           if r1
             s2, i2 = [], index
@@ -1232,7 +1232,7 @@ module Rasti
         end
 
         module ComparisonEqual0
-          def field
+          def attribute
             elements[0]
           end
 
@@ -1257,7 +1257,7 @@ module Rasti
           end
 
           i0, s0 = index, []
-          r1 = _nt_field
+          r1 = _nt_attribute
           s0 << r1
           if r1
             s2, i2 = [], index
@@ -1385,10 +1385,10 @@ module Rasti
           r0
         end
 
-        def _nt_field_name
+        def _nt_attribute_name
           start_index = index
-          if node_cache[:field_name].has_key?(index)
-            cached = node_cache[:field_name][index]
+          if node_cache[:attribute_name].has_key?(index)
+            cached = node_cache[:attribute_name][index]
             if cached
               cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
               @index = cached.interval.end
@@ -1417,7 +1417,7 @@ module Rasti
             r0 = instantiate_node(SyntaxNode,input, i0...index, s0)
           end
 
-          node_cache[:field_name][start_index] = r0
+          node_cache[:attribute_name][start_index] = r0
 
           r0
         end

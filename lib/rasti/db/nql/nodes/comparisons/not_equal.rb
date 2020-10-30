@@ -6,7 +6,7 @@ module Rasti
           class NotEqual < Base
 
             def filter_condition
-              Sequel.negate(field.identifier => argument.value)
+              Sequel.negate(attribute.identifier => argument.value)
             end
 
           end

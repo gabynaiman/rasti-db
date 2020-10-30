@@ -8,8 +8,8 @@ module Rasti
             sentence.dependency_tables
           end
 
-          def computed_fields
-            sentence.computed_fields
+          def computed_attributes
+            sentence.computed_attributes
           end
 
           def filter_condition

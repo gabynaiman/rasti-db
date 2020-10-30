@@ -6,11 +6,11 @@ module Rasti
           class Base < Treetop::Runtime::SyntaxNode
 
             def dependency_tables
-              field.tables.empty? ? [] : [field.tables.join('.')]
+              attribute.tables.empty? ? [] : [attribute.tables.join('.')]
             end
 
-            def computed_fields
-              field.computed_fields
+            def computed_attributes
+              attribute.computed_attributes
             end
 
           end

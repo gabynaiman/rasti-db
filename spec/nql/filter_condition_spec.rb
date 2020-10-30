@@ -95,7 +95,7 @@ describe 'NQL::FilterCondition' do
 
   end
 
-  it 'must create filter from expression with field with multiple tables' do
+  it 'must create filter from expression with attribute with multiple tables' do
     filter = filter_condition 'table_one.table_two.column = test'
     identifier, value = filter.first
 

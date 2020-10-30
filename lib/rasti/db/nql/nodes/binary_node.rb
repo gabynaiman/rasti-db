@@ -8,8 +8,8 @@ module Rasti
             values.flat_map(&:dependency_tables)
           end
 
-          def computed_fields
-            left.computed_fields + right.computed_fields
+          def computed_attributes
+            left.computed_attributes + right.computed_attributes
           end
 
           def values

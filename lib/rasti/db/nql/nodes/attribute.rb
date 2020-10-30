@@ -2,7 +2,7 @@ module Rasti
   module DB
     module NQL
       module Nodes
-        class Field < Treetop::Runtime::SyntaxNode
+        class Attribute < Treetop::Runtime::SyntaxNode
 
           def identifier
             tables.empty? ? Sequel[column.to_sym] : Sequel[tables.join('__').to_sym][column.to_sym]
@@ -16,7 +16,7 @@ module Rasti
             _column.text_value
           end
 
-          def computed_fields
+          def computed_attributes
             []
           end
 
