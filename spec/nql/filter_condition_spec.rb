@@ -4,9 +4,11 @@ describe 'NQL::FilterCondition' do
 
   let(:parser) { Rasti::DB::NQL::SyntaxParser.new }
 
+  let(:collection_class) { Rasti::DB::Collection }
+
   def filter_condition(expression)
     tree = parser.parse expression
-    tree.filter_condition
+    tree.filter_condition(collection_class)
   end
 
   def assert_identifier(identifier, expected_value)
