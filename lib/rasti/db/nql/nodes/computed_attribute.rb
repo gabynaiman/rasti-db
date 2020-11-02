@@ -4,16 +4,22 @@ module Rasti
       module Nodes
         class ComputedAttribute < Treetop::Runtime::SyntaxNode
 
-          def identifier
-            Sequel[name.text_value.to_sym][:value]
+          def identifier(collection_class)
+            collection_class.computed_attributes[computed_attribute].identifier
           end
 
           def computed_attributes
-            [name.text_value.to_sym]
+            [computed_attribute]
           end
 
           def tables
             []
+          end
+
+          private
+
+          def computed_attribute
+            name.text_value.to_sym
           end
 
         end

@@ -12,8 +12,8 @@ module Rasti
             [] + proposition.computed_attributes.uniq
           end
 
-          def filter_condition
-            proposition.filter_condition
+          def filter_condition(collection_class)
+            proposition.filter_condition collection_class
           end
 
         end

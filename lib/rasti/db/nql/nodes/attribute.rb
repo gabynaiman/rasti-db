@@ -4,7 +4,7 @@ module Rasti
       module Nodes
         class Attribute < Treetop::Runtime::SyntaxNode
 
-          def identifier
+          def identifier(collection_class)
             tables.empty? ? Sequel[column.to_sym] : Sequel[tables.join('__').to_sym][column.to_sym]
           end
 

@@ -12,8 +12,8 @@ module Rasti
             sentence.computed_attributes
           end
 
-          def filter_condition
-            sentence.filter_condition
+          def filter_condition(collection_class)
+            sentence.filter_condition collection_class
           end
 
         end
