@@ -26,11 +26,15 @@ class Users < Rasti::DB::Collection
   one_to_many :comments
   one_to_one :person
 
-  computed_attribute :comments_count do |db|
-    Rasti::DB::ComputedAttributes::Relation.new value: Sequel.function('count', :id),
-                                                table: db[:comments],
-                                                type: :inner,
-                                                foreign_key: :user_id
+  computed_attribute :comments_count do
+    Rasti::DB::ComputedAttribute.new(Sequel[:comments_count][:value]) do |dataset|
+      subquery = dataset.db.from(:comments)
+                           .select(Sequel[:user_id], Sequel.function('count', :id).as(:value))
+                           .group(:user_id)
+                           .as(:comments_count)
+
+      dataset.join_table(:inner, subquery, :user_id => :id)
+    end
   end
 
 end
@@ -83,9 +87,7 @@ class People < Rasti::DB::Collection
   many_to_many :languages
 
   computed_attribute :full_name do |db|
-    Rasti::DB::ComputedAttributes::Simple.new value: Sequel.join([:first_name, ' ', :last_name]),
-                                              table: db[collection_name],
-                                              primary_key: primary_key
+    Rasti::DB::ComputedAttribute.new Sequel.join([:first_name, ' ', :last_name])
   end
 end
 

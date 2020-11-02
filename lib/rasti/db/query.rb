@@ -57,12 +57,6 @@ module Rasti
         build_query relations_graph: relations_graph.with_all_attributes_for(relations)
       end
 
-      def append_computed_attribute(name)
-        computed_attribute = collection_class.computed_attribute_for name, dataset.db
-        build_query dataset: computed_attribute.apply_to(dataset, name)
-      end
-
-
       def all
         with_graph(dataset.all).map do |row| 
           collection_class.model.new row
@@ -122,14 +116,15 @@ module Rasti
 
         raise NQL::InvalidExpressionError.new(filter_expression) if sentence.nil?
 
-        dependency_tables = sentence.dependency_tables
-        query = dependency_tables.empty? ? self : join(*dependency_tables)
-
-        query = sentence.computed_attributes.inject(query) do |q, name|
-          q.append_computed_attribute name
+        ds = sentence.computed_attributes.inject(dataset) do |ds, name|
+          collection_class.computed_attributes[name].apply_join ds
         end
+        query = build_query dataset: ds
 
-        query.where sentence.filter_condition
+        dependency_tables = sentence.dependency_tables
+        query = query.join(*dependency_tables) unless dependency_tables.empty?
+
+        query.where sentence.filter_condition(collection_class)
       end
 
       private
