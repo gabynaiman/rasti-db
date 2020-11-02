@@ -51,11 +51,6 @@ module Rasti
           @computed_attributes ||= Hash::Indifferent.new
         end
 
-        def computed_attribute_for(name, db)
-          raise "Computed Attribute #{name} doesn't exists" unless computed_attributes.key? name
-          computed_attributes[name].call db
-        end
-
         private
 
         def set_collection_name(collection_name)
@@ -102,7 +97,7 @@ module Rasti
 
         def computed_attribute(name, &block)
           raise "Computed Attribute #{name} already exists" if computed_attributes.key? name
-          computed_attributes[name] = block
+          computed_attributes[name] = block.call
         end
 
       end
