@@ -13,11 +13,11 @@ Rasti::DB.configure do |config|
   config.type_converters = [Rasti::DB::TypeConverters::TimeInZone]
 end
 
-User     = Rasti::DB::Model[:id, :name, :posts, :comments, :person]
+User     = Rasti::DB::Model[:id, :name, :posts, :comments, :person, :comments_count]
 Post     = Rasti::DB::Model[:id, :title, :body, :user_id, :user, :comments, :categories, :language_id, :language]
 Comment  = Rasti::DB::Model[:id, :text, :user_id, :user, :post_id, :post]
 Category = Rasti::DB::Model[:id, :name, :posts]
-Person   = Rasti::DB::Model[:document_number, :first_name, :last_name, :birth_date, :user_id, :user, :languages]
+Person   = Rasti::DB::Model[:document_number, :first_name, :last_name, :birth_date, :user_id, :user, :languages, :full_name]
 Language = Rasti::DB::Model[:id, :name, :people]
 
 

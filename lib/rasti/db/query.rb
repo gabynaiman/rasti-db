@@ -57,6 +57,12 @@ module Rasti
         build_query relations_graph: relations_graph.with_all_attributes_for(relations)
       end
 
+      def append_computed_attribute(name)
+        computed_attribute = collection_class.computed_attributes[name]
+        ds = computed_attribute.apply_join(dataset).select_append(computed_attribute.identifier.as(name))
+        build_query dataset: ds
+      end
+
       def all
         with_graph(dataset.all).map do |row| 
           collection_class.model.new row

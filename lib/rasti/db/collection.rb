@@ -14,7 +14,7 @@ module Rasti
         end
 
         def collection_attributes
-          @collection_attributes ||= model.attributes - relations.keys
+          @collection_attributes ||= model.attributes - relations.keys - computed_attributes.keys
         end
 
         def primary_key

@@ -42,7 +42,7 @@ describe 'Model' do
   describe 'To String' do
     
     it 'Class' do
-      User.to_s.must_equal 'User[id, name, posts, comments, person]'
+      User.to_s.must_equal 'User[id, name, posts, comments, person, comments_count]'
     end
 
     it 'Instance' do
