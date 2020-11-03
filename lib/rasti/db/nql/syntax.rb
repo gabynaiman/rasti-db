@@ -452,7 +452,7 @@ module Rasti
           end
 
           i0, s0 = index, []
-          r1 = _nt_basic
+          r1 = _nt_attribute_name
           s0 << r1
           if r1
             if has_terminal?('()', false, index)
@@ -465,7 +465,7 @@ module Rasti
             s0 << r2
           end
           if s0.last
-            r0 = instantiate_node(Nodes::ComputedAttributes,input, i0...index, s0)
+            r0 = instantiate_node(Nodes::ComputedAttribute,input, i0...index, s0)
             r0.extend(ComputedAttribute0)
           else
             @index = i0

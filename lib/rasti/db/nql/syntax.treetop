@@ -43,7 +43,7 @@ module Rasti
         end
 
         rule computed_attribute
-          name:basic '()' <Nodes::ComputedAttribute>
+          name:attribute_name '()' <Nodes::ComputedAttribute>
         end
 
         rule static_attribute
