@@ -9,7 +9,7 @@ module Rasti
           end
 
           def computed_attributes
-            [] + proposition.computed_attributes.uniq
+            proposition.computed_attributes
           end
 
           def filter_condition(collection_class)

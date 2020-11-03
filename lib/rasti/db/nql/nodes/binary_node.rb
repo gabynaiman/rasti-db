@@ -9,7 +9,7 @@ module Rasti
           end
 
           def computed_attributes
-            left.computed_attributes + right.computed_attributes
+            left.computed_attributes | right.computed_attributes
           end
 
           def values
