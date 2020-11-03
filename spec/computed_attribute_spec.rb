@@ -12,8 +12,9 @@ describe 'ComputedAttribute' do
 
       dataset.join_table(:inner, subquery, :user_id => :id)
     end
-    expected_query = "SELECT * FROM `users` INNER JOIN (SELECT `user_id`, count(`id`) AS 'value' FROM `comments` GROUP BY `user_id`) AS 'comments_count' ON (`comments_count`.`user_id` = `users`.`id`)"
+    expected_query = "SELECT *, `comments_count`.`value` AS 'value' FROM `users` INNER JOIN (SELECT `user_id`, count(`id`) AS 'value' FROM `comments` GROUP BY `user_id`) AS 'comments_count' ON (`comments_count`.`user_id` = `users`.`id`)"
     computed_attribute.apply_join(dataset)
+                      .select_append(computed_attribute.identifier)
                       .sql
                       .must_equal expected_query
   end
