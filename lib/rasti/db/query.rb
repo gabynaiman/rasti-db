@@ -122,7 +122,7 @@ module Rasti
 
         raise NQL::InvalidExpressionError.new(filter_expression) if sentence.nil?
 
-        ds = sentence.computed_attributes.inject(dataset) do |ds, name|
+        ds = sentence.computed_attributes(collection_class).inject(dataset) do |ds, name|
           collection_class.computed_attributes[name].apply_join ds
         end
         query = build_query dataset: ds

@@ -9,8 +9,8 @@ module Rasti
               attribute.tables.empty? ? [] : [attribute.tables.join('.')]
             end
 
-            def computed_attributes
-              attribute.computed_attributes
+            def computed_attributes(collection_class)
+              attribute.computed_attributes(collection_class)
             end
 
           end

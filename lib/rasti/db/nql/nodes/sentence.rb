@@ -8,8 +8,8 @@ module Rasti
             proposition.dependency_tables
           end
 
-          def computed_attributes
-            proposition.computed_attributes
+          def computed_attributes(collection_class)
+            proposition.computed_attributes collection_class
           end
 
           def filter_condition(collection_class)
