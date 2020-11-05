@@ -42,17 +42,8 @@ module Rasti
           comparison_equal
         end
 
-        rule computed_attribute
-          name:attribute_name '()' <Nodes::ComputedAttribute>
-        end
-
-        rule static_attribute
-          _tables:(table:attribute_name '.')* _column:attribute_name <Nodes::Attribute>
-        end
-
         rule attribute
-          computed_attribute /
-          static_attribute
+          _tables:(table:attribute_name '.')* _column:attribute_name <Nodes::Attribute>
         end
 
         rule comparison_include

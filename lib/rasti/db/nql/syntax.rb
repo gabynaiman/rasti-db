@@ -433,58 +433,14 @@ module Rasti
           r0
         end
 
-        module ComputedAttribute0
-          def name
-            elements[0]
-          end
-
-        end
-
-        def _nt_computed_attribute
-          start_index = index
-          if node_cache[:computed_attribute].has_key?(index)
-            cached = node_cache[:computed_attribute][index]
-            if cached
-              cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
-              @index = cached.interval.end
-            end
-            return cached
-          end
-
-          i0, s0 = index, []
-          r1 = _nt_attribute_name
-          s0 << r1
-          if r1
-            if has_terminal?('()', false, index)
-              r2 = instantiate_node(SyntaxNode,input, index...(index + 2))
-              @index += 2
-            else
-              terminal_parse_failure('()')
-              r2 = nil
-            end
-            s0 << r2
-          end
-          if s0.last
-            r0 = instantiate_node(Nodes::ComputedAttribute,input, i0...index, s0)
-            r0.extend(ComputedAttribute0)
-          else
-            @index = i0
-            r0 = nil
-          end
-
-          node_cache[:computed_attribute][start_index] = r0
-
-          r0
-        end
-
-        module StaticAttribute0
+        module Attribute0
           def table
             elements[0]
           end
 
         end
 
-        module StaticAttribute1
+        module Attribute1
           def _tables
             elements[0]
           end
@@ -494,10 +450,10 @@ module Rasti
           end
         end
 
-        def _nt_static_attribute
+        def _nt_attribute
           start_index = index
-          if node_cache[:static_attribute].has_key?(index)
-            cached = node_cache[:static_attribute][index]
+          if node_cache[:attribute].has_key?(index)
+            cached = node_cache[:attribute][index]
             if cached
               cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
               @index = cached.interval.end
@@ -523,7 +479,7 @@ module Rasti
             end
             if s2.last
               r2 = instantiate_node(SyntaxNode,input, i2...index, s2)
-              r2.extend(StaticAttribute0)
+              r2.extend(Attribute0)
             else
               @index = i2
               r2 = nil
@@ -542,40 +498,10 @@ module Rasti
           end
           if s0.last
             r0 = instantiate_node(Nodes::Attribute,input, i0...index, s0)
-            r0.extend(StaticAttribute1)
+            r0.extend(Attribute1)
           else
             @index = i0
             r0 = nil
-          end
-
-          node_cache[:static_attribute][start_index] = r0
-
-          r0
-        end
-
-        def _nt_attribute
-          start_index = index
-          if node_cache[:attribute].has_key?(index)
-            cached = node_cache[:attribute][index]
-            if cached
-              cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
-              @index = cached.interval.end
-            end
-            return cached
-          end
-
-          i0 = index
-          r1 = _nt_computed_attribute
-          if r1
-            r0 = r1
-          else
-            r2 = _nt_static_attribute
-            if r2
-              r0 = r2
-            else
-              @index = i0
-              r0 = nil
-            end
           end
 
           node_cache[:attribute][start_index] = r0
