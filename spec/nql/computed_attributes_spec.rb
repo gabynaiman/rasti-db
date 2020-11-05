@@ -9,21 +9,21 @@ describe 'NQL::ComputedAttributes' do
   end
 
   it 'must have one computed attributes' do
-    tree = parse 'count_paragraphs() = 1'
+    tree = parse 'notice = any notice'
 
-    tree.computed_attributes.must_equal [:count_paragraphs]
+    tree.computed_attributes(Posts).must_equal [:notice]
   end
 
   it 'must have multiple computed attributes' do
-    tree = parse 'count_paragraphs() = 1 & (body(): Hi | title() = good morning)'
+    tree = parse 'notice = any notice & (author: anonym | title = good morning)'
 
-    tree.computed_attributes.must_equal [:count_paragraphs, :body, :title]
+    tree.computed_attributes(Posts).must_equal [:notice, :author]
   end
 
   it 'must have not repeated computed attributes when expression have it' do
-    tree = parse 'body() = Hi | body() = Bye'
+    tree = parse 'notice = Hi | notice = Bye'
 
-    tree.computed_attributes.must_equal [:body]
+    tree.computed_attributes(Posts).must_equal [:notice]
   end
 
 end

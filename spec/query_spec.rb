@@ -380,18 +380,18 @@ describe 'Query' do
 
       it 'Filter relation computed attribute' do
         db[:comments].insert post_id: 1, user_id: 5, text: 'Comment 4'
-        users_query.nql('comments_count() = 2').all.must_equal [User.new(id: 5, name: 'User 5')]
+        users_query.nql('comments_count = 2').all.must_equal [User.new(id: 5, name: 'User 5')]
       end
 
       it 'Filter with relation computed attribute with "and" combined' do
         db[:comments].insert post_id: 1, user_id: 5, text: 'Comment 4'
         db[:comments].insert post_id: 1, user_id: 4, text: 'Comment 3'
-        users_query.nql('(comments_count() > 1) & (id = 5)').all.must_equal [User.new(id: 5, name: 'User 5')]
+        users_query.nql('(comments_count > 1) & (id = 5)').all.must_equal [User.new(id: 5, name: 'User 5')]
       end
 
       it 'Filter relation computed attribute with "or" combined' do
         db[:comments].insert post_id: 1, user_id: 2, text: 'Comment 3'
-        users_query.nql('(comments_count() = 2) | (id = 5)')
+        users_query.nql('(comments_count = 2) | (id = 5)')
                   .order(:id)
                   .all
                   .must_equal [ User.new(id: 2, name: 'User 2'), User.new(id: 5, name: 'User 5') ]
@@ -399,7 +399,7 @@ describe 'Query' do
 
       it 'Filter relation computed attribute with "and" and "or" combined' do
         db[:comments].insert post_id: 1, user_id: 2, text: 'Comment 3'
-        users_query.nql('((comments_count() = 2) | (id = 5)) & (name: User 5)')
+        users_query.nql('((comments_count = 2) | (id = 5)) & (name: User 5)')
                   .order(:id)
                   .all
                   .must_equal [ User.new(id: 5, name: 'User 5') ]
@@ -412,7 +412,7 @@ describe 'Query' do
                                      last_name: 'Last Name 1',
                                      birth_date: Date.parse('2020-04-24')
 
-        people_query.nql('full_name() = Name 1 Last Name 1')
+        people_query.nql('full_name = Name 1 Last Name 1')
                     .all
                     .must_equal [person_expected]
       end

@@ -14,7 +14,7 @@ Rasti::DB.configure do |config|
 end
 
 User     = Rasti::DB::Model[:id, :name, :posts, :comments, :person, :comments_count]
-Post     = Rasti::DB::Model[:id, :title, :body, :user_id, :user, :comments, :categories, :language_id, :language]
+Post     = Rasti::DB::Model[:id, :title, :body, :user_id, :user, :comments, :categories, :language_id, :language, :notice, :author]
 Comment  = Rasti::DB::Model[:id, :text, :user_id, :user, :post_id, :post]
 Category = Rasti::DB::Model[:id, :name, :posts]
 Person   = Rasti::DB::Model[:document_number, :first_name, :last_name, :birth_date, :user_id, :user, :languages, :full_name]
@@ -59,6 +59,15 @@ class Posts < Rasti::DB::Collection
              .distinct
     end
   end
+
+  computed_attribute :notice do
+    Rasti::DB::ComputedAttribute.new Sequel.join([:title, ': ', :body])
+  end
+
+  computed_attribute :author do
+    Rasti::DB::ComputedAttribute.new Sequel[:user]
+  end
+
 end
 
 class Comments < Rasti::DB::Collection

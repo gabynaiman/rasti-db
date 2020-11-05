@@ -133,15 +133,14 @@ describe 'NQL::SyntaxParser' do
 
       left_hand_operand = tree.proposition.attribute
       left_hand_operand.tables.must_equal ['relation_table_one', 'relation_table_two']
-      left_hand_operand.column.must_equal 'column'
+      left_hand_operand.column.must_equal :column
     end
 
     it 'must parse expression with computed attribute' do
-      tree = parse 'computed_attribute() = 1'
-
+      tree = parse 'comments_count = 1'
       computed = tree.proposition.attribute
       computed.tables.must_equal []
-      computed.computed_attributes.must_equal [:computed_attribute]
+      computed.computed_attributes(Users).must_equal [:comments_count]
     end
 
   end
