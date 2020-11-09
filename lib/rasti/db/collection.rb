@@ -14,7 +14,7 @@ module Rasti
         end
 
         def collection_attributes
-          @collection_attributes ||= model.attributes - relations.keys
+          @collection_attributes ||= model.attributes - relations.keys - computed_attributes.keys
         end
 
         def primary_key
@@ -45,6 +45,10 @@ module Rasti
 
         def queries
           @queries ||= Hash::Indifferent.new
+        end
+
+        def computed_attributes
+          @computed_attributes ||= Hash::Indifferent.new
         end
 
         private
@@ -89,6 +93,11 @@ module Rasti
           define_method name do |*args|
             default_query.instance_exec(*args, &self.class.queries.fetch(name))
           end
+        end
+
+        def computed_attribute(name, &block)
+          raise "Computed Attribute #{name} already exists" if computed_attributes.key? name
+          computed_attributes[name] = block.call
         end
 
       end

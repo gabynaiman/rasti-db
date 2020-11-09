@@ -42,44 +42,44 @@ module Rasti
           comparison_equal
         end
 
-        rule field
-          _tables:(table:field_name '.')* _column:field_name <Nodes::Field>
+        rule attribute
+          _tables:(table:attribute_name '.')* _column:attribute_name <Nodes::Attribute>
         end
 
         rule comparison_include
-          field:field space* comparator:':' space* argument:basic <Nodes::Comparisons::Include>
+          attribute:attribute space* comparator:':' space* argument:basic <Nodes::Comparisons::Include>
         end
 
         rule comparison_not_include
-          field:field space* comparator:'!:' space* argument:basic <Nodes::Comparisons::NotInclude>
+          attribute:attribute space* comparator:'!:' space* argument:basic <Nodes::Comparisons::NotInclude>
         end
 
         rule comparison_like
-          field:field space* comparator:'~' space* argument:basic <Nodes::Comparisons::Like>
+          attribute:attribute space* comparator:'~' space* argument:basic <Nodes::Comparisons::Like>
         end
 
         rule comparison_greater_than
-          field:field space* comparator:'>' space* argument:basic <Nodes::Comparisons::GreaterThan>
+          attribute:attribute space* comparator:'>' space* argument:basic <Nodes::Comparisons::GreaterThan>
         end
 
         rule comparison_greater_than_or_equal
-          field:field space* comparator:'>=' space* argument:basic <Nodes::Comparisons::GreaterThanOrEqual>
+          attribute:attribute space* comparator:'>=' space* argument:basic <Nodes::Comparisons::GreaterThanOrEqual>
         end
 
         rule comparison_less_than
-          field:field space* comparator:'<' space* argument:basic <Nodes::Comparisons::LessThan>
+          attribute:attribute space* comparator:'<' space* argument:basic <Nodes::Comparisons::LessThan>
         end
 
         rule comparison_less_than_or_equal
-          field:field space* comparator:'<=' space* argument:basic <Nodes::Comparisons::LessThanOrEqual>
+          attribute:attribute space* comparator:'<=' space* argument:basic <Nodes::Comparisons::LessThanOrEqual>
         end
 
         rule comparison_not_equal
-          field:field space* comparator:'!=' space* argument:basic <Nodes::Comparisons::NotEqual>
+          attribute:attribute space* comparator:'!=' space* argument:basic <Nodes::Comparisons::NotEqual>
         end
 
         rule comparison_equal
-          field:field space* comparator:'=' space* argument:basic <Nodes::Comparisons::Equal>
+          attribute:attribute space* comparator:'=' space* argument:basic <Nodes::Comparisons::Equal>
         end
 
         rule basic
@@ -95,7 +95,7 @@ module Rasti
           [\s\t\n]
         end
 
-        rule field_name
+        rule attribute_name
           [a-z_]+
         end
 

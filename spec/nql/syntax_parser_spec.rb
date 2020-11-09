@@ -31,7 +31,7 @@ describe 'NQL::SyntaxParser' do
           proposition = tree.proposition
           proposition.must_be_instance_of node_class
           proposition.comparator.text_value.must_equal comparator
-          proposition.field.text_value.must_equal 'column'
+          proposition.attribute.text_value.must_equal 'column'
           proposition.argument.text_value.must_equal 'value'
         end
       end
@@ -44,7 +44,7 @@ describe 'NQL::SyntaxParser' do
       proposition = tree.proposition
       proposition.must_be_instance_of Rasti::DB::NQL::Nodes::Comparisons::Equal
       proposition.comparator.text_value.must_equal '='
-      proposition.field.text_value.must_equal 'column'
+      proposition.attribute.text_value.must_equal 'column'
       proposition.argument.text_value.must_equal 'value'
     end
 
@@ -128,12 +128,19 @@ describe 'NQL::SyntaxParser' do
     
     end
 
-    it 'must parse expression with field with tables' do
+    it 'must parse expression with attribute with tables' do
       tree = parse 'relation_table_one.relation_table_two.column = 1'
 
-      left_hand_operand = tree.proposition.field
+      left_hand_operand = tree.proposition.attribute
       left_hand_operand.tables.must_equal ['relation_table_one', 'relation_table_two']
-      left_hand_operand.column.must_equal 'column'
+      left_hand_operand.column.must_equal :column
+    end
+
+    it 'must parse expression with computed attribute' do
+      tree = parse 'comments_count = 1'
+      computed = tree.proposition.attribute
+      computed.tables.must_equal []
+      computed.computed_attributes(Users).must_equal [:comments_count]
     end
 
   end

@@ -4,9 +4,11 @@ describe 'NQL::FilterCondition' do
 
   let(:parser) { Rasti::DB::NQL::SyntaxParser.new }
 
+  let(:collection_class) { Rasti::DB::Collection }
+
   def filter_condition(expression)
     tree = parser.parse expression
-    tree.filter_condition
+    tree.filter_condition(collection_class)
   end
 
   def assert_identifier(identifier, expected_value)
@@ -95,7 +97,7 @@ describe 'NQL::FilterCondition' do
 
   end
 
-  it 'must create filter from expression with field with multiple tables' do
+  it 'must create filter from expression with attribute with multiple tables' do
     filter = filter_condition 'table_one.table_two.column = test'
     identifier, value = filter.first
 
