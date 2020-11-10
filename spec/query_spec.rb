@@ -442,6 +442,28 @@ describe 'Query' do
                     .must_equal expected_comments
       end
 
+      it 'Include just all these elements' do
+        db[:comments].insert post_id: 1, user_id: 5, text: 'fake notice', tags: '["fake","notice"]'
+        db[:comments].insert post_id: 1, user_id: 5, text: 'fake notice 2', tags: '["notice"]'
+        comments_query.nql('tags = (fake, notice)')
+                    .all
+                    .must_equal [Comment.new(id: 4, text: 'fake notice', tags: '["fake","notice"]', user_id: 5, post_id: 1)]
+      end
+
+      it 'Not include any of these elements' do
+        db[:comments].insert post_id: 1, user_id: 5, text: 'fake notice', tags: '["fake","notice"]'
+        db[:comments].insert post_id: 1, user_id: 5, text: 'Good notice!', tags: '["good"]'
+        expected_comments = [
+          Comment.new(id: 1, text: 'Comment 1', tags: '[]', user_id: 5, post_id: 1),
+          Comment.new(id: 2, text: 'Comment 2', tags: '[]', user_id: 7, post_id: 1),
+          Comment.new(id: 3, text: 'Comment 3', tags: '[]', user_id: 2, post_id: 2),
+          Comment.new(id: 5, text: 'Good notice!', tags: '["good"]', user_id: 5, post_id: 1)
+        ]
+        comments_query.nql('tags !: (fake, notice)')
+                    .all
+                    .must_equal expected_comments
+      end
+
     end
 
   end
