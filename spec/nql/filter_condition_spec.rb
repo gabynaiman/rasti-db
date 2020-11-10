@@ -26,6 +26,30 @@ describe 'NQL::FilterCondition' do
     right.must_equal expected_right
   end
 
+  describe 'None Array Strategy Validation' do
+
+    nql_array_strategy = Rasti::DB.nql_array_strategy
+
+    before do
+      Rasti::DB.configure do |config|
+        config.nql_array_strategy = Rasti::DB::NQL::ArrayStrategy::NoneArrayStrategy.new
+      end
+    end
+
+    after do
+      Rasti::DB.configure do |config|
+        config.nql_array_strategy = nql_array_strategy
+      end
+    end
+
+    it 'must raise exception from array expression with include' do
+      error = proc { filter_condition('column: (arg1, arg2)') }.must_raise Rasti::DB::NQL::ArrayStrategy::ShoudlBeImplemented
+      error.message.must_equal 'Method filter_include should be implemented in array strategy'
+    end
+    
+
+  end
+
   describe 'Comparison' do
 
     it 'must create filter from expression with <' do
