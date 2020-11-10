@@ -42,11 +42,46 @@ describe 'NQL::FilterCondition' do
       end
     end
 
-    it 'must raise exception from array expression with include' do
-      error = proc { filter_condition('column: (arg1, arg2)') }.must_raise Rasti::DB::NQL::ArrayStrategies::ShoudlBeImplemented
-      error.message.must_equal 'Method filter_include should be implemented in array strategy'
+    def filter_condition_must_raise(comparison, method_name)
+      error = proc { filter_condition("array_column #{comparison} (arg1, arg2)") }.must_raise Rasti::DB::NQL::ArrayStrategies::ShoudlBeImplemented
+      error.message.must_equal "Method #{method_name} should be implemented in array strategy"
     end
-    
+
+    it 'must raise exception from array expression with <' do
+      filter_condition_must_raise '<', 'filter_less_than'
+    end
+
+    it 'must raise exception from array expression with >' do
+      filter_condition_must_raise '>', 'filter_greather_than'
+    end
+
+    it 'must raise exception from array expression with <=' do
+      filter_condition_must_raise '<=', 'filter_less_than_or_equal'
+    end
+
+    it 'must raise exception from array expression with >=' do
+      filter_condition_must_raise '>=', 'filter_greather_than_or_equal'
+    end
+
+    it 'must raise exception from array expression with !=' do
+      filter_condition_must_raise '!=',  'filter_not_equal'
+    end
+
+    it 'must raise exception from array expression with =' do
+      filter_condition_must_raise '=', 'filter_equal'
+    end
+
+    it 'must raise exception from array expression with ~' do
+      filter_condition_must_raise '~',  'filter_like'
+    end
+
+    it 'must raise exception from array expression with :' do
+      filter_condition_must_raise ':', 'filter_include'
+    end
+
+    it 'must raise exception from array expression with !:' do
+      filter_condition_must_raise '!:',  'filter_not_include'
+    end
 
   end
 
