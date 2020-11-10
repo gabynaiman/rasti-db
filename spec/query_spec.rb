@@ -419,6 +419,31 @@ describe 'Query' do
 
     end
 
+    describe 'Filter Array' do
+
+      it 'Include any with one element' do
+        db[:comments].insert post_id: 1, user_id: 5, text: 'fake notice', tags: '["fake","notice"]'
+        db[:comments].insert post_id: 1, user_id: 5, text: 'fake notice 2', tags: '["fake_notice"]'
+        comments_query.nql('tags: (fake)')
+                    .all
+                    .must_equal [Comment.new(id: 4, text: 'fake notice', tags: '["fake","notice"]', user_id: 5, post_id: 1)]
+      end
+
+      it 'Include any with more than one element' do
+        db[:comments].insert post_id: 1, user_id: 5, text: 'fake notice', tags: '["fake","notice"]'
+        db[:comments].insert post_id: 1, user_id: 5, text: 'fake notice 2', tags: '["notice"]'
+        db[:comments].insert post_id: 1, user_id: 5, text: 'fake notice 3', tags: '["fake_notice"]'
+        expected_comments = [
+          Comment.new(id: 4, text: 'fake notice', tags: '["fake","notice"]', user_id: 5, post_id: 1),
+          Comment.new(id: 5, text: 'fake notice 2', tags: '["notice"]', user_id: 5, post_id: 1)
+        ]
+        comments_query.nql('tags: (fake, notice)')
+                    .all
+                    .must_equal expected_comments
+      end
+
+    end
+
   end
 
 end

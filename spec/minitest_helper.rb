@@ -11,11 +11,12 @@ require 'sequel/extensions/pg_json'
 
 Rasti::DB.configure do |config|
   config.type_converters = [Rasti::DB::TypeConverters::TimeInZone]
+  config.nql_array_strategy = Rasti::DB::NQL::ArrayStrategy::SQLite.new
 end
 
 User     = Rasti::DB::Model[:id, :name, :posts, :comments, :person, :comments_count]
 Post     = Rasti::DB::Model[:id, :title, :body, :user_id, :user, :comments, :categories, :language_id, :language, :notice, :author]
-Comment  = Rasti::DB::Model[:id, :text, :user_id, :user, :post_id, :post]
+Comment  = Rasti::DB::Model[:id, :text, :user_id, :user, :post_id, :post, :tags]
 Category = Rasti::DB::Model[:id, :name, :posts]
 Person   = Rasti::DB::Model[:document_number, :first_name, :last_name, :birth_date, :user_id, :user, :languages, :full_name]
 Language = Rasti::DB::Model[:id, :name, :people]
@@ -148,6 +149,7 @@ class Minitest::Spec
       db.create_table :comments do
         primary_key :id
         String :text, null: false
+        String :tags, default: Sequel.lit("'[]'")
         foreign_key :user_id, :users, null: false, index: true
         foreign_key :post_id, :posts, null: false, index: true
       end
