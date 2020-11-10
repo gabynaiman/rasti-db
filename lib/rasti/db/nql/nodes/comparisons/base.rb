@@ -13,6 +13,10 @@ module Rasti
               attribute.computed_attributes(collection_class)
             end
 
+            def filter_condition(collection_class)
+              argument.filter_condition_for(self, collection_class)
+            end
+
             private
 
             def array_strategy

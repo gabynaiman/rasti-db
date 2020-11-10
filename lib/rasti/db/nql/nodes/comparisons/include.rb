@@ -5,10 +5,6 @@ module Rasti
         module Comparisons
           class Include < Base
 
-            def filter_condition(collection_class)
-              argument.filter_condition_for(self, collection_class)
-            end
-
             def filter_basic_attribute(collection_class)
               Sequel.ilike(attribute.identifier(collection_class), "%#{argument.value}%")
             end
