@@ -571,7 +571,19 @@ module Rasti
                 r5 = instantiate_node(SyntaxNode,input, i5...index, s5)
                 s0 << r5
                 if r5
-                  r7 = _nt_basic
+                  i7 = index
+                  r8 = _nt_array
+                  if r8
+                    r7 = r8
+                  else
+                    r9 = _nt_basic
+                    if r9
+                      r7 = r9
+                    else
+                      @index = i7
+                      r7 = nil
+                    end
+                  end
                   s0 << r7
                 end
               end
@@ -1234,6 +1246,138 @@ module Rasti
           end
 
           node_cache[:comparison_equal][start_index] = r0
+
+          r0
+        end
+
+        module Array0
+          def basic
+            elements[0]
+          end
+
+        end
+
+        module Array1
+          def basic
+            elements[3]
+          end
+
+        end
+
+        def _nt_array
+          start_index = index
+          if node_cache[:array].has_key?(index)
+            cached = node_cache[:array][index]
+            if cached
+              cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+              @index = cached.interval.end
+            end
+            return cached
+          end
+
+          i0, s0 = index, []
+          if has_terminal?('(', false, index)
+            r1 = instantiate_node(SyntaxNode,input, index...(index + 1))
+            @index += 1
+          else
+            terminal_parse_failure('(')
+            r1 = nil
+          end
+          s0 << r1
+          if r1
+            s2, i2 = [], index
+            loop do
+              r3 = _nt_space
+              if r3
+                s2 << r3
+              else
+                break
+              end
+            end
+            r2 = instantiate_node(SyntaxNode,input, i2...index, s2)
+            s0 << r2
+            if r2
+              s4, i4 = [], index
+              loop do
+                i5, s5 = index, []
+                r6 = _nt_basic
+                s5 << r6
+                if r6
+                  s7, i7 = [], index
+                  loop do
+                    r8 = _nt_space
+                    if r8
+                      s7 << r8
+                    else
+                      break
+                    end
+                  end
+                  r7 = instantiate_node(SyntaxNode,input, i7...index, s7)
+                  s5 << r7
+                  if r7
+                    if has_terminal?(',', false, index)
+                      r9 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                      @index += 1
+                    else
+                      terminal_parse_failure(',')
+                      r9 = nil
+                    end
+                    s5 << r9
+                  end
+                end
+                if s5.last
+                  r5 = instantiate_node(SyntaxNode,input, i5...index, s5)
+                  r5.extend(Array0)
+                else
+                  @index = i5
+                  r5 = nil
+                end
+                if r5
+                  s4 << r5
+                else
+                  break
+                end
+              end
+              r4 = instantiate_node(SyntaxNode,input, i4...index, s4)
+              s0 << r4
+              if r4
+                r10 = _nt_basic
+                s0 << r10
+                if r10
+                  s11, i11 = [], index
+                  loop do
+                    r12 = _nt_space
+                    if r12
+                      s11 << r12
+                    else
+                      break
+                    end
+                  end
+                  r11 = instantiate_node(SyntaxNode,input, i11...index, s11)
+                  s0 << r11
+                  if r11
+                    if has_terminal?(')', false, index)
+                      r13 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                      @index += 1
+                    else
+                      terminal_parse_failure(')')
+                      r13 = nil
+                    end
+                    s0 << r13
+                  end
+                end
+              end
+            end
+          end
+          if s0.last
+            r0 = instantiate_node(Nodes::Constants::Array,input, i0...index, s0)
+            r0.extend(Array1)
+          else
+            @index = i0
+            r0 = nil
+          end
+
+          node_cache[:array][start_index] = r0
 
           r0
         end
