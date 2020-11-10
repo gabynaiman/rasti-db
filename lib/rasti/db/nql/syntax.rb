@@ -571,19 +571,7 @@ module Rasti
                 r5 = instantiate_node(SyntaxNode,input, i5...index, s5)
                 s0 << r5
                 if r5
-                  i7 = index
-                  r8 = _nt_array
-                  if r8
-                    r7 = r8
-                  else
-                    r9 = _nt_basic
-                    if r9
-                      r7 = r9
-                    else
-                      @index = i7
-                      r7 = nil
-                    end
-                  end
+                  r7 = _nt_basic
                   s0 << r7
                 end
               end
@@ -1250,6 +1238,61 @@ module Rasti
           r0
         end
 
+        def _nt_basic
+          start_index = index
+          if node_cache[:basic].has_key?(index)
+            cached = node_cache[:basic][index]
+            if cached
+              cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+              @index = cached.interval.end
+            end
+            return cached
+          end
+
+          i0 = index
+          r1 = _nt_array
+          if r1
+            r0 = r1
+          else
+            r2 = _nt_boolean
+            if r2
+              r0 = r2
+            else
+              r3 = _nt_time
+              if r3
+                r0 = r3
+              else
+                r4 = _nt_float
+                if r4
+                  r0 = r4
+                else
+                  r5 = _nt_integer
+                  if r5
+                    r0 = r5
+                  else
+                    r6 = _nt_literal_string
+                    if r6
+                      r0 = r6
+                    else
+                      r7 = _nt_string
+                      if r7
+                        r0 = r7
+                      else
+                        @index = i0
+                        r0 = nil
+                      end
+                    end
+                  end
+                end
+              end
+            end
+          end
+
+          node_cache[:basic][start_index] = r0
+
+          r0
+        end
+
         module Array0
           def basic
             elements[0]
@@ -1378,56 +1421,6 @@ module Rasti
           end
 
           node_cache[:array][start_index] = r0
-
-          r0
-        end
-
-        def _nt_basic
-          start_index = index
-          if node_cache[:basic].has_key?(index)
-            cached = node_cache[:basic][index]
-            if cached
-              cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
-              @index = cached.interval.end
-            end
-            return cached
-          end
-
-          i0 = index
-          r1 = _nt_boolean
-          if r1
-            r0 = r1
-          else
-            r2 = _nt_time
-            if r2
-              r0 = r2
-            else
-              r3 = _nt_float
-              if r3
-                r0 = r3
-              else
-                r4 = _nt_integer
-                if r4
-                  r0 = r4
-                else
-                  r5 = _nt_literal_string
-                  if r5
-                    r0 = r5
-                  else
-                    r6 = _nt_string
-                    if r6
-                      r0 = r6
-                    else
-                      @index = i0
-                      r0 = nil
-                    end
-                  end
-                end
-              end
-            end
-          end
-
-          node_cache[:basic][start_index] = r0
 
           r0
         end

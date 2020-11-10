@@ -47,7 +47,7 @@ module Rasti
         end
 
         rule comparison_include
-          attribute:attribute space* comparator:':' space* argument:(array/basic) <Nodes::Comparisons::Include>
+          attribute:attribute space* comparator:':' space* argument:basic <Nodes::Comparisons::Include>
         end
 
         rule comparison_not_include
@@ -82,11 +82,8 @@ module Rasti
           attribute:attribute space* comparator:'=' space* argument:basic <Nodes::Comparisons::Equal>
         end
 
-        rule array
-          '(' space* (basic space* ',')* basic space* ')' <Nodes::Constants::Array>
-        end
-
         rule basic
+          array          /
           boolean        /
           time           /
           float          /
@@ -94,6 +91,11 @@ module Rasti
           literal_string /
           string
         end
+
+        rule array
+          '(' space* (basic space* ',')* basic space* ')' <Nodes::Constants::Array>
+        end
+
 
         rule space
           [\s\t\n]
