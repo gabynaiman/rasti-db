@@ -3,7 +3,7 @@ module Rasti
     module NQL
       module Nodes
         module Constants
-          class String < Treetop::Runtime::SyntaxNode
+          class String < Base
 
             def value
               text_value.strip

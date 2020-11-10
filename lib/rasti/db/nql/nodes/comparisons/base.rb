@@ -13,6 +13,12 @@ module Rasti
               attribute.computed_attributes(collection_class)
             end
 
+            private
+
+            def array_strategy
+              DB.nql_array_strategy
+            end
+
           end
         end
       end

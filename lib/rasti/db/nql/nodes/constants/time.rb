@@ -3,7 +3,7 @@ module Rasti
     module NQL
       module Nodes
         module Constants
-          class Time < Treetop::Runtime::SyntaxNode
+          class Time < Base
 
             def value
               time.to_s

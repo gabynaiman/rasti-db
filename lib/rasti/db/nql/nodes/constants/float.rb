@@ -3,7 +3,7 @@ module Rasti
     module NQL
       module Nodes
         module Constants
-          class Float < Treetop::Runtime::SyntaxNode
+          class Float < Base
 
             def value
               text_value.to_f

@@ -3,7 +3,7 @@ module Rasti
     module NQL
       module Nodes
         module Constants
-          class LiteralString < Treetop::Runtime::SyntaxNode
+          class LiteralString < Base
 
             def value
               string.text_value

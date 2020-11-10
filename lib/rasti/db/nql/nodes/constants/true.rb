@@ -3,7 +3,7 @@ module Rasti
     module NQL
       module Nodes
         module Constants
-          class True < Treetop::Runtime::SyntaxNode
+          class True < Base
 
             def value
               true
