@@ -32,7 +32,7 @@ describe 'NQL::FilterCondition' do
 
     before do
       Rasti::DB.configure do |config|
-        config.nql_array_strategy = Rasti::DB::NQL::ArrayStrategy::NoneArrayStrategy.new
+        config.nql_array_strategy = Rasti::DB::NQL::ArrayStrategies::NoneStrategy.new
       end
     end
 
@@ -43,7 +43,7 @@ describe 'NQL::FilterCondition' do
     end
 
     it 'must raise exception from array expression with include' do
-      error = proc { filter_condition('column: (arg1, arg2)') }.must_raise Rasti::DB::NQL::ArrayStrategy::ShoudlBeImplemented
+      error = proc { filter_condition('column: (arg1, arg2)') }.must_raise Rasti::DB::NQL::ArrayStrategies::ShoudlBeImplemented
       error.message.must_equal 'Method filter_include should be implemented in array strategy'
     end
     

@@ -1,7 +1,7 @@
 module Rasti
   module DB
     module NQL
-      module ArrayStrategy
+      module ArrayStrategies
 
         class ShoudlBeImplemented < StandardError
 
@@ -14,7 +14,7 @@ module Rasti
   
         end
 
-        class NoneArrayStrategy
+        class NoneStrategy
 
           def filter_include(attribute, arguments)
             raise ShoudlBeImplemented, 'filter_include'
