@@ -20,6 +20,7 @@ module Rasti
     require_relative_pattern  'db/**/*'
 
     attr_config :type_converters, []
+    attr_config :nql_array_strategy, NQL::ArrayStrategy::NoneArrayStrategy
 
     def self.to_db(db, collection_name, attribute_name, value)
       type_converters.inject(value) do |result, type_converter|
