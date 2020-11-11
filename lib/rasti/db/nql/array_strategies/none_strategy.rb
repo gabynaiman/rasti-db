@@ -6,12 +6,23 @@ module Rasti
         class ShoudlBeImplemented < StandardError
 
           attr_reader :method
-  
+
           def initialize(method)
             @method = method
             super "Method #{method} should be implemented in array strategy"
           end
-  
+
+        end
+
+        class MethodNotSupported < StandardError
+
+          attr_reader :method
+
+          def initialize(method)
+            @method = method
+            super "Method #{method} have not support for this array strategy"
+          end
+
         end
 
         class NoneStrategy

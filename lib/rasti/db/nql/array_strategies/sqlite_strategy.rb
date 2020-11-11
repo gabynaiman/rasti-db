@@ -21,6 +21,26 @@ module Rasti
             Sequel.|(*arguments.map { | argument | ~Sequel.like(attribute, "%\"#{argument}\"%") } )
           end
 
+          def filter_like(attribute, arguments)
+            Sequel.|(*arguments.map { | argument | Sequel.like(attribute, "%#{argument}%") } )
+          end
+
+          def filter_greather_than(attribute, arguments)
+            raise MethodNotSupported, 'filter_greather_than'
+          end
+
+          def filter_greather_than_or_equal(attribute, arguments)
+            raise MethodNotSupported, 'filter_greather_than_or_equal'
+          end
+
+          def filter_less_than(attribute, arguments)
+            raise MethodNotSupported, 'filter_less_than'
+          end
+
+          def filter_less_than_or_equal(attribute, arguments)
+            raise MethodNotSupported, 'filter_less_than_or_equal'
+          end
+
         end
       end
     end

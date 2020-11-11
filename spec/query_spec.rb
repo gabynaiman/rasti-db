@@ -421,6 +421,19 @@ describe 'Query' do
 
     describe 'Filter Array' do
 
+      def filter_condition_must_raise(comparison, method_name)
+        error = proc { comments_query.nql("tags #{comparison} (fake, notice)") }.must_raise Rasti::DB::NQL::ArrayStrategies::MethodNotSupported
+        error.message.must_equal "Method #{method_name} have not support for this array strategy"
+      end
+
+      it 'Must raise exception from not supported methods' do
+        filter_condition_must_raise '>', 'filter_greather_than'
+        filter_condition_must_raise '>=', 'filter_greather_than_or_equal'
+        filter_condition_must_raise '<', 'filter_less_than'
+        filter_condition_must_raise '<=', 'filter_less_than_or_equal'
+        
+      end
+
       it 'Included any of these elements' do
         db[:comments].insert post_id: 1, user_id: 5, text: 'fake notice', tags: '["fake","notice"]'
         db[:comments].insert post_id: 1, user_id: 5, text: 'fake notice 2', tags: '["notice"]'
@@ -471,6 +484,18 @@ describe 'Query' do
         comments_query.nql('tags != (fake, notice)')
                     .all
                     .must_equal expected_comments
+      end
+
+      it 'Include any like these elements' do
+        db[:comments].insert post_id: 1, user_id: 5, text: 'fake notice', tags: '["fake","notice"]'
+        db[:comments].insert post_id: 1, user_id: 5, text: 'this is a fake notice!', tags: '["fake_notice"]'
+        expected_comments = [
+          Comment.new(id: 4, text: 'fake notice', tags: '["fake","notice"]', user_id: 5, post_id: 1),
+          Comment.new(id: 5, text: 'this is a fake notice!', tags: '["fake_notice"]', user_id: 5, post_id: 1)
+        ]
+        comments_query.nql('tags ~ (fake)')
+                      .all
+                      .must_equal expected_comments
       end
 
     end
