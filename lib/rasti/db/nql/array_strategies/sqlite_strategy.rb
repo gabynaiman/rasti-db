@@ -17,6 +17,10 @@ module Rasti
             Sequel.&(*arguments.map { | argument | ~Sequel.like(attribute, "%\"#{argument}\"%") } )
           end
 
+          def filter_not_equal(attribute, arguments)
+            Sequel.|(*arguments.map { | argument | ~Sequel.like(attribute, "%\"#{argument}\"%") } )
+          end
+
         end
       end
     end
