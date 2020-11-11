@@ -17,6 +17,7 @@ module Rasti
     require_relative 'db/query'
     require_relative_pattern  'db/relations/*'
     require_relative_pattern  'db/type_converters/postgres_types/*'
+    require_relative_pattern  'db/type_converters/sqlite_types/*'
     require_relative_pattern  'db/**/*'
 
     attr_config :type_converters, []
