@@ -13,6 +13,10 @@ module Rasti
               comparison.filter_array_attribute collection_class
             end
 
+            def type
+              'array'
+            end
+
             private
 
             def values
