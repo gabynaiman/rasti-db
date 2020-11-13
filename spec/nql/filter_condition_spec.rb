@@ -26,60 +26,60 @@ describe 'NQL::FilterCondition' do
     right.must_equal expected_right
   end
 
-  describe 'None Array Strategy Validation' do
+  describe 'None Filter Condition Strategy Validation' do
 
-    nql_array_strategy = Rasti::DB.nql_array_strategy
+    nql_filter_condition_strategy = Rasti::DB.nql_filter_condition_strategy
 
     before do
       Rasti::DB.configure do |config|
-        config.nql_array_strategy = Rasti::DB::NQL::ArrayStrategies::NoneStrategy.new
+        config.nql_filter_condition_strategy = Rasti::DB::NQL::FilterConditionStrategies::NoneStrategy.new
       end
     end
 
     after do
       Rasti::DB.configure do |config|
-        config.nql_array_strategy = nql_array_strategy
+        config.nql_filter_condition_strategy = nql_filter_condition_strategy
       end
     end
 
     def filter_condition_must_raise(comparison, method_name)
-      error = proc { filter_condition("array_column #{comparison} (arg1, arg2)") }.must_raise Rasti::DB::NQL::ArrayStrategies::ShoudlBeImplemented
-      error.message.must_equal "Method #{method_name} should be implemented in array strategy"
+      error = proc { filter_condition("column #{comparison} arg1") }.must_raise Rasti::DB::NQL::FilterConditionStrategies::ShoudlBeImplemented
+      error.message.must_equal "Method #{method_name} should be implemented for a filter condition strategy"
     end
 
-    it 'must raise exception from array expression with <' do
+    it 'must raise exception from expression with <' do
       filter_condition_must_raise '<', 'filter_less_than'
     end
 
-    it 'must raise exception from array expression with >' do
+    it 'must raise exception from expression with >' do
       filter_condition_must_raise '>', 'filter_greather_than'
     end
 
-    it 'must raise exception from array expression with <=' do
+    it 'must raise exception from expression with <=' do
       filter_condition_must_raise '<=', 'filter_less_than_or_equal'
     end
 
-    it 'must raise exception from array expression with >=' do
+    it 'must raise exception from expression with >=' do
       filter_condition_must_raise '>=', 'filter_greather_than_or_equal'
     end
 
-    it 'must raise exception from array expression with !=' do
+    it 'must raise exception from expression with !=' do
       filter_condition_must_raise '!=',  'filter_not_equal'
     end
 
-    it 'must raise exception from array expression with =' do
+    it 'must raise exception from expression with =' do
       filter_condition_must_raise '=', 'filter_equal'
     end
 
-    it 'must raise exception from array expression with ~' do
+    it 'must raise exception from expression with ~' do
       filter_condition_must_raise '~',  'filter_like'
     end
 
-    it 'must raise exception from array expression with :' do
+    it 'must raise exception from expression with :' do
       filter_condition_must_raise ':', 'filter_include'
     end
 
-    it 'must raise exception from array expression with !:' do
+    it 'must raise exception from expression with !:' do
       filter_condition_must_raise '!:',  'filter_not_include'
     end
 
