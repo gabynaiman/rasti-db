@@ -3,10 +3,23 @@ module Rasti
     module NQL
       module FilterConditionStrategies
         module SQLiteComparisons
+
+          class TypedComparisonNotSupported < StandardError
+
+            attr_reader :comparison, :type
+
+            def initialize(comparison, type)
+              @comparison = comparison
+              @type = type
+              super "Compare by #{comparison} have no support when filter #{type} with this filter condition strategy"
+            end
+
+          end
+
           class Base
             class << self
 
-              FILTER_METHODS = [
+              TYPE_METHODS = [
                 :for_array,
                 :for_false,
                 :for_float,
@@ -17,7 +30,7 @@ module Rasti
                 :for_true
               ]
 
-              FILTER_METHODS.each do |method|
+              TYPE_METHODS.each do |method|
                 define_method method do |*args, &block|
                   common_filter_method *args
                 end

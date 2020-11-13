@@ -7,7 +7,7 @@ module Rasti
             class << self
 
               def for_array(attribute, arguments)
-                raise 'Filter not supported'
+                raise TypedComparisonNotSupported.new '>=', 'array'
               end
 
               private
