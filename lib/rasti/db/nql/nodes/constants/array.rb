@@ -3,18 +3,10 @@ module Rasti
     module NQL
       module Nodes
         module Constants
-          class Array < Treetop::Runtime::SyntaxNode
+          class Array < Base
 
             def value
               values
-            end
-
-            def filter_condition_for(comparison, collection_class)
-              comparison.filter_array_attribute collection_class
-            end
-
-            def type
-              'array'
             end
 
             private
