@@ -571,7 +571,7 @@ module Rasti
                 r5 = instantiate_node(SyntaxNode,input, i5...index, s5)
                 s0 << r5
                 if r5
-                  r7 = _nt_basic
+                  r7 = _nt_argument
                   s0 << r7
                 end
               end
@@ -652,7 +652,7 @@ module Rasti
                 r5 = instantiate_node(SyntaxNode,input, i5...index, s5)
                 s0 << r5
                 if r5
-                  r7 = _nt_basic
+                  r7 = _nt_argument
                   s0 << r7
                 end
               end
@@ -733,7 +733,7 @@ module Rasti
                 r5 = instantiate_node(SyntaxNode,input, i5...index, s5)
                 s0 << r5
                 if r5
-                  r7 = _nt_basic
+                  r7 = _nt_argument
                   s0 << r7
                 end
               end
@@ -814,7 +814,7 @@ module Rasti
                 r5 = instantiate_node(SyntaxNode,input, i5...index, s5)
                 s0 << r5
                 if r5
-                  r7 = _nt_basic
+                  r7 = _nt_argument
                   s0 << r7
                 end
               end
@@ -895,7 +895,7 @@ module Rasti
                 r5 = instantiate_node(SyntaxNode,input, i5...index, s5)
                 s0 << r5
                 if r5
-                  r7 = _nt_basic
+                  r7 = _nt_argument
                   s0 << r7
                 end
               end
@@ -976,7 +976,7 @@ module Rasti
                 r5 = instantiate_node(SyntaxNode,input, i5...index, s5)
                 s0 << r5
                 if r5
-                  r7 = _nt_basic
+                  r7 = _nt_argument
                   s0 << r7
                 end
               end
@@ -1057,7 +1057,7 @@ module Rasti
                 r5 = instantiate_node(SyntaxNode,input, i5...index, s5)
                 s0 << r5
                 if r5
-                  r7 = _nt_basic
+                  r7 = _nt_argument
                   s0 << r7
                 end
               end
@@ -1138,7 +1138,7 @@ module Rasti
                 r5 = instantiate_node(SyntaxNode,input, i5...index, s5)
                 s0 << r5
                 if r5
-                  r7 = _nt_basic
+                  r7 = _nt_argument
                   s0 << r7
                 end
               end
@@ -1219,7 +1219,7 @@ module Rasti
                 r5 = instantiate_node(SyntaxNode,input, i5...index, s5)
                 s0 << r5
                 if r5
-                  r7 = _nt_basic
+                  r7 = _nt_argument
                   s0 << r7
                 end
               end
@@ -1238,10 +1238,10 @@ module Rasti
           r0
         end
 
-        def _nt_basic
+        def _nt_argument
           start_index = index
-          if node_cache[:basic].has_key?(index)
-            cached = node_cache[:basic][index]
+          if node_cache[:argument].has_key?(index)
+            cached = node_cache[:argument][index]
             if cached
               cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
               @index = cached.interval.end
@@ -1254,33 +1254,58 @@ module Rasti
           if r1
             r0 = r1
           else
-            r2 = _nt_boolean
+            r2 = _nt_basic
             if r2
               r0 = r2
             else
-              r3 = _nt_time
+              @index = i0
+              r0 = nil
+            end
+          end
+
+          node_cache[:argument][start_index] = r0
+
+          r0
+        end
+
+        def _nt_basic
+          start_index = index
+          if node_cache[:basic].has_key?(index)
+            cached = node_cache[:basic][index]
+            if cached
+              cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+              @index = cached.interval.end
+            end
+            return cached
+          end
+
+          i0 = index
+          r1 = _nt_boolean
+          if r1
+            r0 = r1
+          else
+            r2 = _nt_time
+            if r2
+              r0 = r2
+            else
+              r3 = _nt_float
               if r3
                 r0 = r3
               else
-                r4 = _nt_float
+                r4 = _nt_integer
                 if r4
                   r0 = r4
                 else
-                  r5 = _nt_integer
+                  r5 = _nt_literal_string
                   if r5
                     r0 = r5
                   else
-                    r6 = _nt_literal_string
+                    r6 = _nt_string
                     if r6
                       r0 = r6
                     else
-                      r7 = _nt_string
-                      if r7
-                        r0 = r7
-                      else
-                        @index = i0
-                        r0 = nil
-                      end
+                      @index = i0
+                      r0 = nil
                     end
                   end
                 end

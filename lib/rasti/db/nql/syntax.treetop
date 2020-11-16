@@ -47,43 +47,47 @@ module Rasti
         end
 
         rule comparison_include
-          attribute:attribute space* comparator:':' space* argument:basic <Nodes::Comparisons::Include>
+          attribute:attribute space* comparator:':' space* argument:argument <Nodes::Comparisons::Include>
         end
 
         rule comparison_not_include
-          attribute:attribute space* comparator:'!:' space* argument:basic <Nodes::Comparisons::NotInclude>
+          attribute:attribute space* comparator:'!:' space* argument:argument <Nodes::Comparisons::NotInclude>
         end
 
         rule comparison_like
-          attribute:attribute space* comparator:'~' space* argument:basic <Nodes::Comparisons::Like>
+          attribute:attribute space* comparator:'~' space* argument:argument <Nodes::Comparisons::Like>
         end
 
         rule comparison_greater_than
-          attribute:attribute space* comparator:'>' space* argument:basic <Nodes::Comparisons::GreaterThan>
+          attribute:attribute space* comparator:'>' space* argument:argument <Nodes::Comparisons::GreaterThan>
         end
 
         rule comparison_greater_than_or_equal
-          attribute:attribute space* comparator:'>=' space* argument:basic <Nodes::Comparisons::GreaterThanOrEqual>
+          attribute:attribute space* comparator:'>=' space* argument:argument <Nodes::Comparisons::GreaterThanOrEqual>
         end
 
         rule comparison_less_than
-          attribute:attribute space* comparator:'<' space* argument:basic <Nodes::Comparisons::LessThan>
+          attribute:attribute space* comparator:'<' space* argument:argument <Nodes::Comparisons::LessThan>
         end
 
         rule comparison_less_than_or_equal
-          attribute:attribute space* comparator:'<=' space* argument:basic <Nodes::Comparisons::LessThanOrEqual>
+          attribute:attribute space* comparator:'<=' space* argument:argument <Nodes::Comparisons::LessThanOrEqual>
         end
 
         rule comparison_not_equal
-          attribute:attribute space* comparator:'!=' space* argument:basic <Nodes::Comparisons::NotEqual>
+          attribute:attribute space* comparator:'!=' space* argument:argument <Nodes::Comparisons::NotEqual>
         end
 
         rule comparison_equal
-          attribute:attribute space* comparator:'=' space* argument:basic <Nodes::Comparisons::Equal>
+          attribute:attribute space* comparator:'=' space* argument:argument <Nodes::Comparisons::Equal>
+        end
+
+        rule argument
+          array /
+          basic
         end
 
         rule basic
-          array          /
           boolean        /
           time           /
           float          /
@@ -95,7 +99,6 @@ module Rasti
         rule array
           '(' space* (basic space* ',')* basic space* ')' <Nodes::Constants::Array>
         end
-
 
         rule space
           [\s\t\n]
