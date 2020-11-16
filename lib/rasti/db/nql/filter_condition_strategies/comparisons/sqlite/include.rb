@@ -3,17 +3,17 @@ module Rasti
     module NQL
       module FilterConditionStrategies
         module SQLiteComparisons
-          class GreatherThanOrEqual < Base
+          class Include < Comparisons::Base
             class << self
 
               def for_array(attribute, arguments)
-                raise TypedComparisonNotSupported.new '>=', 'array'
+                Sequel.|(*arguments.map { | argument | Sequel.like(attribute, "%\"#{argument}\"%") } )
               end
 
               private
 
               def common_filter_method(attribute, argument)
-                attribute >= argument
+                Sequel.ilike attribute, "%#{argument}%"
               end
 
             end

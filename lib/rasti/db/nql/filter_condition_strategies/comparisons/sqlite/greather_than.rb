@@ -3,11 +3,11 @@ module Rasti
     module NQL
       module FilterConditionStrategies
         module SQLiteComparisons
-          class GreatherThan < Base
+          class GreatherThan < Comparisons::Base
             class << self
 
               def for_array(attribute, arguments)
-                raise TypedComparisonNotSupported.new '>', 'array'
+                raise Comparisons::TypedComparisonNotSupported.new '>', 'array'
               end
 
               private

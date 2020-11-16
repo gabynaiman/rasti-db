@@ -2,7 +2,7 @@ module Rasti
   module DB
     module NQL
       module FilterConditionStrategies
-        module SQLiteComparisons
+        module Comparisons
 
           class TypedComparisonNotSupported < StandardError
 
@@ -17,6 +17,7 @@ module Rasti
           end
 
           class Base
+
             class << self
 
               TYPE_METHODS = [

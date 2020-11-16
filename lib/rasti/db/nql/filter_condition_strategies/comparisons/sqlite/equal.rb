@@ -3,17 +3,18 @@ module Rasti
     module NQL
       module FilterConditionStrategies
         module SQLiteComparisons
-          class LessThanOrEqual < Base
+          class Equal < Comparisons::Base
             class << self
 
               def for_array(attribute, arguments)
-                raise TypedComparisonNotSupported.new '<=', 'array'
+                array = arguments.map { | arg | "\"#{arg}\"" }.join(",")
+                { attribute => "[#{array}]" }
               end
 
               private
 
               def common_filter_method(attribute, argument)
-                attribute <= argument
+                { attribute => argument }
               end
 
             end

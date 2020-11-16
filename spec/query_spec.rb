@@ -422,7 +422,7 @@ describe 'Query' do
     describe 'Filter Array' do
 
       def filter_condition_must_raise(comparison)
-        error = proc { comments_query.nql("tags #{comparison} (fake, notice)") }.must_raise Rasti::DB::NQL::FilterConditionStrategies::SQLiteComparisons::TypedComparisonNotSupported
+        error = proc { comments_query.nql("tags #{comparison} (fake, notice)") }.must_raise Rasti::DB::NQL::FilterConditionStrategies::Comparisons::TypedComparisonNotSupported
         error.message.must_equal "Compare by #{comparison} have no support when filter array with this filter condition strategy"
       end
 
