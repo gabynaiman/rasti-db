@@ -11,7 +11,7 @@ require 'sequel/extensions/pg_json'
 
 Rasti::DB.configure do |config|
   config.type_converters = [Rasti::DB::TypeConverters::TimeInZone]
-  config.nql_filter_condition_strategy = Rasti::DB::NQL::FilterConditionStrategies::SQLiteStrategy.new
+  config.nql_filter_condition_strategy = Rasti::DB::NQL::FilterConditionStrategies::SQLite.new
 end
 
 User     = Rasti::DB::Model[:id, :name, :posts, :comments, :person, :comments_count]

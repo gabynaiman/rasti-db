@@ -2,7 +2,7 @@ module Rasti
   module DB
     module NQL
       module FilterConditionStrategies
-        class SQLiteStrategy < NoneStrategy
+        class SQLite < NoneStrategy
 
           def filter_include(attribute, argument)
             filter_as SQLiteComparisons::Include, attribute, argument
@@ -39,6 +39,42 @@ module Rasti
           def filter_less_than_or_equal(attribute, argument)
             filter_as SQLiteComparisons::LessThanOrEqual, attribute, argument
           end
+
+          def for_comparison_include(attribute, argument)
+            filter_as SQLiteComparisons::Include, attribute, argument
+          end
+
+          # def for_comparison_equal(attribute, argument)
+          #   filter_as SQLiteComparisons::Equal, attribute, argument
+          # end
+
+          # def for_comparison_not_include(attribute, argument)
+          #   filter_as SQLiteComparisons::NotInclude, attribute, argument
+          # end
+
+          # def for_comparison_not_equal(attribute, argument)
+          #   filter_as SQLiteComparisons::NotEqual, attribute, argument
+          # end
+
+          # def for_comparison_like(attribute, argument)
+          #   filter_as SQLiteComparisons::Like, attribute, argument
+          # end
+
+          # def for_comparison_greather_than(attribute, argument)
+          #   filter_as SQLiteComparisons::GreatherThan, attribute, argument
+          # end
+
+          # def for_comparison_greather_than_or_equal(attribute, argument)
+          #   filter_as SQLiteComparisons::GreatherThanOrEqual, attribute, argument
+          # end
+
+          # def for_comparison_less_than(attribute, argument)
+          #   filter_as SQLiteComparisons::LessThan, attribute, argument
+          # end
+
+          # def for_comparison_less_than_or_equal(attribute, argument)
+          #   filter_as SQLiteComparisons::LessThanOrEqual, attribute, argument
+          # end
 
           private
 
