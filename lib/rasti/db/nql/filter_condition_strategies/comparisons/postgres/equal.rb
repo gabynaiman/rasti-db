@@ -7,7 +7,10 @@ module Rasti
             class << self
 
               def for_array(attribute, arguments)
-                { Sequel.pg_array(attribute) => Sequel.pg_array(arguments) }
+                Sequel.&(
+                  Sequel.pg_array(attribute).contains(Sequel.pg_array(arguments)),
+                  Sequel.pg_array(attribute).contained_by(Sequel.pg_array(arguments))
+                )
               end
 
               private

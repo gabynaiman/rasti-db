@@ -7,13 +7,13 @@ module Rasti
             class << self
 
               def for_array(attribute, arguments)
-                Sequel.negate Sequel.pg_array(attribute) => Sequel.pg_array(arguments)
+                ~ Equal.for_array(attribute, arguments)
               end
 
               private
 
               def common_filter_method(attribute, argument)
-                Sequel.negate attribute => argument
+                ~ Equal.common_filter_method(attribute, argument)
               end
 
             end

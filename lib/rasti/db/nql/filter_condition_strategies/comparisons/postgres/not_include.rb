@@ -7,13 +7,13 @@ module Rasti
             class << self
 
               def for_array(attribute, arguments)
-                ~ Sequel.pg_array(attribute).overlaps(Sequel.pg_array(arguments))
+                ~ Include.for_array(attribute, arguments)
               end
 
               private
 
               def common_filter_method(attribute, argument)
-                ~ Sequel.ilike(attribute, "%#{argument}%")
+                ~ Include.common_filter_method(attribute, argument)
               end
 
             end
