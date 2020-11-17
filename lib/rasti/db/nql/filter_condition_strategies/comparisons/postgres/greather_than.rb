@@ -3,7 +3,7 @@ module Rasti
     module NQL
       module FilterConditionStrategies
         module PostgresComparisons
-          class GreatherThan < Base
+          class GreatherThan < Comparisons::Base
             class << self
 
               def for_array(attribute, arguments)

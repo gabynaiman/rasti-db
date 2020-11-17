@@ -3,11 +3,11 @@ module Rasti
     module NQL
       module FilterConditionStrategies
         module PostgresComparisons
-          class Equal < Base
+          class Equal < Comparisons::Base
             class << self
 
               def for_array(attribute, arguments)
-                common_filter_method attribute.pg_array, to_pg_array(arguments)
+                { Sequel.pg_array(attribute) => Sequel.pg_array(arguments) }
               end
 
               private

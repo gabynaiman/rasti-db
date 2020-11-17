@@ -3,7 +3,7 @@ module Rasti
     module NQL
       module FilterConditionStrategies
         module PostgresComparisons
-          class LessThan < Base
+          class LessThan < Comparisons::Base
             class << self
 
               def for_array(attribute, arguments)

@@ -3,11 +3,11 @@ module Rasti
     module NQL
       module FilterConditionStrategies
         module PostgresComparisons
-          class Include < Base
+          class Include < Comparisons::Base
             class << self
 
               def for_array(attribute, arguments)
-                attribute.pg_array.overlaps to_pg_array(arguments)
+                Sequel.pg_array(attribute).overlaps Sequel.pg_array(arguments)
               end
 
               private
