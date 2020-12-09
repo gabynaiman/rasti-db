@@ -19,8 +19,8 @@ module Rasti
           FILTER_METHODS = [
             :filter_include,
             :filter_equal,
-            :filter_greather_than,
-            :filter_greather_than_or_equal,
+            :filter_greater_than,
+            :filter_greater_than_or_equal,
             :filter_less_than,
             :filter_less_than_or_equal,
             :filter_like,

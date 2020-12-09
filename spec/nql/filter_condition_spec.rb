@@ -19,7 +19,7 @@ describe 'NQL::FilterCondition' do
   def assert_comparison(filter, expected_left, expected_comparator, expected_right)
     filter.must_be_instance_of Sequel::SQL::BooleanExpression
     filter.op.must_equal expected_comparator.to_sym
-    
+
     left, right = filter.args
     assert_identifier left, expected_left
 
@@ -52,7 +52,7 @@ describe 'NQL::FilterCondition' do
     end
 
     it 'must raise exception from expression with >' do
-      filter_condition_must_raise '>', 'filter_greather_than'
+      filter_condition_must_raise '>', 'filter_greater_than'
     end
 
     it 'must raise exception from expression with <=' do
@@ -60,7 +60,7 @@ describe 'NQL::FilterCondition' do
     end
 
     it 'must raise exception from expression with >=' do
-      filter_condition_must_raise '>=', 'filter_greather_than_or_equal'
+      filter_condition_must_raise '>=', 'filter_greater_than_or_equal'
     end
 
     it 'must raise exception from expression with !=' do
@@ -80,7 +80,7 @@ describe 'NQL::FilterCondition' do
     end
 
     it 'must raise exception from expression with !:' do
-      filter_condition_must_raise '!:',  'filter_not_include'
+      filter_condition_must_raise '!:', 'filter_not_include'
     end
 
   end
@@ -193,7 +193,7 @@ describe 'NQL::FilterCondition' do
 
     filter.must_be_instance_of Sequel::SQL::BooleanExpression
     filter.op.must_equal :AND
-    
+
     major_expression, and_expression = filter.args
     assert_comparison major_expression, 'column_one', '>', 1
 

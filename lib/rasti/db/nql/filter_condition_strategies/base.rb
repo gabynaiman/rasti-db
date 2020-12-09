@@ -24,12 +24,12 @@ module Rasti
             filter_as comparison_module::Like, attribute, argument
           end
 
-          def filter_greather_than(attribute, argument)
-            filter_as comparison_module::GreatherThan, attribute, argument
+          def filter_greater_than(attribute, argument)
+            filter_as comparison_module::GreaterThan, attribute, argument
           end
 
-          def filter_greather_than_or_equal(attribute, argument)
-            filter_as comparison_module::GreatherThanOrEqual, attribute, argument
+          def filter_greater_than_or_equal(attribute, argument)
+            filter_as comparison_module::GreaterThanOrEqual, attribute, argument
           end
 
           def filter_less_than(attribute, argument)

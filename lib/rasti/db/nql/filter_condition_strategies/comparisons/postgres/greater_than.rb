@@ -2,8 +2,8 @@ module Rasti
   module DB
     module NQL
       module FilterConditionStrategies
-        module SQLiteComparisons
-          class GreatherThan < Comparisons::Base
+        module PostgresComparisons
+          class GreaterThan < Comparisons::Base
             class << self
 
               def for_array(attribute, arguments)

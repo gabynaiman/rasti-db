@@ -3,17 +3,17 @@ module Rasti
     module NQL
       module FilterConditionStrategies
         module PostgresComparisons
-          class GreatherThan < Comparisons::Base
+          class GreaterThanOrEqual < Comparisons::Base
             class << self
 
               def for_array(attribute, arguments)
-                raise Comparisons::TypedComparisonNotSupported.new '>', 'array'
+                raise Comparisons::TypedComparisonNotSupported.new '>=', 'array'
               end
 
               private
 
               def common_filter_method(attribute, argument)
-                attribute > argument
+                attribute >= argument
               end
 
             end
