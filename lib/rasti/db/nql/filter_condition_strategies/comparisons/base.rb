@@ -25,7 +25,7 @@ module Rasti
                 :for_false,
                 :for_float,
                 :for_integer,
-                :for_literalstring,
+                :for_literal_string,
                 :for_string,
                 :for_time,
                 :for_true

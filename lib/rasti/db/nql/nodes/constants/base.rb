@@ -6,7 +6,7 @@ module Rasti
           class Base < Treetop::Runtime::SyntaxNode
 
             def type
-              self.class.name.split('::').last.downcase
+              Inflecto.underscore Inflecto.demodulize(self.class)
             end
 
           end
