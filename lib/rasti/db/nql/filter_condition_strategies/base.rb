@@ -54,9 +54,6 @@ module Rasti
             "for_#{argument.type}".to_sym
           end
 
-          def comparison_module
-          end
-
         end
       end
     end
