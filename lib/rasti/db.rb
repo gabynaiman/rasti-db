@@ -23,7 +23,7 @@ module Rasti
     require_relative_pattern  'db/**/*'
 
     attr_config :type_converters, []
-    attr_config :nql_filter_condition_strategy, NQL::FilterConditionStrategies::NoneStrategy.new
+    attr_config :nql_filter_condition_strategy, nil
 
     def self.to_db(db, collection_name, attribute_name, value)
       type_converters.inject(value) do |result, type_converter|
@@ -35,6 +35,11 @@ module Rasti
       type_converters.inject(value) do |result, type_converter|
         type_converter.from_db result
       end
+    end
+
+    def self.nql_filter_condition_for(comparison_name, identifier, argument)
+      raise 'Undefined Rasti::DB.nql_filter_condition_strategy' unless nql_filter_condition_strategy
+      nql_filter_condition_strategy.public_send "filter_#{comparison_name}", identifier, argument
     end
 
   end

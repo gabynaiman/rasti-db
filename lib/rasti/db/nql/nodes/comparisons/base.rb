@@ -14,7 +14,7 @@ module Rasti
             end
 
             def filter_condition(collection_class)
-              DB.nql_filter_condition_strategy.public_send "filter_#{comparison_name}", attribute.identifier(collection_class), argument
+              DB.nql_filter_condition_for comparison_name, attribute.identifier(collection_class), argument
             end
 
             private

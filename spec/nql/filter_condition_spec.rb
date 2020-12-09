@@ -28,59 +28,17 @@ describe 'NQL::FilterCondition' do
 
   describe 'None Filter Condition Strategy Validation' do
 
-    nql_filter_condition_strategy = Rasti::DB.nql_filter_condition_strategy
-
     before do
-      Rasti::DB.configure do |config|
-        config.nql_filter_condition_strategy = Rasti::DB::NQL::FilterConditionStrategies::NoneStrategy.new
-      end
+      Rasti::DB.nql_filter_condition_strategy = nil
     end
 
     after do
-      Rasti::DB.configure do |config|
-        config.nql_filter_condition_strategy = nql_filter_condition_strategy
-      end
+      Rasti::DB.nql_filter_condition_strategy = Rasti::DB::NQL::FilterConditionStrategies::SQLite.new
     end
 
-    def filter_condition_must_raise(comparison, method_name)
-      error = proc { filter_condition("column #{comparison} arg1") }.must_raise Rasti::DB::NQL::FilterConditionStrategies::ShoudlBeImplemented
-      error.message.must_equal "Method #{method_name} should be implemented for a filter condition strategy"
-    end
-
-    it 'must raise exception from expression with <' do
-      filter_condition_must_raise '<', 'filter_less_than'
-    end
-
-    it 'must raise exception from expression with >' do
-      filter_condition_must_raise '>', 'filter_greater_than'
-    end
-
-    it 'must raise exception from expression with <=' do
-      filter_condition_must_raise '<=', 'filter_less_than_or_equal'
-    end
-
-    it 'must raise exception from expression with >=' do
-      filter_condition_must_raise '>=', 'filter_greater_than_or_equal'
-    end
-
-    it 'must raise exception from expression with !=' do
-      filter_condition_must_raise '!=',  'filter_not_equal'
-    end
-
-    it 'must raise exception from expression with =' do
-      filter_condition_must_raise '=', 'filter_equal'
-    end
-
-    it 'must raise exception from expression with ~' do
-      filter_condition_must_raise '~',  'filter_like'
-    end
-
-    it 'must raise exception from expression with :' do
-      filter_condition_must_raise ':', 'filter_include'
-    end
-
-    it 'must raise exception from expression with !:' do
-      filter_condition_must_raise '!:', 'filter_not_include'
+    it 'must raise error' do
+      error = proc { filter_condition 'column = value' }.must_raise RuntimeError
+      error.message.must_equal 'Undefined Rasti::DB.nql_filter_condition_strategy'
     end
 
   end
