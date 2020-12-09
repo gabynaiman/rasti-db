@@ -11,15 +11,14 @@ module Rasti
             end
 
             def to_db(values)
-              array = values.map { | value | "\"#{value}\"" }.join(",")
-              "[#{array}]"
+              JSON.dump(values)
             end
 
             def respond_for?(object)
               parsed = JSON.parse object
               object == to_db(parsed)
             rescue
-                false
+              false
             end
 
             def from_db(object)
