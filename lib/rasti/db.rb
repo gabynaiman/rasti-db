@@ -6,11 +6,12 @@ require 'treetop'
 require 'hierarchical_graph'
 require 'class_config'
 require 'hash_ext'
+require 'inflecto'
 require 'multi_require'
 
 module Rasti
   module DB
-    
+
     extend MultiRequire
     extend ClassConfig
 

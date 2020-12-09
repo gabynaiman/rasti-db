@@ -26,6 +26,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'multi_require', '~> 1.0'
   spec.add_runtime_dependency 'hierarchical_graph', '~> 1.0'
   spec.add_runtime_dependency 'hash_ext', '~> 0.5'
+  spec.add_runtime_dependency 'inflecto', '~> 0.0'
 
   spec.add_development_dependency 'rake', '~> 12.3'
   spec.add_development_dependency 'minitest', '~> 5.0', '< 5.11'
