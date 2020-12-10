@@ -20,7 +20,7 @@ module Rasti
             private
 
             def comparison_name
-              Inflecto.underscore Inflecto.demodulize(self.class)
+              Inflecto.underscore(Inflecto.demodulize(self.class)).to_sym
             end
 
           end

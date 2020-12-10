@@ -6,7 +6,7 @@ module Rasti
           class Base < Treetop::Runtime::SyntaxNode
 
             def type
-              Inflecto.underscore Inflecto.demodulize(self.class)
+              Inflecto.underscore(Inflecto.demodulize(self.class)).to_sym
             end
 
           end
