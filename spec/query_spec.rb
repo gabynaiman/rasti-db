@@ -421,16 +421,24 @@ describe 'Query' do
 
     describe 'Filter Array' do
 
-      def filter_condition_must_raise(comparison)
-        error = proc { comments_query.nql("tags #{comparison} (fake, notice)") }.must_raise Rasti::DB::NQL::FilterConditionStrategies::Comparisons::TypedComparisonNotSupported
-        error.message.must_equal "Compare by #{comparison} have no support when filter array with this filter condition strategy"
+      def filter_condition_must_raise(comparison_symbol, comparison_name)
+        error = proc { comments_query.nql("tags #{comparison_symbol} (fake, notice)") }.must_raise Rasti::DB::NQL::FilterConditionStrategies::UnsupportedTypeComparison
+        error.argument_type.must_equal Rasti::DB::NQL::FilterConditionStrategies::Types::SQLiteArray
+        error.comparison_name.must_equal comparison_name
+        error.message.must_equal "Unsupported comparison #{comparison_name} for Rasti::DB::NQL::FilterConditionStrategies::Types::SQLiteArray"
       end
 
       it 'Must raise exception from not supported methods' do
-        filter_condition_must_raise '>'
-        filter_condition_must_raise '>='
-        filter_condition_must_raise '<'
-        filter_condition_must_raise '<='
+        comparisons = {
+          greater_than: '>',
+          greater_than_or_equal: '>=',
+          less_than: '<',
+          less_than_or_equal: '<='
+        }
+
+        comparisons.each do |name, symbol|
+          filter_condition_must_raise symbol, name
+        end
       end
 
       it 'Included any of these elements' do

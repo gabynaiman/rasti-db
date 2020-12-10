@@ -4,10 +4,14 @@ module Rasti
       module FilterConditionStrategies
         class SQLite < Base
 
+          SQLITE_TYPES = {
+            array: Types::SQLiteArray
+          }
+
           private
 
-          def comparison_module
-            SQLiteComparisons
+          def type_for(argument)
+            SQLITE_TYPES.fetch(argument.type, Types::Generic)
           end
 
         end
