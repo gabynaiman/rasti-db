@@ -174,6 +174,17 @@ describe 'Query' do
     users_query.detect(id: 3).must_equal User.new(id: 3, name: 'User 3')
   end
 
+  it 'Each page' do
+    user_pages = []
+    users_query.each_page(size: 2) do | page |
+      user_pages << page
+    end
+    user_pages.size.must_equal 10
+    user_pages.each_with_index do | user_page, i |
+      user_page.must_equal User.new(id: i+1, name: "User #{i+1}")
+    end
+  end
+
   it 'Where' do
     users_query.where(id: 3).all.must_equal [User.new(id: 3, name: 'User 3')]
   end
