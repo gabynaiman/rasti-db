@@ -74,6 +74,14 @@ module Rasti
         all.each(&block)
       end
 
+      def each_page(size:, &block)
+        dataset.each_page(size) do |page|
+          page.each do |row|
+            block.call collection_class.model.new(with_graph(row))
+          end
+        end
+      end
+
       def graph(*relations)
         build_query relations_graph: relations_graph.merge(relations: relations)
       end
