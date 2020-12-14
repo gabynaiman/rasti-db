@@ -5,13 +5,13 @@ describe 'Query' do
   before do
     custom_db[:languages].insert name: 'Spanish'
 
-    1.upto(10) do |i| 
+    1.upto(10) do |i|
       db[:users].insert name: "User #{i}"
 
-      db[:people].insert user_id: i, 
-                         document_number: "document_#{i}", 
-                         first_name: "Name #{i}", 
-                         last_name: "Last Name #{i}", 
+      db[:people].insert user_id: i,
+                         document_number: "document_#{i}",
+                         first_name: "Name #{i}",
+                         last_name: "Last Name #{i}",
                          birth_date: Date.parse('2020-04-24')
 
       db[:languages_people].insert language_id: 1, document_number: "document_#{i}"
@@ -22,7 +22,7 @@ describe 'Query' do
     db[:posts].insert user_id: 4, title: 'Best post', body: '...', language_id: 1
 
     1.upto(3) { |i| db[:categories].insert name: "Category #{i}" }
-    
+
     db[:comments].insert post_id: 1, user_id: 5, text: 'Comment 1'
     db[:comments].insert post_id: 1, user_id: 7, text: 'Comment 2'
     db[:comments].insert post_id: 2, user_id: 2, text: 'Comment 3'
@@ -35,9 +35,9 @@ describe 'Query' do
   end
 
   let(:users_query) { Rasti::DB::Query.new collection_class: Users, dataset: db[:users], environment: environment }
-  
+
   let(:posts_query) { Rasti::DB::Query.new collection_class: Posts, dataset: db[:posts], environment: environment }
-  
+
   let(:comments_query) { Rasti::DB::Query.new collection_class: Comments, dataset: db[:comments], environment: environment }
 
   let(:people_query) { Rasti::DB::Query.new collection_class: People, dataset: db[:people], environment: environment }
@@ -89,8 +89,8 @@ describe 'Query' do
     post = Post.new db[:posts].where(id: 1).first.merge(user: user, categories: categories)
 
     selected_attributes = {
-      user: [:id], 
-      'user.person' => [:document_number, :user_id], 
+      user: [:id],
+      'user.person' => [:document_number, :user_id],
       'user.person.languages' => [:id],
       categories: [:id]
     }
@@ -101,7 +101,7 @@ describe 'Query' do
                .all
                .must_equal [post]
   end
-  
+
   it 'Exclude graph attributes' do
     language = Language.new custom_db[:languages].where(id: 1).select(:id).first
 
@@ -114,8 +114,8 @@ describe 'Query' do
     post = Post.new db[:posts].where(id: 1).first.merge(user: user, categories: categories)
 
     excluded_attributes = {
-      user: [:name], 
-      'user.person' => [:first_name, :last_name, :birth_date], 
+      user: [:name],
+      'user.person' => [:first_name, :last_name, :birth_date],
       'user.person.languages' => [:name],
       categories: [:name]
     }
@@ -126,7 +126,7 @@ describe 'Query' do
                .all
                .must_equal [post]
   end
-  
+
   it 'All graph attributes' do
     person = Person.new db[:people].where(document_number: 'document_2').first
 
@@ -174,56 +174,88 @@ describe 'Query' do
     users_query.detect(id: 3).must_equal User.new(id: 3, name: 'User 3')
   end
 
-  it 'Each page' do
-    user_pages = []
-    users_query.each_page(size: 2) do | page |
-      user_pages << page
+  describe 'Each' do
+
+    it 'without size' do
+      users = []
+
+      users_query.each do |user|
+        users << user
+      end
+
+      users.size.must_equal 10
+      users.each_with_index do |user, i|
+        user.must_equal User.new(id: i+1, name: "User #{i+1}")
+      end
     end
-    user_pages.size.must_equal 10
-    user_pages.each_with_index do | user_page, i |
-      user_page.must_equal User.new(id: i+1, name: "User #{i+1}")
+
+    it 'with size' do
+      users = []
+      users_query.each(batch_size: 2) do |user|
+        users << user
+      end
+
+      users.size.must_equal 10
+      users.each_with_index do |user, i|
+        user.must_equal User.new(id: i+1, name: "User #{i+1}")
+      end
+    end
+
+  end
+
+  it 'Each batch' do
+    users_batch = []
+    users_query.each_batch(size: 2) do |page|
+      users_batch << page
+    end
+
+    users_batch.size.must_equal 5
+    i = 1
+    users_batch.each do |user_page|
+      user_page.must_equal [User.new(id: i, name: "User #{i}"), User.new(id: i+1, name: "User #{i+1}")]
+      i += 2
     end
   end
 
   it 'Where' do
     users_query.where(id: 3).all.must_equal [User.new(id: 3, name: 'User 3')]
   end
-  
+
   it 'Exclude' do
     users_query.exclude(id: [1,2,3,4,5,6,7,8,9]).all.must_equal [User.new(id: 10, name: 'User 10')]
   end
-  
+
   it 'And' do
     users_query.where(id: [1,2]).where(name: 'User 2').all.must_equal [User.new(id: 2, name: 'User 2')]
   end
-  
+
   it 'Or' do
     users_query.where(id: 1).or(name: 'User 2').all.must_equal [
-      User.new(id: 1, name: 'User 1'), 
+      User.new(id: 1, name: 'User 1'),
       User.new(id: 2, name: 'User 2')
     ]
   end
-  
+
   it 'Order' do
     posts_query.order(:title).all.must_equal [
-      Post.new(id: 2, user_id: 1, title: 'Another post', body: '...', language_id: 1), 
-      Post.new(id: 3, user_id: 4, title: 'Best post', body: '...', language_id: 1), 
+      Post.new(id: 2, user_id: 1, title: 'Another post', body: '...', language_id: 1),
+      Post.new(id: 3, user_id: 4, title: 'Best post', body: '...', language_id: 1),
       Post.new(id: 1, user_id: 2, title: 'Sample post', body: '...', language_id: 1)
     ]
   end
-  
+
   it 'Reverse order' do
     posts_query.reverse_order(:title).all.must_equal [
       Post.new(id: 1, user_id: 2, title: 'Sample post', body: '...', language_id: 1),
-      Post.new(id: 3, user_id: 4, title: 'Best post', body: '...', language_id: 1), 
+      Post.new(id: 3, user_id: 4, title: 'Best post', body: '...', language_id: 1),
       Post.new(id: 2, user_id: 1, title: 'Another post', body: '...', language_id: 1)
     ]
   end
-  
+
   it 'Limit and offset' do
     users_query.limit(1).offset(1).all.must_equal [User.new(id: 2, name: 'User 2')]
   end
-  
+
   it 'First' do
     users_query.first.must_equal User.new(id: 1, name: 'User 1')
   end
@@ -240,21 +272,21 @@ describe 'Query' do
     language = Language.new id: 1, name: 'Spanish'
 
     person = Person.new user_id: 2,
-                        document_number: 'document_2', 
-                        first_name: 'Name 2', 
-                        last_name: 'Last Name 2', 
+                        document_number: 'document_2',
+                        first_name: 'Name 2',
+                        last_name: 'Last Name 2',
                         birth_date: Date.parse('2020-04-24'),
                         languages: [language]
 
-    user = User.new id: 2, 
+    user = User.new id: 2,
                     name: 'User 2',
                     person: person
 
-    post = Post.new id: 1, 
-                    user_id: 2, 
+    post = Post.new id: 1,
+                    user_id: 2,
                     user: user,
-                    title: 'Sample post', 
-                    body: '...', 
+                    title: 'Sample post',
+                    body: '...',
                     language_id: 1,
                     language: language
 
@@ -360,7 +392,7 @@ describe 'Query' do
       error = proc { posts_query.nql('a + b') }.must_raise Rasti::DB::NQL::InvalidExpressionError
       error.message.must_equal 'Invalid filter expression: a + b'
     end
-    
+
     it 'Filter to self table' do
       posts_query.nql('user_id > 1')
                  .pluck(:user_id)

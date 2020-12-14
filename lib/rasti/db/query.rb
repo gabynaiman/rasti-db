@@ -70,8 +70,19 @@ module Rasti
       end
       alias_method :to_a, :all
 
-      def each(&block)
-        all.each(&block)
+      def each(batch_size:nil, &block)
+        if batch_size.nil?
+          all.each(&block)
+        else
+          each_model_in_batches(size: batch_size, &block)
+        end
+      end
+
+      def each_batch(size:, &block)
+        dataset.each_page(size) do |page|
+          query = build_query dataset: page
+          block.call query.all
+        end
       end
 
       def each_page(size:, &block)
@@ -108,12 +119,12 @@ module Rasti
 
       def first
         row = dataset.first
-        row ? collection_class.model.new(with_graph(row)) : nil
+        row ? build_model(row) : nil
       end
 
       def last
         row = dataset.last
-        row ? collection_class.model.new(with_graph(row)) : nil
+        row ? build_model(row) : nil
       end
 
       def detect(*args, &block)
@@ -156,8 +167,20 @@ module Rasti
         Query.new(**current_args.merge(args))
       end
 
+      def build_model(row)
+        collection_class.model.new with_graph(row)
+      end
+
       def chainable(&block)
         build_query dataset: instance_eval(&block)
+      end
+
+      def each_model_in_batches(size:, &block)
+        dataset.each_page(size) do |page|
+          page.each do |row|
+            block.call build_model(row)
+          end
+        end
       end
 
       def with_related(relation_name, primary_keys)

@@ -93,7 +93,7 @@ User     = Rasti::DB::Model[:id, :name, :posts, :comments, :person]
 Post     = Rasti::DB::Model[:id, :title, :body, :user_id, :user, :comments, :categories]
 Comment  = Rasti::DB::Model[:id, :text, :user_id, :user, :post_id, :post]
 Category = Rasti::DB::Model[:id, :name, :posts]
-Person   = Rasti::DB::Model[:document_number, :first_name, :last_name, :birth_date, :user_id, :user]
+Person   = Rasti::DB::Model[:document_number, :first_name, :last_name, :full_name, :birth_date, :user_id, :user]
 Language = Rasti::DB::Model[:id, :name, :people]
 ```
 
@@ -111,10 +111,10 @@ class Posts < Rasti::DB::Collection
   many_to_many :categories
   one_to_many :comments
 
-  query :created_by do |user_id| 
+  query :created_by do |user_id|
     where user_id: user_id
   end
-  
+
   query :entitled, -> (title) { where title: title }
 
   query :commented_by do |user_id|
@@ -144,6 +144,10 @@ class People < Rasti::DB::Collection
 
   many_to_one :user
   many_to_many :languages
+
+  computed_attribute :full_name do
+    Rasti::DB::ComputedAttribute.new Sequel.join([:first_name, ' ', :last_name])
+  end
 end
 
 class Languages < Rasti::DB::Collection
@@ -210,6 +214,10 @@ posts.all_attributes # => [Post, ...]
 posts.graph('user.person').select_graph_attributes(user: [:id], 'user.person': [:last_name, :user_id]) # => [Post, ...]
 posts.graph('user.person').exclude_graph_attributes(user: [:name], 'user.person': [:first_name, :last_name]) # => [Post, ...]
 posts.graph('user.person').all_graph_attributes('user.person') # => [Post, ...]
+
+posts.each { |post| do_something post } # Iterate posts loading all at first
+posts.each(batch_size: 1000) { |post| do_something post } # Iterate posts loading in batches
+posts.each_batch(size: 1000) { |posts| do_something posts } # Iterate batches of posts
 ```
 ### Natural Query Language
 
