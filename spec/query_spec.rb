@@ -174,14 +174,27 @@ describe 'Query' do
     users_query.detect(id: 3).must_equal User.new(id: 3, name: 'User 3')
   end
 
-  it 'Each page' do
+  it 'Each in pages' do
     user_pages = []
-    users_query.each_page(size: 2) do | page |
+    users_query.each_in_pages(size: 2) do | page |
       user_pages << page
     end
     user_pages.size.must_equal 10
     user_pages.each_with_index do | user_page, i |
       user_page.must_equal User.new(id: i+1, name: "User #{i+1}")
+    end
+  end
+
+  it 'Each page' do
+    user_pages = []
+    users_query.each_page(size: 2) do | page |
+      user_pages << page
+    end
+    user_pages.size.must_equal 5
+    i = 1
+    user_pages.each do | user_page |
+      user_page.must_equal [User.new(id: i, name: "User #{i}"), User.new(id: i+1, name: "User #{i+1}")]
+      i += 2
     end
   end
 

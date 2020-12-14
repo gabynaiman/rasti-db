@@ -74,11 +74,18 @@ module Rasti
         all.each(&block)
       end
 
-      def each_page(size:, &block)
+      def each_in_pages(size:, &block)
         dataset.each_page(size) do |page|
           page.each do |row|
-            block.call collection_class.model.new(with_graph(row))
+            block.call build_model(row)
           end
+        end
+      end
+
+      def each_page(size:, &block)
+        dataset.each_page(size) do |page|
+          query = build_query dataset: page
+          block.call query.all
         end
       end
 
@@ -108,12 +115,12 @@ module Rasti
 
       def first
         row = dataset.first
-        row ? collection_class.model.new(with_graph(row)) : nil
+        row ? build_model(row) : nil
       end
 
       def last
         row = dataset.last
-        row ? collection_class.model.new(with_graph(row)) : nil
+        row ? build_model(row) : nil
       end
 
       def detect(*args, &block)
@@ -154,6 +161,10 @@ module Rasti
         }
 
         Query.new(**current_args.merge(args))
+      end
+
+      def build_model(row)
+        collection_class.model.new with_graph(row)
       end
 
       def chainable(&block)
