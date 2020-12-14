@@ -70,15 +70,11 @@ module Rasti
       end
       alias_method :to_a, :all
 
-      def each(&block)
-        all.each(&block)
-      end
-
-      def each_in_pages(size:, &block)
-        dataset.each_page(size) do |page|
-          page.each do |row|
-            block.call build_model(row)
-          end
+      def each(size:nil, &block)
+        if size.nil?
+          all.each(&block)
+        else
+          each_batch size: size, &block
         end
       end
 
@@ -169,6 +165,14 @@ module Rasti
 
       def chainable(&block)
         build_query dataset: instance_eval(&block)
+      end
+
+      def each_batch(size:, &block)
+        dataset.each_page(size) do |page|
+          page.each do |row|
+            block.call build_model(row)
+          end
+        end
       end
 
       def with_related(relation_name, primary_keys)
