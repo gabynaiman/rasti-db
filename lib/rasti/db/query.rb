@@ -78,7 +78,7 @@ module Rasti
         end
       end
 
-      def each_page(size:, &block)
+      def each_batch(size:, &block)
         dataset.each_page(size) do |page|
           query = build_query dataset: page
           block.call query.all

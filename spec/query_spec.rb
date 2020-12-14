@@ -203,15 +203,15 @@ describe 'Query' do
 
   end
 
-  it 'Each page' do
-    user_pages = []
-    users_query.each_page(size: 2) do |page|
-      user_pages << page
+  it 'Each batch' do
+    users_batch = []
+    users_query.each_batch(size: 2) do |page|
+      users_batch << page
     end
 
-    user_pages.size.must_equal 5
+    users_batch.size.must_equal 5
     i = 1
-    user_pages.each do |user_page|
+    users_batch.each do |user_page|
       user_page.must_equal [User.new(id: i, name: "User #{i}"), User.new(id: i+1, name: "User #{i+1}")]
       i += 2
     end
