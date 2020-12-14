@@ -70,11 +70,11 @@ module Rasti
       end
       alias_method :to_a, :all
 
-      def each(size:nil, &block)
-        if size.nil?
+      def each(batch_size:nil, &block)
+        if batch_size.nil?
           all.each(&block)
         else
-          each_batch size: size, &block
+          each_model_in_batches(size: batch_size, &block)
         end
       end
 
@@ -167,7 +167,7 @@ module Rasti
         build_query dataset: instance_eval(&block)
       end
 
-      def each_batch(size:, &block)
+      def each_model_in_batches(size:, &block)
         dataset.each_page(size) do |page|
           page.each do |row|
             block.call build_model(row)
