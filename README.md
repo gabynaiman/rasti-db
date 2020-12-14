@@ -93,7 +93,7 @@ User     = Rasti::DB::Model[:id, :name, :posts, :comments, :person]
 Post     = Rasti::DB::Model[:id, :title, :body, :user_id, :user, :comments, :categories]
 Comment  = Rasti::DB::Model[:id, :text, :user_id, :user, :post_id, :post]
 Category = Rasti::DB::Model[:id, :name, :posts]
-Person   = Rasti::DB::Model[:document_number, :first_name, :last_name, :birth_date, :user_id, :user]
+Person   = Rasti::DB::Model[:document_number, :first_name, :last_name, :full_name, :birth_date, :user_id, :user]
 Language = Rasti::DB::Model[:id, :name, :people]
 ```
 
@@ -144,6 +144,10 @@ class People < Rasti::DB::Collection
 
   many_to_one :user
   many_to_many :languages
+
+  computed_attribute :full_name do
+    Rasti::DB::ComputedAttribute.new Sequel.join([:first_name, ' ', :last_name])
+  end
 end
 
 class Languages < Rasti::DB::Collection
