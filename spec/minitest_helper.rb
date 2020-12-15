@@ -133,8 +133,6 @@ class Minitest::Spec
   let :db do
     Sequel.connect(driver).tap do |db|
 
-      db.extension :pagination
-
       db.create_table :users do
         primary_key :id
         String :name, null: false, unique: true
