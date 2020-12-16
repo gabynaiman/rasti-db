@@ -142,13 +142,13 @@ describe 'Query' do
                .must_equal [post]
   end
 
-  describe 'Append computed attribute' do
+  describe 'Select computed attributes' do
     it 'With join' do
       db[:comments].insert post_id: 1, user_id: 5, text: 'Comment 4'
-      users_query.append_computed_attribute(:comments_count)
-                .where(id: 5)
-                .all
-                .must_equal [User.new(id: 5, name: 'User 5', comments_count: 2)]
+      users_query.select_computed_attributes(:comments_count)
+                 .where(id: 5)
+                 .all
+                 .must_equal [User.new(id: 5, name: 'User 5', comments_count: 2)]
     end
 
     it 'Without join' do
@@ -159,7 +159,7 @@ describe 'Query' do
                                    birth_date: Date.parse('2020-04-24'),
                                    full_name: 'Name 1 Last Name 1'
 
-      people_query.append_computed_attribute(:full_name)
+      people_query.select_computed_attributes(:full_name)
                   .where(document_number: 'document_1')
                   .all
                   .must_equal [person_expected]
