@@ -57,14 +57,16 @@ module Rasti
         build_query relations_graph: relations_graph.with_all_attributes_for(relations)
       end
 
-      def append_computed_attribute(name)
-        computed_attribute = collection_class.computed_attributes[name]
-        ds = computed_attribute.apply_join(dataset).select_append(computed_attribute.identifier.as(name))
+      def select_computed_attributes(*computed_attributes)
+        ds = computed_attributes.inject(dataset) do |ds, name|
+          computed_attribute = collection_class.computed_attributes[name]
+          computed_attribute.apply_join(ds).select_append(computed_attribute.identifier.as(name))
+        end
         build_query dataset: ds
       end
 
       def all
-        with_graph(dataset.all).map do |row| 
+        with_graph(dataset.all).map do |row|
           collection_class.model.new row
         end
       end
@@ -74,13 +76,15 @@ module Rasti
         if batch_size.nil?
           all.each(&block)
         else
-          each_model_in_batches(size: batch_size, &block)
+          each_batch(size: batch_size) do |models|
+            models.each { |model| block.call model }
+          end
         end
       end
 
       def each_batch(size:, &block)
-        dataset.each_page(size) do |page|
-          query = build_query dataset: page
+        primary_keys.each_slice(size) do |pks|
+          query = where(collection_class.primary_key => pks)
           block.call query.all
         end
       end
@@ -173,14 +177,6 @@ module Rasti
 
       def chainable(&block)
         build_query dataset: instance_eval(&block)
-      end
-
-      def each_model_in_batches(size:, &block)
-        dataset.each_page(size) do |page|
-          page.each do |row|
-            block.call build_model(row)
-          end
-        end
       end
 
       def with_related(relation_name, primary_keys)
