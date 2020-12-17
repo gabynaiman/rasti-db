@@ -10,7 +10,7 @@ require 'sequel/extensions/pg_array'
 require 'sequel/extensions/pg_json'
 
 Rasti::DB.configure do |config|
-  config.type_converters = [Rasti::DB::TypeConverters::TimeInZone]
+  config.type_converters = [Rasti::DB::TypeConverters::TimeInZone, Rasti::DB::TypeConverters::SQLite]
   config.nql_filter_condition_strategy = Rasti::DB::NQL::FilterConditionStrategies::SQLite.new
 end
 

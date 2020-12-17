@@ -2,6 +2,14 @@ require 'minitest_helper'
 
 describe 'Collection' do
 
+  before do
+    Rasti::DB.type_converters = [Rasti::DB::TypeConverters::TimeInZone]
+  end
+
+  after do
+    Rasti::DB.type_converters = [Rasti::DB::TypeConverters::TimeInZone, Rasti::DB::TypeConverters::SQLite]
+  end
+
   describe 'Specification' do
 
     it 'Implicit' do

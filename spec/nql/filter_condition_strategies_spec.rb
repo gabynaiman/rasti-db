@@ -59,23 +59,23 @@ describe 'NQL::FilterConditionStrategies' do
   describe 'SQLite Array' do
 
     it 'Equal' do
-      nql_s('tags = (notice)').must_equal sqls_where("`comments`.`tags` = '[\"notice\"]'")
+      nql_s('tags = {notice}').must_equal sqls_where("`comments`.`tags` = '[\"notice\"]'")
     end
 
     it 'Not Equal' do
-      nql_s('tags != (notice)').must_equal sqls_where_not("`comments`.`tags` LIKE '%\"notice\"%' ESCAPE '\\'")
+      nql_s('tags != {notice}').must_equal sqls_where_not("`comments`.`tags` LIKE '%\"notice\"%' ESCAPE '\\'")
     end
 
     it 'Like' do
-      nql_s('tags ~ (notice)').must_equal sqls_where("`comments`.`tags` LIKE '%notice%' ESCAPE '\\'")
+      nql_s('tags ~ {notice}').must_equal sqls_where("`comments`.`tags` LIKE '%notice%' ESCAPE '\\'")
     end
 
     it 'Include' do
-      nql_s('tags: (notice)').must_equal sqls_where("`comments`.`tags` LIKE '%\"notice\"%' ESCAPE '\\'")
+      nql_s('tags: {notice}').must_equal sqls_where("`comments`.`tags` LIKE '%\"notice\"%' ESCAPE '\\'")
     end
 
     it 'Not Include' do
-      nql_s('tags!: (notice)').must_equal sqls_where_not("`comments`.`tags` LIKE '%\"notice\"%' ESCAPE '\\'")
+      nql_s('tags!: {notice}').must_equal sqls_where_not("`comments`.`tags` LIKE '%\"notice\"%' ESCAPE '\\'")
     end
 
   end
@@ -92,19 +92,19 @@ describe 'NQL::FilterConditionStrategies' do
     end
 
     it 'Equal' do
-      nql_s('tags = (notice)').must_equal sqls_where("(`comments`.`tags` @> ARRAY['notice']) AND (`comments`.`tags` <@ ARRAY['notice'])")
+      nql_s('tags = {notice}').must_equal sqls_where("(`comments`.`tags` @> ARRAY['notice']) AND (`comments`.`tags` <@ ARRAY['notice'])")
     end
 
     it 'Not Equal' do
-      nql_s('tags != (notice)').must_equal sqls_where("NOT (`comments`.`tags` @> ARRAY['notice']) OR NOT (`comments`.`tags` <@ ARRAY['notice'])")
+      nql_s('tags != {notice}').must_equal sqls_where("NOT (`comments`.`tags` @> ARRAY['notice']) OR NOT (`comments`.`tags` <@ ARRAY['notice'])")
     end
 
     it 'Include' do
-      nql_s('tags: (notice)').must_equal sqls_where("`comments`.`tags` && ARRAY['notice']")
+      nql_s('tags: {notice}').must_equal sqls_where("`comments`.`tags` && ARRAY['notice']")
     end
 
     it 'Not Include' do
-      nql_s('tags!: (notice)').must_equal sqls_where_not("`comments`.`tags` && ARRAY['notice']")
+      nql_s('tags!: {notice}').must_equal sqls_where_not("`comments`.`tags` && ARRAY['notice']")
     end
 
   end

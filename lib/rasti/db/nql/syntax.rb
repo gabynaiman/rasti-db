@@ -1344,11 +1344,11 @@ module Rasti
           end
 
           i0, s0 = index, []
-          if has_terminal?('(', false, index)
+          if has_terminal?('{', false, index)
             r1 = instantiate_node(SyntaxNode,input, index...(index + 1))
             @index += 1
           else
-            terminal_parse_failure('(')
+            terminal_parse_failure('{')
             r1 = nil
           end
           s0 << r1
@@ -1424,11 +1424,11 @@ module Rasti
                   r11 = instantiate_node(SyntaxNode,input, i11...index, s11)
                   s0 << r11
                   if r11
-                    if has_terminal?(')', false, index)
+                    if has_terminal?('}', false, index)
                       r13 = instantiate_node(SyntaxNode,input, index...(index + 1))
                       @index += 1
                     else
-                      terminal_parse_failure(')')
+                      terminal_parse_failure('}')
                       r13 = nil
                     end
                     s0 << r13

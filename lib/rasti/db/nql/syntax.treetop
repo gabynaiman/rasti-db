@@ -97,7 +97,7 @@ module Rasti
         end
 
         rule array
-          '(' space* (basic space* ',')* basic space* ')' <Nodes::Constants::Array>
+          '{' space* (basic space* ',')* basic space* '}' <Nodes::Constants::Array>
         end
 
         rule space
