@@ -6,13 +6,12 @@ module Rasti
           class Array < Base
 
             def value
-              values
+              contents.add_values([])
             end
 
-            private
-
-            def values
-              basic.value.split(',').map(&:strip)
+            def add_values(value_array)
+              left.add_values(value_array)
+              right.add_values(value_array)
             end
 
           end

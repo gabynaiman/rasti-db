@@ -97,7 +97,11 @@ module Rasti
         end
 
         rule array
-          '{' space* (basic space* ',')* basic space* '}' <Nodes::Constants::Array>
+          open:'[' contents:(array_content / basic) close:']' <Nodes::Constants::Array>
+        end
+
+        rule array_content
+          left:basic space* ',' space* right:(array_content / basic) <Nodes::Constants::Array>
         end
 
         rule space
@@ -139,7 +143,9 @@ module Rasti
         end
 
         rule valid_character 
-          [0-9a-zA-ZÁÀÄÂÃÅĀĂǍáàäâãåāăǎÉÈËÊĒĔĖĚéèëêēĕėěÍÌÏÎĨĬǏíìïîĩĭǐÓÒÖÔÕŌŎŐǑóòöôõōŏőǒÚÙÜÛŨŪŬŮŰǓúùüûũūŭůűǔÑñçÇ%@#+-_'?!$*/\s]
+          [0-9a-zA-ZÁÀÄÂÃÅĀĂǍáàäâãåāăǎÉÈËÊĒĔĖĚéèëêēĕėěÍÌÏÎĨĬǏíìïîĩĭǐÓÒÖÔÕŌŎŐǑóòöôõōŏőǒÚÙÜÛŨŪŬŮŰǓúùüûũūŭůűǔÑñçÇ%@#+\--Z\\^_'?!$*/\s]
+          #[0-9a-zA-ZÁÀÄÂÃÅĀĂǍáàäâãåāăǎÉÈËÊĒĔĖĚéèëêēĕėěÍÌÏÎĨĬǏíìïîĩĭǐÓÒÖÔÕŌŎŐǑóòöôõōŏőǒÚÙÜÛŨŪŬŮŰǓúùüûũūŭůűǔÑñçÇ%@#+-Z\\^_'?!$*/\s]
+          #[0-9a-zA-ZÁÀÄÂÃÅĀĂǍáàäâãåāăǎÉÈËÊĒĔĖĚéèëêēĕėěÍÌÏÎĨĬǏíìïîĩĭǐÓÒÖÔÕŌŎŐǑóòöôõōŏőǒÚÙÜÛŨŪŬŮŰǓúùüûũūŭůűǔÑñçÇ%@#+-_'?!$*/\s]
         end
 
         rule boolean
