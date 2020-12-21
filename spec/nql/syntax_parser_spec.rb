@@ -213,4 +213,28 @@ describe 'NQL::SyntaxParser' do
 
   end
 
+  describe 'Array' do
+
+    it 'must parse array with one element' do
+      tree = parse 'column = [ a ]'
+      tree.proposition.argument.value.must_equal ['a']
+    end
+
+    it 'must parse array with many elements' do 
+      tree = parse 'column = [ a, b, c ]'
+      tree.proposition.argument.value.must_equal ['a', 'b', 'c']
+    end
+
+    it 'must parse array respecting content types' do
+      tree = parse 'column = [ true, 12:00, 1.1, 1, "literal string", string ]'
+      tree.proposition.argument.value.must_equal [true, Timing::TimeInZone.parse('12:00').to_s, 1.1, 1, "literal string", 'string']
+    end
+
+    it 'must parse array with literal string allowing reserved characters in conflict with array' do
+      tree = parse 'column = [ ",", "[", "]", "[,", "],", "[,]", "simple literal" ]'
+      tree.proposition.argument.value.must_equal [ ',', '[', ']', '[,', '],', '[,]', 'simple literal' ]
+    end
+
+  end
+
 end

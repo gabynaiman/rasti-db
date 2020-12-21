@@ -1324,11 +1324,11 @@ module Rasti
           end
 
           def contents
-            elements[1]
+            elements[2]
           end
 
           def close
-            elements[2]
+            elements[4]
           end
         end
 
@@ -1353,29 +1353,55 @@ module Rasti
           end
           s0 << r1
           if r1
-            i2 = index
-            r3 = _nt_array_content
-            if r3
-              r2 = r3
-            else
-              r4 = _nt_basic
-              if r4
-                r2 = r4
+            s2, i2 = [], index
+            loop do
+              r3 = _nt_space
+              if r3
+                s2 << r3
               else
-                @index = i2
-                r2 = nil
+                break
               end
             end
+            r2 = instantiate_node(SyntaxNode,input, i2...index, s2)
             s0 << r2
             if r2
-              if has_terminal?(']', false, index)
-                r5 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                @index += 1
+              i4 = index
+              r5 = _nt_array_content
+              if r5
+                r4 = r5
               else
-                terminal_parse_failure(']')
-                r5 = nil
+                r6 = _nt_basic
+                if r6
+                  r4 = r6
+                else
+                  @index = i4
+                  r4 = nil
+                end
               end
-              s0 << r5
+              s0 << r4
+              if r4
+                s7, i7 = [], index
+                loop do
+                  r8 = _nt_space
+                  if r8
+                    s7 << r8
+                  else
+                    break
+                  end
+                end
+                r7 = instantiate_node(SyntaxNode,input, i7...index, s7)
+                s0 << r7
+                if r7
+                  if has_terminal?(']', false, index)
+                    r9 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                    @index += 1
+                  else
+                    terminal_parse_failure(']')
+                    r9 = nil
+                  end
+                  s0 << r9
+                end
+              end
             end
           end
           if s0.last
@@ -2435,7 +2461,7 @@ module Rasti
             return cached
           end
 
-          if has_terminal?('\G[&|.():!=<>~]', true, index)
+          if has_terminal?('\G[&|.():!=<>~,\\]\\[]', true, index)
             r0 = instantiate_node(SyntaxNode,input, index...(index + 1))
             @index += 1
           else

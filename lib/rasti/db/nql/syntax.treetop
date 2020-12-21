@@ -97,7 +97,7 @@ module Rasti
         end
 
         rule array
-          open:'[' contents:(array_content / basic) close:']' <Nodes::Constants::Array>
+          open:'[' space* contents:(array_content / basic) space* close:']' <Nodes::Constants::Array>
         end
 
         rule array_content
@@ -144,8 +144,6 @@ module Rasti
 
         rule valid_character 
           [0-9a-zA-ZÁÀÄÂÃÅĀĂǍáàäâãåāăǎÉÈËÊĒĔĖĚéèëêēĕėěÍÌÏÎĨĬǏíìïîĩĭǐÓÒÖÔÕŌŎŐǑóòöôõōŏőǒÚÙÜÛŨŪŬŮŰǓúùüûũūŭůűǔÑñçÇ%@#+\--Z\\^_'?!$*/\s]
-          #[0-9a-zA-ZÁÀÄÂÃÅĀĂǍáàäâãåāăǎÉÈËÊĒĔĖĚéèëêēĕėěÍÌÏÎĨĬǏíìïîĩĭǐÓÒÖÔÕŌŎŐǑóòöôõōŏőǒÚÙÜÛŨŪŬŮŰǓúùüûũūŭůűǔÑñçÇ%@#+-Z\\^_'?!$*/\s]
-          #[0-9a-zA-ZÁÀÄÂÃÅĀĂǍáàäâãåāăǎÉÈËÊĒĔĖĚéèëêēĕėěÍÌÏÎĨĬǏíìïîĩĭǐÓÒÖÔÕŌŎŐǑóòöôõōŏőǒÚÙÜÛŨŪŬŮŰǓúùüûũūŭůűǔÑñçÇ%@#+-_'?!$*/\s]
         end
 
         rule boolean
@@ -174,7 +172,7 @@ module Rasti
         end
 
         rule reserved_character
-          [&|.():!=<>~]
+          [&|.():!=<>~,\]\[]
         end
 
       end
