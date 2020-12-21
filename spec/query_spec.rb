@@ -465,7 +465,7 @@ describe 'Query' do
     describe 'Filter Array' do
 
       def filter_condition_must_raise(comparison_symbol, comparison_name)
-        error = proc { comments_query.nql("tags #{comparison_symbol} {fake, notice}") }.must_raise Rasti::DB::NQL::FilterConditionStrategies::UnsupportedTypeComparison
+        error = proc { comments_query.nql("tags #{comparison_symbol} [fake, notice]") }.must_raise Rasti::DB::NQL::FilterConditionStrategies::UnsupportedTypeComparison
         error.argument_type.must_equal Rasti::DB::NQL::FilterConditionStrategies::Types::SQLiteArray
         error.comparison_name.must_equal comparison_name
         error.message.must_equal "Unsupported comparison #{comparison_name} for Rasti::DB::NQL::FilterConditionStrategies::Types::SQLiteArray"
@@ -493,7 +493,7 @@ describe 'Query' do
           Comment.new(id: 5, text: 'fake notice 2', tags: ['notice'], user_id: 5, post_id: 1)
         ]
 
-        comments_query.nql('tags: {fake, notice}')
+        comments_query.nql('tags: [ fake, notice ]')
                     .all
                     .must_equal expected_comments
       end
@@ -501,7 +501,7 @@ describe 'Query' do
       it 'Included exactly all these elements' do
         db[:comments].insert post_id: 1, user_id: 5, text: 'fake notice', tags: '["fake","notice"]'
         db[:comments].insert post_id: 1, user_id: 5, text: 'fake notice 2', tags: '["notice"]'
-        comments_query.nql('tags = {fake, notice}')
+        comments_query.nql('tags = [fake, notice]')
                     .all
                     .must_equal [Comment.new(id: 4, text: 'fake notice', tags: ['fake','notice'], user_id: 5, post_id: 1)]
       end
@@ -516,7 +516,7 @@ describe 'Query' do
           Comment.new(id: 3, text: 'Comment 3', tags: [], user_id: 2, post_id: 2),
           Comment.new(id: 5, text: 'Good notice!', tags: ['good'], user_id: 5, post_id: 1)
         ]
-        comments_query.nql('tags !: {fake, notice}')
+        comments_query.nql('tags !: [fake, notice]')
                     .all
                     .must_equal expected_comments
       end
@@ -532,7 +532,7 @@ describe 'Query' do
           Comment.new(id: 5, text: 'Good notice!', tags: ['good'], user_id: 5, post_id: 1),
           Comment.new(id: 6, text: 'fake notice', tags: ['fake'], user_id: 5, post_id: 1)
         ]
-        comments_query.nql('tags != {fake, notice}')
+        comments_query.nql('tags != [fake, notice]')
                     .all
                     .must_equal expected_comments
       end
@@ -544,7 +544,7 @@ describe 'Query' do
           Comment.new(id: 4, text: 'fake notice', tags: ['fake','notice'], user_id: 5, post_id: 1),
           Comment.new(id: 5, text: 'this is a fake notice!', tags: ['fake_notice'], user_id: 5, post_id: 1)
         ]
-        comments_query.nql('tags ~ {fake}')
+        comments_query.nql('tags ~ [fake]')
                       .all
                       .must_equal expected_comments
       end
