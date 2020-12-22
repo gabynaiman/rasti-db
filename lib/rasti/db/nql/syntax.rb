@@ -571,7 +571,7 @@ module Rasti
                 r5 = instantiate_node(SyntaxNode,input, i5...index, s5)
                 s0 << r5
                 if r5
-                  r7 = _nt_basic
+                  r7 = _nt_argument
                   s0 << r7
                 end
               end
@@ -652,7 +652,7 @@ module Rasti
                 r5 = instantiate_node(SyntaxNode,input, i5...index, s5)
                 s0 << r5
                 if r5
-                  r7 = _nt_basic
+                  r7 = _nt_argument
                   s0 << r7
                 end
               end
@@ -733,7 +733,7 @@ module Rasti
                 r5 = instantiate_node(SyntaxNode,input, i5...index, s5)
                 s0 << r5
                 if r5
-                  r7 = _nt_basic
+                  r7 = _nt_argument
                   s0 << r7
                 end
               end
@@ -814,7 +814,7 @@ module Rasti
                 r5 = instantiate_node(SyntaxNode,input, i5...index, s5)
                 s0 << r5
                 if r5
-                  r7 = _nt_basic
+                  r7 = _nt_argument
                   s0 << r7
                 end
               end
@@ -895,7 +895,7 @@ module Rasti
                 r5 = instantiate_node(SyntaxNode,input, i5...index, s5)
                 s0 << r5
                 if r5
-                  r7 = _nt_basic
+                  r7 = _nt_argument
                   s0 << r7
                 end
               end
@@ -976,7 +976,7 @@ module Rasti
                 r5 = instantiate_node(SyntaxNode,input, i5...index, s5)
                 s0 << r5
                 if r5
-                  r7 = _nt_basic
+                  r7 = _nt_argument
                   s0 << r7
                 end
               end
@@ -1057,7 +1057,7 @@ module Rasti
                 r5 = instantiate_node(SyntaxNode,input, i5...index, s5)
                 s0 << r5
                 if r5
-                  r7 = _nt_basic
+                  r7 = _nt_argument
                   s0 << r7
                 end
               end
@@ -1138,7 +1138,7 @@ module Rasti
                 r5 = instantiate_node(SyntaxNode,input, i5...index, s5)
                 s0 << r5
                 if r5
-                  r7 = _nt_basic
+                  r7 = _nt_argument
                   s0 << r7
                 end
               end
@@ -1219,7 +1219,7 @@ module Rasti
                 r5 = instantiate_node(SyntaxNode,input, i5...index, s5)
                 s0 << r5
                 if r5
-                  r7 = _nt_basic
+                  r7 = _nt_argument
                   s0 << r7
                 end
               end
@@ -1234,6 +1234,36 @@ module Rasti
           end
 
           node_cache[:comparison_equal][start_index] = r0
+
+          r0
+        end
+
+        def _nt_argument
+          start_index = index
+          if node_cache[:argument].has_key?(index)
+            cached = node_cache[:argument][index]
+            if cached
+              cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+              @index = cached.interval.end
+            end
+            return cached
+          end
+
+          i0 = index
+          r1 = _nt_array
+          if r1
+            r0 = r1
+          else
+            r2 = _nt_basic
+            if r2
+              r0 = r2
+            else
+              @index = i0
+              r0 = nil
+            end
+          end
+
+          node_cache[:argument][start_index] = r0
 
           r0
         end
@@ -1284,6 +1314,194 @@ module Rasti
           end
 
           node_cache[:basic][start_index] = r0
+
+          r0
+        end
+
+        module Array0
+          def open
+            elements[0]
+          end
+
+          def contents
+            elements[2]
+          end
+
+          def close
+            elements[4]
+          end
+        end
+
+        def _nt_array
+          start_index = index
+          if node_cache[:array].has_key?(index)
+            cached = node_cache[:array][index]
+            if cached
+              cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+              @index = cached.interval.end
+            end
+            return cached
+          end
+
+          i0, s0 = index, []
+          if has_terminal?('[', false, index)
+            r1 = instantiate_node(SyntaxNode,input, index...(index + 1))
+            @index += 1
+          else
+            terminal_parse_failure('[')
+            r1 = nil
+          end
+          s0 << r1
+          if r1
+            s2, i2 = [], index
+            loop do
+              r3 = _nt_space
+              if r3
+                s2 << r3
+              else
+                break
+              end
+            end
+            r2 = instantiate_node(SyntaxNode,input, i2...index, s2)
+            s0 << r2
+            if r2
+              i4 = index
+              r5 = _nt_array_content
+              if r5
+                r4 = r5
+              else
+                r6 = _nt_basic
+                if r6
+                  r4 = r6
+                else
+                  @index = i4
+                  r4 = nil
+                end
+              end
+              s0 << r4
+              if r4
+                s7, i7 = [], index
+                loop do
+                  r8 = _nt_space
+                  if r8
+                    s7 << r8
+                  else
+                    break
+                  end
+                end
+                r7 = instantiate_node(SyntaxNode,input, i7...index, s7)
+                s0 << r7
+                if r7
+                  if has_terminal?(']', false, index)
+                    r9 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                    @index += 1
+                  else
+                    terminal_parse_failure(']')
+                    r9 = nil
+                  end
+                  s0 << r9
+                end
+              end
+            end
+          end
+          if s0.last
+            r0 = instantiate_node(Nodes::Constants::Array,input, i0...index, s0)
+            r0.extend(Array0)
+          else
+            @index = i0
+            r0 = nil
+          end
+
+          node_cache[:array][start_index] = r0
+
+          r0
+        end
+
+        module ArrayContent0
+          def left
+            elements[0]
+          end
+
+          def right
+            elements[4]
+          end
+        end
+
+        def _nt_array_content
+          start_index = index
+          if node_cache[:array_content].has_key?(index)
+            cached = node_cache[:array_content][index]
+            if cached
+              cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+              @index = cached.interval.end
+            end
+            return cached
+          end
+
+          i0, s0 = index, []
+          r1 = _nt_basic
+          s0 << r1
+          if r1
+            s2, i2 = [], index
+            loop do
+              r3 = _nt_space
+              if r3
+                s2 << r3
+              else
+                break
+              end
+            end
+            r2 = instantiate_node(SyntaxNode,input, i2...index, s2)
+            s0 << r2
+            if r2
+              if has_terminal?(',', false, index)
+                r4 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                @index += 1
+              else
+                terminal_parse_failure(',')
+                r4 = nil
+              end
+              s0 << r4
+              if r4
+                s5, i5 = [], index
+                loop do
+                  r6 = _nt_space
+                  if r6
+                    s5 << r6
+                  else
+                    break
+                  end
+                end
+                r5 = instantiate_node(SyntaxNode,input, i5...index, s5)
+                s0 << r5
+                if r5
+                  i7 = index
+                  r8 = _nt_array_content
+                  if r8
+                    r7 = r8
+                  else
+                    r9 = _nt_basic
+                    if r9
+                      r7 = r9
+                    else
+                      @index = i7
+                      r7 = nil
+                    end
+                  end
+                  s0 << r7
+                end
+              end
+            end
+          end
+          if s0.last
+            r0 = instantiate_node(Nodes::ArrayContent,input, i0...index, s0)
+            r0.extend(ArrayContent0)
+          else
+            @index = i0
+            r0 = nil
+          end
+
+          node_cache[:array_content][start_index] = r0
 
           r0
         end
@@ -2015,7 +2233,7 @@ module Rasti
             return cached
           end
 
-          if has_terminal?('\G[0-9a-zA-ZÁÀÄÂÃÅĀĂǍáàäâãåāăǎÉÈËÊĒĔĖĚéèëêēĕėěÍÌÏÎĨĬǏíìïîĩĭǐÓÒÖÔÕŌŎŐǑóòöôõōŏőǒÚÙÜÛŨŪŬŮŰǓúùüûũūŭůűǔÑñçÇ%@#+-_\'?!$*/\\s]', true, index)
+          if has_terminal?('\G[0-9a-zA-ZÁÀÄÂÃÅĀĂǍáàäâãåāăǎÉÈËÊĒĔĖĚéèëêēĕėěÍÌÏÎĨĬǏíìïîĩĭǐÓÒÖÔÕŌŎŐǑóòöôõōŏőǒÚÙÜÛŨŪŬŮŰǓúùüûũūŭůűǔÑñçÇ%@#+\\--Z\\\\^_\'?!$*/\\s]', true, index)
             r0 = instantiate_node(SyntaxNode,input, index...(index + 1))
             @index += 1
           else
@@ -2243,7 +2461,7 @@ module Rasti
             return cached
           end
 
-          if has_terminal?('\G[&|.():!=<>~]', true, index)
+          if has_terminal?('\G[&|.():!=<>~,\\]\\[]', true, index)
             r0 = instantiate_node(SyntaxNode,input, index...(index + 1))
             @index += 1
           else

@@ -3,10 +3,10 @@ module Rasti
     module NQL
       module Nodes
         module Constants
-          class LiteralString < Base
+          class Array < Base
 
             def value
-              string.text_value
+              contents.is_a?(ArrayContent) ? contents.values : [contents.value]
             end
 
           end

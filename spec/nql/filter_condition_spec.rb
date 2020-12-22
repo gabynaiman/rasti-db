@@ -19,11 +19,28 @@ describe 'NQL::FilterCondition' do
   def assert_comparison(filter, expected_left, expected_comparator, expected_right)
     filter.must_be_instance_of Sequel::SQL::BooleanExpression
     filter.op.must_equal expected_comparator.to_sym
-    
+
     left, right = filter.args
     assert_identifier left, expected_left
 
     right.must_equal expected_right
+  end
+
+  describe 'None Filter Condition Strategy Validation' do
+
+    before do
+      Rasti::DB.nql_filter_condition_strategy = nil
+    end
+
+    after do
+      Rasti::DB.nql_filter_condition_strategy = Rasti::DB::NQL::FilterConditionStrategies::SQLite.new
+    end
+
+    it 'must raise error' do
+      error = proc { filter_condition 'column = value' }.must_raise RuntimeError
+      error.message.must_equal 'Undefined Rasti::DB.nql_filter_condition_strategy'
+    end
+
   end
 
   describe 'Comparison' do
@@ -134,7 +151,7 @@ describe 'NQL::FilterCondition' do
 
     filter.must_be_instance_of Sequel::SQL::BooleanExpression
     filter.op.must_equal :AND
-    
+
     major_expression, and_expression = filter.args
     assert_comparison major_expression, 'column_one', '>', 1
 

@@ -3,10 +3,10 @@ module Rasti
     module NQL
       module Nodes
         module Constants
-          class LiteralString < Base
+          class Base < Treetop::Runtime::SyntaxNode
 
-            def value
-              string.text_value
+            def type
+              Inflecto.underscore(Inflecto.demodulize(self.class)).to_sym
             end
 
           end

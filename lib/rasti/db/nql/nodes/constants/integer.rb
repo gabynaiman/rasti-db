@@ -3,7 +3,7 @@ module Rasti
     module NQL
       module Nodes
         module Constants
-          class Integer < Treetop::Runtime::SyntaxNode
+          class Integer < Base
 
             def value
               text_value.to_i
