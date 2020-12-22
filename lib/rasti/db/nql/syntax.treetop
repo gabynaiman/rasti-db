@@ -101,7 +101,7 @@ module Rasti
         end
 
         rule array_content
-          left:basic space* ',' space* right:(array_content / basic) <Nodes::Constants::Array>
+          left:basic space* ',' space* right:(array_content / basic) <Nodes::ArrayContent>
         end
 
         rule space
