@@ -9,10 +9,6 @@ module Rasti
               Inflecto.underscore(Inflecto.demodulize(self.class)).to_sym
             end
 
-            def add_values(value_array)
-              value_array.push(value)
-            end
-
           end
         end
       end
