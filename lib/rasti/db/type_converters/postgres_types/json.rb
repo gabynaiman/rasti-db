@@ -3,36 +3,39 @@ module Rasti
     module TypeConverters
       module PostgresTypes
         class JSON
-
           class << self
 
-            def column_type_regex
-              /^json$/
+            DB_TYPE_REGEX = /^json$/
+
+            def to_db?(type)
+              !type.match(DB_TYPE_REGEX).nil?
             end
 
-            def to_db(value, sub_type)
+            def to_db(value, type)
               Sequel.pg_json value
             end
 
-            def db_classes
-              @db_classes ||= from_db_convertions.keys
+            def from_db?(klass)
+              to_hash?(klass) || to_array?(klass)
             end
 
-            def from_db(object)
-              object.public_send from_db_convertions[object.class]
+            def from_db(value)
+              to_hash?(value.class) ? value.to_h : value.to_a
             end
 
             private
 
-            def from_db_convertions
-              @from_db_convertions ||= {
-                Sequel::Postgres::JSONHash => :to_h,
-                Sequel::Postgres::JSONArray => :to_a
-              }
+            def to_hash?(klass)
+              defined?(Sequel::Postgres::JSONHash) &&
+              klass == Sequel::Postgres::JSONHash
+            end
+
+            def to_array?(klass)
+              defined?(Sequel::Postgres::JSONArray) &&
+              klass == Sequel::Postgres::JSONArray
             end
 
           end
-
         end
       end
     end

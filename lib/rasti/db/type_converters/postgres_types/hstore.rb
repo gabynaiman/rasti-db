@@ -3,27 +3,28 @@ module Rasti
     module TypeConverters
       module PostgresTypes
         class HStore
-
           class << self
 
-            def column_type_regex
-              /^hstore$/
+            DB_TYPE_REGEX = /^hstore$/
+
+            def to_db?(type)
+              !type.match(DB_TYPE_REGEX).nil?
             end
 
-            def to_db(value, sub_type)
+            def to_db(value, type)
               Sequel.hstore value
             end
 
-            def db_classes
-              [Sequel::Postgres::HStore]
+            def from_db?(klass)
+              defined?(Sequel::Postgres::HStore) &&
+              klass == Sequel::Postgres::HStore
             end
 
-            def from_db(object)
-              object.to_h
+            def from_db(value)
+              value.to_h
             end
 
           end
-
         end
       end
     end

@@ -3,62 +3,58 @@ module Rasti
     module TypeConverters
       class Postgres
 
-        CONVERTERS = [PostgresTypes::JSON, PostgresTypes::JSONB, PostgresTypes::HStore, PostgresTypes::Array]
-
-        @to_db_mapping = {}
+        CONVERTERS = [
+          PostgresTypes::JSON,
+          PostgresTypes::JSONB,
+          PostgresTypes::HStore,
+          PostgresTypes::Array
+        ]
 
         class << self
 
           def to_db(db, collection_name, attribute_name, value)
-            to_db_mapping = to_db_mapping_for db, collection_name
-
-            if to_db_mapping.key? attribute_name
-              to_db_mapping[attribute_name][:converter].to_db value, to_db_mapping[attribute_name][:sub_type]
-            else
-              value
-            end
+            converter, type = find_to_db_converter_and_type db, collection_name, attribute_name
+            converter ? converter.to_db(value, type) : value
           end
 
-          def from_db(object)
-            if from_db_mapping.key? object.class
-              from_db_mapping[object.class].from_db object
-            else
-              object
-            end
+          def from_db(value)
+            converter = find_from_db_converter value.class
+            converter ? converter.from_db(value) : value
           end
 
           private
 
-          def to_db_mapping_for(db, collection_name)
-            key = [db.opts[:database], collection_name]
-            
-            @to_db_mapping[key] ||= begin
-              columns = Hash[db.schema(collection_name)]
-
-              columns.each_with_object({}) do |(name, schema), hash| 
-                CONVERTERS.each do |converter|
-                  unless hash.key? name
-                    match = converter.column_type_regex.match schema[:db_type]
-
-                    hash[name] = {converter: converter, sub_type: match.captures.first} if match
-                  end
-                end
-              end
-            end
+          def from_db_converters
+            @from_db_converters ||= {}
           end
 
-          def from_db_mapping
-            @from_db_mapping ||= begin
-              CONVERTERS.each_with_object({}) do |converter, result|
-                converter.db_classes.each do |db_class|
-                  result[db_class] = converter
-                end
-              end              
+          def to_db_converters
+            @to_db_converters ||= {}
+          end
+
+          def find_to_db_converter_and_type(db, collection_name, attribute_name)
+            key = [db.opts[:database], collection_name].join('.')
+
+            to_db_converters[key] ||= begin
+              columns = Hash[db.schema(collection_name)]
+              to_db_converters[key] = columns.each_with_object({}) do |(name, schema), hash|
+                converter = CONVERTERS.detect { |c| c.to_db? schema[:db_type] }
+                hash[name] = [converter, schema[:db_type]] if converter
+              end
             end
+
+            to_db_converters[key].fetch(attribute_name, [])
+          end
+
+          def find_from_db_converter(klass)
+            if !from_db_converters.key?(klass)
+              from_db_converters[klass] = CONVERTERS.detect { |c| c.from_db? klass }
+            end
+
+            from_db_converters[klass]
           end
 
         end
-
       end
     end
   end
