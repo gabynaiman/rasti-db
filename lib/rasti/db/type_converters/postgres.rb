@@ -33,7 +33,7 @@ module Rasti
           end
 
           def find_to_db_converter_and_type(db, collection_name, attribute_name)
-            key = [db.opts[:database], collection_name].join('.')
+            key = [db.opts[:database], collection_name]
 
             to_db_converters[key] ||= begin
               columns = Hash[db.schema(collection_name)]
