@@ -6,7 +6,7 @@ module Rasti
         class << self
 
           def to_db(db, collection_name, attribute_name, value)
-            value
+            value.is_a?(Timing::TimeInZone) ? value.to_time : value
           end
 
           def from_db(value)
