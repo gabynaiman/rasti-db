@@ -52,7 +52,7 @@ describe 'Collection' do
     it 'Insert with many to many' do
       user_id = db[:users].insert name: 'User 1'
 
-      1.upto(2) do |i| 
+      1.upto(2) do |i|
         db[:posts].insert user_id: user_id, title: "Post #{i}", body: '...', language_id: 1
         db[:categories].insert name: "Category #{i}"
       end
@@ -65,7 +65,7 @@ describe 'Collection' do
     end
 
     it 'Insert only many to many' do
-      1.upto(3) do |i| 
+      1.upto(3) do |i|
         db[:categories].insert name: "Category #{i}"
       end
 
@@ -101,7 +101,7 @@ describe 'Collection' do
     it 'Update with many to many' do
       user_id = db[:users].insert name: 'User 1'
 
-      1.upto(3) do |i| 
+      1.upto(3) do |i|
         db[:posts].insert user_id: user_id, title: "Post #{i}", body: '...', language_id: 1
         db[:categories].insert name: "Category #{i}"
       end
@@ -115,11 +115,11 @@ describe 'Collection' do
       posts.update 1, categories: [2,3]
 
       db[:categories_posts].where(post_id: 1).map(:category_id).must_equal [2,3]
-      
+
       db[:categories_posts].where(category_id: 2).map(:post_id).must_equal [1,2]
 
       categories.update 2, posts: [2,3]
-      
+
       db[:categories_posts].where(category_id: 2).map(:post_id).must_equal [2,3]
     end
 
@@ -145,7 +145,7 @@ describe 'Collection' do
     end
 
     it 'Delete only many to many' do
-      1.upto(3) do |i| 
+      1.upto(3) do |i|
         db[:categories].insert name: "Category #{i}"
       end
 
@@ -172,14 +172,14 @@ describe 'Collection' do
         1.upto(3) do |i|
           user_id = db[:users].insert name: "User #{i}"
 
-          db[:people].insert document_number: "document_#{i}", 
+          db[:people].insert document_number: "document_#{i}",
                              first_name: "John #{i}",
                              last_name: "Doe #{i}",
                              birth_date: Time.now - i,
                              user_id: user_id
 
-          category_id = db[:categories].insert name: "Category #{i}" 
-          
+          category_id = db[:categories].insert name: "Category #{i}"
+
           1.upto(3) do |n|
             post_id = db[:posts].insert user_id: user_id, title: "Post #{i}.#{n}", body: '...', language_id: 1
             db[:categories_posts].insert post_id: post_id, category_id: category_id
@@ -227,7 +227,7 @@ describe 'Collection' do
         db[:posts].where(user_id: 1).count.must_equal 0
         db[:comments].join(:posts, id: :post_id).where(Sequel[:posts][:user_id] => 1).count.must_equal 0
         db[:categories_posts].join(:posts, id: :post_id).where(Sequel[:posts][:user_id] => 1).count.must_equal 0
-        
+
         db[:users].count.must_equal 2
         db[:people].count.must_equal 2
         db[:categories].count.must_equal 3
@@ -241,9 +241,9 @@ describe 'Collection' do
     describe 'Multiple data sources' do
 
       before do
-        1.upto(3) do |i| 
+        1.upto(3) do |i|
           db[:users].insert name: "User #{i}"
-          db[:people].insert document_number: "document_#{i}", 
+          db[:people].insert document_number: "document_#{i}",
                              first_name: "John #{i}",
                              last_name: "Doe #{i}",
                              birth_date: Time.now - i,
@@ -303,7 +303,7 @@ describe 'Collection' do
 
     it 'Find' do
       id = db[:users].insert name: 'User 1'
-      
+
       users.find(id).must_equal User.new(id: id, name: 'User 1')
     end
 
@@ -410,26 +410,26 @@ describe 'Collection' do
 
         1.upto(2) do |i|
           db[:categories].insert name: "Category #{i}"
-          
+
           db[:users].insert name: "User #{i}"
-          
-          db[:people].insert document_number: "document_#{i}", 
+
+          db[:people].insert document_number: "document_#{i}",
                              first_name: "John #{i}",
                              last_name: "Doe #{i}",
                              birth_date: Time.now - i,
                              user_id: i
-          
+
         end
 
         db[:languages_people].insert language_id: 1, document_number: 'document_1'
         db[:languages_people].insert language_id: 2, document_number: 'document_2'
 
-        1.upto(3) do |i| 
+        1.upto(3) do |i|
           db[:posts].insert user_id: 1, title: "Post #{i}", body: '...', language_id: 1
           db[:categories_posts].insert category_id: 1, post_id: i
         end
-        
-        4.upto(5) do |i| 
+
+        4.upto(5) do |i|
           db[:posts].insert user_id: 2, title: "Post #{i}", body: '...', language_id: 2
           db[:categories_posts].insert category_id: 2, post_id: i
         end
@@ -475,7 +475,7 @@ describe 'Collection' do
       it 'Global' do
         result_1 = posts.created_by(1)
         result_1.primary_keys.must_equal [1,2,3]
-        
+
         result_2 = posts.created_by(2)
         result_2.primary_keys.must_equal [4,5]
       end
@@ -490,7 +490,7 @@ describe 'Collection' do
     it 'Graph' do
       1.upto(3) do |i|
         db[:users].insert name: "User #{i}"
-        db[:people].insert document_number: "document_#{i}", 
+        db[:people].insert document_number: "document_#{i}",
                            first_name: "John #{i}",
                            last_name: "Doe #{i}",
                            birth_date: Time.now - i,
@@ -521,10 +521,10 @@ describe 'Collection' do
 
         comment.post_id.must_equal 1
         comment.user_id.must_equal i
-        
+
         comment.user.id.must_equal i
         comment.user.name.must_equal "User #{i}"
-        
+
         comment.user.posts.count.must_equal 1
         comment.user.posts[0].id.must_equal i
         comment.user.posts[0].title.must_equal "Post #{i}"
@@ -544,7 +544,7 @@ describe 'Collection' do
       stubs = Proc.new do |sql|
         case sql
 
-        when 'SELECT users.* FROM schema_1.users', 
+        when 'SELECT users.* FROM schema_1.users',
              'SELECT users.* FROM schema_1.users WHERE (users.id IN (2, 1))'
           [
             {id: 1},
@@ -588,7 +588,7 @@ describe 'Collection' do
       Sequel.mock fetch: stubs, autoid: autoid
     end
 
-    let :stub_environment do 
+    let :stub_environment do
       Rasti::DB::Environment.new default: Rasti::DB::DataSource.new(stub_db, :schema_1),
                                  custom: Rasti::DB::DataSource.new(stub_db, :schema_2)
     end
@@ -627,7 +627,7 @@ describe 'Collection' do
 
       stub_users.insert name: 'User 1'
 
-      stub_people.insert document_number: 'document_1', 
+      stub_people.insert document_number: 'document_1',
                          first_name: 'John',
                          last_name: 'Doe',
                          birth_date: Time.parse('2020-04-24'),
@@ -680,7 +680,7 @@ describe 'Collection' do
 
       stub_db.sqls.must_equal [
         'SELECT posts.* FROM schema_1.posts',
-        'SELECT categories.*, categories_posts.post_id AS source_foreign_key FROM schema_1.categories INNER JOIN schema_1.categories_posts ON (schema_1.categories_posts.category_id = schema_1.categories.id) WHERE (categories_posts.post_id IN (3, 4))', 
+        'SELECT categories.*, categories_posts.post_id AS source_foreign_key FROM schema_1.categories INNER JOIN schema_1.categories_posts ON (schema_1.categories_posts.category_id = schema_1.categories.id) WHERE (categories_posts.post_id IN (3, 4))',
         'SELECT comments.* FROM schema_1.comments WHERE (comments.post_id IN (3, 4))',
         'SELECT users.* FROM schema_1.users WHERE (users.id IN (2, 1))',
         'SELECT posts.* FROM schema_1.posts WHERE (posts.user_id IN (1, 2))',

@@ -19,14 +19,14 @@ module Rasti
 
           relation_rows = query.group_by(&foreign_key)
 
-          rows.each do |row| 
+          rows.each do |row|
             row[name] = build_graph_result relation_rows.fetch(row[source_collection_class.primary_key], [])
           end
         end
 
         def add_join(environment, dataset, prefix=nil)
           validate_join!
-          
+
           relation_alias = join_relation_name prefix
 
           relation_name = prefix ? Sequel[prefix] : Sequel[source_collection_class.collection_name]

@@ -3,7 +3,7 @@ module Rasti
     module NQL
       module Nodes
         class BinaryNode < Treetop::Runtime::SyntaxNode
-          
+
           def dependency_tables
             values.flat_map(&:dependency_tables)
           end

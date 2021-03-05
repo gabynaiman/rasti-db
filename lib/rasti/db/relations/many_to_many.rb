@@ -54,19 +54,19 @@ module Rasti
 
           relations_graph.fetch_graph join_rows if relations_graph
 
-          relation_rows = join_rows.each_with_object(Hash.new { |h,k| h[k] = [] }) do |row, hash| 
-            attributes = row.select { |attr,_| target_collection_class.model.attributes.include? attr }
+          relation_rows = join_rows.each_with_object(Hash.new { |h,k| h[k] = [] }) do |row, hash|
+            attributes = row.select { |attr,_| target_collection_class.collection_attributes.include? attr }
             hash[row[:source_foreign_key]] << target_collection_class.model.new(attributes)
           end
 
-          rows.each do |row| 
+          rows.each do |row|
             row[name] = relation_rows.fetch row[source_collection_class.primary_key], []
           end
         end
 
         def add_join(environment, dataset, prefix=nil)
           validate_join!
-          
+
           many_to_many_relation_alias = with_prefix prefix, "#{relation_collection_name}_#{SecureRandom.base64}"
 
           relation_name = prefix ? Sequel[prefix] : Sequel[source_collection_class.collection_name]

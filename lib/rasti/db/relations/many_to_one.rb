@@ -17,18 +17,18 @@ module Rasti
           query = query.select_attributes(*selected_attributes) if selected_attributes
           query = relations_graph.apply_to query if relations_graph
 
-          relation_rows = query.each_with_object({}) do |row, hash| 
+          relation_rows = query.each_with_object({}) do |row, hash|
             hash[row.public_send(source_collection_class.primary_key)] = row
           end
-          
-          rows.each do |row| 
+
+          rows.each do |row|
             row[name] = relation_rows[row[foreign_key]]
           end
         end
 
         def add_join(environment, dataset, prefix=nil)
           validate_join!
-          
+
           relation_alias = join_relation_name prefix
 
           relation_name = prefix ? Sequel[prefix] : Sequel[source_collection_class.collection_name]

@@ -14,7 +14,7 @@ module Rasti
         end
 
         def collection_attributes
-          @collection_attributes ||= model.attributes - relations.keys - computed_attributes.keys
+          @collection_attributes ||= model.attribute_names - relations.keys - computed_attributes.keys
         end
 
         def primary_key
@@ -89,7 +89,7 @@ module Rasti
           raise "Query #{name} already exists" if queries.key? name
 
           queries[name] = lambda || block
-          
+
           define_method name do |*args|
             default_query.instance_exec(*args, &self.class.queries.fetch(name))
           end
@@ -210,21 +210,21 @@ module Rasti
       def qualified_collection_name
         data_source.qualify self.class.collection_name
       end
-      
+
       def qualify(collection_name, data_source_name: nil)
         data_source_name ||= self.class.data_source_name
         environment.qualify data_source_name, collection_name
       end
 
       def default_query
-        Query.new collection_class: self.class, 
-                  dataset: dataset.select_all(self.class.collection_name), 
+        Query.new collection_class: self.class,
+                  dataset: dataset.select_all(self.class.collection_name),
                   environment: environment
       end
 
       def build_query(filter=nil, &block)
         raise ArgumentError, 'must specify filter hash or block' if filter.nil? && block.nil?
-        
+
         if filter
           default_query.where(filter)
         else
@@ -233,7 +233,7 @@ module Rasti
       end
 
       def transform_attributes_to_db(attributes)
-        attributes.each_with_object({}) do |(attribute_name, value), result| 
+        attributes.each_with_object({}) do |(attribute_name, value), result|
           transformed_value = Rasti::DB.to_db data_source.db, qualified_collection_name, attribute_name, value
           result[attribute_name] = transformed_value
         end
@@ -247,7 +247,7 @@ module Rasti
 
         [collection_attributes, relations_ids]
       end
-      
+
       def save_relations(primary_key, relations_primary_keys)
         relations_primary_keys.each do |relation_name, relation_primary_keys|
           relation = self.class.relations[relation_name]
@@ -281,9 +281,9 @@ module Rasti
         relation_data_source = environment.data_source relation.relation_data_source_name
         relation_collection_name = relation_data_source.qualify relation.relation_collection_name
 
-        values = relation_primary_keys.map do |relation_pk| 
+        values = relation_primary_keys.map do |relation_pk|
           {
-            relation.source_foreign_key => primary_key, 
+            relation.source_foreign_key => primary_key,
             relation.target_foreign_key => relation_pk
           }
         end

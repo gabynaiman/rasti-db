@@ -12,7 +12,7 @@ module Rasti
       def qualify(collection_name)
         schema ? Sequel[schema][collection_name] : Sequel[collection_name]
       end
-      
+
     end
   end
 end

@@ -2,7 +2,7 @@ module Rasti
   module DB
     module Relations
       class Base
-        
+
         include Sequel::Inflections
 
         attr_reader :name, :source_collection_class
@@ -63,10 +63,10 @@ module Rasti
 
         def validate_join!
           if source_collection_class.data_source_name != target_collection_class.data_source_name
-            raise "Invalid join of multiple data sources: #{source_collection_class.data_source_name}.#{source_collection_class.collection_name} > #{target_collection_class.data_source_name}.#{target_collection_class.collection_name}" 
+            raise "Invalid join of multiple data sources: #{source_collection_class.data_source_name}.#{source_collection_class.collection_name} > #{target_collection_class.data_source_name}.#{target_collection_class.collection_name}"
           end
         end
-        
+
       end
     end
   end

@@ -8,15 +8,15 @@ describe 'Relations' do
 
       it 'Implicit' do
         relation = Rasti::DB::Relations::OneToMany.new :posts, Users
-        
+
         relation.target_collection_class.must_equal Posts
         relation.foreign_key.must_equal :user_id
       end
 
       it 'Explicit' do
-        relation = Rasti::DB::Relations::OneToMany.new :articles, Users, collection: 'Posts', 
+        relation = Rasti::DB::Relations::OneToMany.new :articles, Users, collection: 'Posts',
                                                                          foreign_key: :id_user
-        
+
         relation.target_collection_class.must_equal Posts
         relation.foreign_key.must_equal :id_user
       end
@@ -41,9 +41,9 @@ describe 'Relations' do
       user_id = db[:users].insert name: 'User 1'
       1.upto(2) { |i| db[:posts].insert user_id: user_id, title: "Post #{i}", body: '...', language_id: 1 }
       rows = db[:users].all
-      
+
       Users.relations[:posts].fetch_graph environment, rows
-      
+
       rows[0][:posts].must_equal posts.where(user_id: user_id).all
     end
 
@@ -55,15 +55,15 @@ describe 'Relations' do
 
       it 'Implicit' do
         relation = Rasti::DB::Relations::ManyToOne.new :user, Posts
-        
+
         relation.target_collection_class.must_equal Users
         relation.foreign_key.must_equal :user_id
       end
 
       it 'Explicit' do
-        relation = Rasti::DB::Relations::ManyToOne.new :publisher, Posts, collection: 'Users', 
+        relation = Rasti::DB::Relations::ManyToOne.new :publisher, Posts, collection: 'Users',
                                                                           foreign_key: :publisher_id
-        
+
         relation.target_collection_class.must_equal Users
         relation.foreign_key.must_equal :publisher_id
       end
@@ -102,7 +102,7 @@ describe 'Relations' do
 
       it 'Implicit' do
         relation = Rasti::DB::Relations::ManyToMany.new :categories, Posts
-        
+
         relation.target_collection_class.must_equal Categories
         relation.source_foreign_key.must_equal :post_id
         relation.target_foreign_key.must_equal :category_id
@@ -110,11 +110,11 @@ describe 'Relations' do
       end
 
       it 'Explicit' do
-        relation = Rasti::DB::Relations::ManyToMany.new :tags, Posts, collection: 'Categories', 
-                                                                      source_foreign_key: :article_id, 
-                                                                      target_foreign_key: :tag_id, 
+        relation = Rasti::DB::Relations::ManyToMany.new :tags, Posts, collection: 'Categories',
+                                                                      source_foreign_key: :article_id,
+                                                                      target_foreign_key: :tag_id,
                                                                       relation_collection_name: :tags_articles
-        
+
         relation.target_collection_class.must_equal Categories
         relation.source_foreign_key.must_equal :article_id
         relation.target_foreign_key.must_equal :tag_id
@@ -165,15 +165,15 @@ describe 'Relations' do
 
       it 'Implicit' do
         relation = Rasti::DB::Relations::OneToOne.new :person, Users
-        
+
         relation.target_collection_class.must_equal People
         relation.foreign_key.must_equal :user_id
       end
 
       it 'Explicit' do
-        relation = Rasti::DB::Relations::OneToOne.new :person, Users, collection: 'Users', 
+        relation = Rasti::DB::Relations::OneToOne.new :person, Users, collection: 'Users',
                                                                       foreign_key: :id_user
-        
+
         relation.target_collection_class.must_equal Users
         relation.foreign_key.must_equal :id_user
       end
@@ -197,7 +197,7 @@ describe 'Relations' do
     it 'Graph' do
       2.times do |i|
         user_id = db[:users].insert name: "User #{i}"
-        db[:people].insert document_number: "document_#{i}", 
+        db[:people].insert document_number: "document_#{i}",
                            first_name: "John #{i}",
                            last_name: "Doe #{i}",
                            birth_date: Time.now - i,

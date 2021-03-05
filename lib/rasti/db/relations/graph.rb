@@ -6,15 +6,15 @@ module Rasti
         def initialize(environment, collection_class, relations=[], selected_attributes={}, excluded_attributes={})
           @environment = environment
           @collection_class = collection_class
-          @graph = build_graph relations, 
-                               Hash::Indifferent.new(selected_attributes), 
+          @graph = build_graph relations,
+                               Hash::Indifferent.new(selected_attributes),
                                Hash::Indifferent.new(excluded_attributes)
         end
 
         def merge(relations:[], selected_attributes:{}, excluded_attributes:{})
-          Graph.new environment, 
-                    collection_class, 
-                    (flat_relations | relations), 
+          Graph.new environment,
+                    collection_class,
+                    (flat_relations | relations),
                     flat_selected_attributes.merge(selected_attributes),
                     flat_excluded_attributes.merge(excluded_attributes)
         end
@@ -22,7 +22,7 @@ module Rasti
         def with_all_attributes_for(relations)
           relations_with_all_attributes = relations.map { |r| [r, nil] }.to_h
 
-          merge selected_attributes: relations_with_all_attributes, 
+          merge selected_attributes: relations_with_all_attributes,
                 excluded_attributes: relations_with_all_attributes
         end
 
@@ -37,7 +37,7 @@ module Rasti
 
           graph.roots.each do |node|
             relation_of(node).fetch_graph environment,
-                                          rows, 
+                                          rows,
                                           node[:selected_attributes],
                                           node[:excluded_attributes] ,
                                           subgraph_of(node)
@@ -88,25 +88,25 @@ module Rasti
             excluded[id] = descendant[:excluded_attributes]
           end
 
-          Graph.new environment, 
-                    relation_of(node).target_collection_class, 
-                    relations, 
-                    selected, 
+          Graph.new environment,
+                    relation_of(node).target_collection_class,
+                    relations,
+                    selected,
                     excluded
         end
 
         def build_graph(relations, selected_attributes, excluded_attributes)
           HierarchicalGraph.new.tap do |graph|
-            flatten(relations).each do |relation| 
+            flatten(relations).each do |relation|
               sections = relation.split('.')
-              
+
               graph.add_node relation, name: sections.last.to_sym,
                                        selected_attributes: selected_attributes[relation],
                                        excluded_attributes: excluded_attributes[relation]
-              
+
               if sections.count > 1
                 parent_id = sections[0..-2].join('.')
-                graph.add_relation parent_id: parent_id, 
+                graph.add_relation parent_id: parent_id,
                                    child_id: relation
               end
             end
