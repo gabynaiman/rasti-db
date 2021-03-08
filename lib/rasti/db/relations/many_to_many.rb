@@ -55,7 +55,7 @@ module Rasti
           relations_graph.fetch_graph join_rows if relations_graph
 
           relation_rows = join_rows.each_with_object(Hash.new { |h,k| h[k] = [] }) do |row, hash|
-            attributes = row.select { |attr,_| target_collection_class.collection_attributes.include? attr }
+            attributes = row.select { |attr,_| target_collection_class.model.attribute_names.include? attr }
             hash[row[:source_foreign_key]] << target_collection_class.model.new(attributes)
           end
 
