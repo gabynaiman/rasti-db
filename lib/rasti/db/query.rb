@@ -60,7 +60,7 @@ module Rasti
       def select_computed_attributes(*computed_attributes)
         ds = computed_attributes.inject(dataset) do |ds, name|
           computed_attribute = collection_class.computed_attributes[name]
-          computed_attribute.apply_join(ds).select_append(computed_attribute.identifier.as(name))
+          computed_attribute.apply_join(ds, environment).select_append(computed_attribute.identifier.as(name))
         end
         build_query dataset: ds
       end

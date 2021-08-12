@@ -9,8 +9,8 @@ module Rasti
         @join = join
       end
 
-      def apply_join(dataset)
-        join ? join.call(dataset) : dataset
+      def apply_join(dataset, environment = nil)
+        join ? join.call(dataset, environment) : dataset
       end
 
       private
