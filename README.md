@@ -1,7 +1,7 @@
 # Rasti::DB
 
 [![Gem Version](https://badge.fury.io/rb/rasti-db.svg)](https://rubygems.org/gems/rasti-db)
-[![Build Status](https://travis-ci.org/gabynaiman/rasti-db.svg?branch=master)](https://travis-ci.org/gabynaiman/rasti-db)
+[![Build Status](https://travis-ci.com/gabynaiman/rasti-db.svg?branch=master)](https://travis-ci.com/gabynaiman/rasti-db)
 [![Coverage Status](https://coveralls.io/repos/github/gabynaiman/rasti-db/badge.svg?branch=master)](https://coveralls.io/github/gabynaiman/rasti-db?branch=master)
 [![Code Climate](https://codeclimate.com/github/gabynaiman/rasti-db.svg)](https://codeclimate.com/github/gabynaiman/rasti-db)
 
