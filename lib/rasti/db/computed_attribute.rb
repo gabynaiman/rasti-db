@@ -9,7 +9,7 @@ module Rasti
         @join = join
       end
 
-      def apply_join(dataset, environment = nil)
+      def apply_join(dataset, environment)
         join ? join.call(dataset, environment) : dataset
       end
 
