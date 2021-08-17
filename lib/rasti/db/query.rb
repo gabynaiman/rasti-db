@@ -60,7 +60,7 @@ module Rasti
       def select_computed_attributes(*computed_attributes)
         ds = computed_attributes.inject(dataset) do |ds, name|
           computed_attribute = collection_class.computed_attributes[name]
-          computed_attribute.apply_join(ds).select_append(computed_attribute.identifier.as(name))
+          computed_attribute.apply_join(ds, environment).select_append(computed_attribute.identifier.as(name))
         end
         build_query dataset: ds
       end
@@ -138,7 +138,7 @@ module Rasti
         raise NQL::InvalidExpressionError.new(filter_expression) if sentence.nil?
 
         ds = sentence.computed_attributes(collection_class).inject(dataset) do |ds, name|
-          collection_class.computed_attributes[name].apply_join ds
+          collection_class.computed_attributes[name].apply_join ds, environment
         end
         query = build_query dataset: ds
 
