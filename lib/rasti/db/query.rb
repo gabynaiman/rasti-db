@@ -58,17 +58,15 @@ module Rasti
       end
 
       def select_computed_attributes(*computed_attributes)
-        ds = computed_attributes.inject(dataset) do |ds, name|
+        ds = computed_attributes.inject(dataset) do |inner_ds, name|
           computed_attribute = collection_class.computed_attributes[name]
-          computed_attribute.apply_join(ds, environment).select_append(computed_attribute.identifier.as(name))
+          computed_attribute.apply_join(inner_ds, environment).select_append(computed_attribute.identifier.as(name))
         end
         build_query dataset: ds
       end
 
       def all
-        with_graph(dataset.all).map do |row|
-          collection_class.model.new row
-        end
+        build_models dataset.all
       end
       alias_method :to_a, :all
 
@@ -114,13 +112,11 @@ module Rasti
       end
 
       def first
-        row = dataset.first
-        row ? build_model(row) : nil
+        build_model dataset.first
       end
 
       def last
-        row = dataset.last
-        row ? build_model(row) : nil
+        build_model dataset.last
       end
 
       def detect(*args, &block)
@@ -137,8 +133,8 @@ module Rasti
 
         raise NQL::InvalidExpressionError.new(filter_expression) if sentence.nil?
 
-        ds = sentence.computed_attributes(collection_class).inject(dataset) do |ds, name|
-          collection_class.computed_attributes[name].apply_join ds, environment
+        ds = sentence.computed_attributes(collection_class).inject(dataset) do |inner_ds, name|
+          collection_class.computed_attributes[name].apply_join inner_ds, environment
         end
         query = build_query dataset: ds
 
@@ -164,7 +160,13 @@ module Rasti
       end
 
       def build_model(row)
-        collection_class.model.new with_graph(row)
+        build_models([row]).first
+      end
+
+      def build_models(rows)
+        with_graph(rows.compact).map do |row|
+          collection_class.model.new row.slice(*collection_class.model.attribute_names)
+        end
       end
 
       def chainable(&block)

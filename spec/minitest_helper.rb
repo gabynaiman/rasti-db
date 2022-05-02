@@ -19,7 +19,8 @@ Post     = Rasti::DB::Model[:id, :title, :body, :user_id, :user, :comments, :cat
 Comment  = Rasti::DB::Model[:id, :text, :user_id, :user, :post_id, :post, :tags]
 Category = Rasti::DB::Model[:id, :name, :posts]
 Person   = Rasti::DB::Model[:document_number, :first_name, :last_name, :birth_date, :user_id, :user, :languages, :full_name]
-Language = Rasti::DB::Model[:id, :name, :people]
+Language = Rasti::DB::Model[:id, :name, :people, :countries]
+Country  = Rasti::DB::Model[:id, :name, :language_id]
 
 
 class Users < Rasti::DB::Collection
@@ -47,8 +48,8 @@ class Posts < Rasti::DB::Collection
   one_to_many :comments
 
   query :created_by, ->(user_id) { where user_id: user_id }
-  
-  query :entitled do |title| 
+
+  query :entitled do |title|
     where title: title
   end
 
@@ -106,6 +107,11 @@ class Languages < Rasti::DB::Collection
 
   many_to_many :people, collection: People, relation_data_source_name: :default
   one_to_many :posts
+  one_to_many :countries
+end
+
+class Countries < Rasti::DB::Collection
+  many_to_one :language
 end
 
 
@@ -114,7 +120,7 @@ class Minitest::Spec
   let(:users) { Users.new environment }
 
   let(:posts) { Posts.new environment }
-  
+
   let(:comments) { Comments.new environment }
 
   let(:categories) { Categories.new environment }
@@ -123,9 +129,11 @@ class Minitest::Spec
 
   let(:languages) { Languages.new environment }
 
+  let(:countries) { Countries.new environment }
+
   let(:driver) { (RUBY_ENGINE == 'jruby') ? 'jdbc:sqlite::memory:' : {adapter: :sqlite} }
 
-  let :environment do 
+  let :environment do
     Rasti::DB::Environment.new default: Rasti::DB::DataSource.new(db),
                                custom: Rasti::DB::DataSource.new(custom_db)
   end
@@ -177,6 +185,13 @@ class Minitest::Spec
         Integer :language_id, null: false, index: true
         foreign_key :document_number, :people, type: String, null: false, index: true
         primary_key [:language_id, :document_number]
+      end
+
+      db.create_table :countries do
+        primary_key :id
+        String :name, null: false, unique: true
+        Integer :population, null: false
+        Integer :language_id, null: false, index: true
       end
 
     end

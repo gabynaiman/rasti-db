@@ -32,6 +32,8 @@ describe 'Query' do
     db[:categories_posts].insert post_id: 2, category_id: 2
     db[:categories_posts].insert post_id: 2, category_id: 3
     db[:categories_posts].insert post_id: 3, category_id: 3
+
+    db[:countries].insert name: 'Argentina', population: 40000000, language_id: 1
   end
 
   let(:users_query) { Rasti::DB::Query.new collection_class: Users, dataset: db[:users], environment: environment }
@@ -43,6 +45,8 @@ describe 'Query' do
   let(:people_query) { Rasti::DB::Query.new collection_class: People, dataset: db[:people], environment: environment }
 
   let(:languages_query) { Rasti::DB::Query.new collection_class: Languages, dataset: custom_db[:languages], environment: environment }
+
+  let(:countries_query) { Rasti::DB::Query.new collection_class: Countries, dataset: db[:countries], environment: environment }
 
   it 'Count' do
     users_query.count.must_equal 10
@@ -164,6 +168,25 @@ describe 'Query' do
                   .all
                   .must_equal [person_expected]
     end
+  end
+
+  describe 'Ignore undefined attributes' do
+
+    it 'First level' do
+      countries_query.raw.first.must_equal id: 1,
+                                     name: 'Argentina',
+                                     population: 40000000,
+                                     language_id: 1
+
+      [countries_query.detect(id: 1), countries_query.where(id: 1).order(:name).last, countries_query.all.first].each do |country|
+        country.must_equal Country.new(language_id: 1, id: 1, name: 'Argentina')
+      end
+    end
+
+    it 'Graph nested' do
+      languages_query.graph(:countries).first.countries.must_equal [Country.new(language_id: 1, id: 1, name: 'Argentina')]
+    end
+
   end
 
   it 'Map' do
