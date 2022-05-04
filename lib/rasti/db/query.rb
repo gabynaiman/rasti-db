@@ -165,8 +165,16 @@ module Rasti
 
       def build_models(rows)
         with_graph(rows.compact).map do |row|
-          collection_class.model.new row.slice(*collection_class.model.attribute_names)
+          collection_class.model.new slice_defined_attributes(row)
         end
+      end
+
+      def slice_defined_attributes(row)
+        row.select { |k,_| defined_attributes.include? k }
+      end
+
+      def defined_attributes
+        @defined_attributes ||= collection_class.model.attribute_names.to_set
       end
 
       def chainable(&block)
