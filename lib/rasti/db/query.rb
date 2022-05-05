@@ -160,11 +160,11 @@ module Rasti
       end
 
       def build_model(row)
-        build_models([row]).first
+        row ? build_models([row]).first : nil
       end
 
       def build_models(rows)
-        with_graph(rows.compact).map do |row|
+        with_graph(rows).map do |row|
           collection_class.model.new slice_defined_attributes(row)
         end
       end
