@@ -146,6 +146,31 @@ describe 'Query' do
                .must_equal [post]
   end
 
+  it 'Graph with sub-queries many to one' do
+    posts_query.graph('comments.user')
+               .with_sub_queries('comments.user' => [:with_birth_date ])
+               .all
+               .must_equal [
+                  Post.new(id: 1, title: "Sample post", body: "...", user_id: 2, comments: [ Comment.new(post_id: 1, id: 1, text: "Comment 1", user_id: 5, user: User.new(id: 5, name: "User 5", user_birth_day: Date.parse('2020-04-24')) , tags: []), Comment.new(post_id: 1, id: 2, text: "Comment 2", user_id: 7, user: User.new(id: 7, name: "User 7", user_birth_day: Date.parse('2020-04-24')), tags: []) ], language_id: 1),
+                  Post.new(id: 2, title: "Another post", body: "...", user_id: 1, comments: [ Comment.new(post_id: 2, id: 3, text: "Comment 3", user_id: 2, user: User.new(id: 2, name: "User 2", user_birth_day: Date.parse('2020-04-24')), tags: [])], language_id: 1),
+                  Post.new(id: 3, title: "Best post", body: "...", user_id: 4, comments: [], language_id: 1), 
+                ]
+  end
+
+  it 'Graph with sub-queries one to many' do
+    posts_query.graph('language.countries')
+               .with_sub_queries('language.countries' => [:with_country_population ])
+               .all
+               .must_equal [
+                  Post.new(id: 1, title: "Sample post", body: "...", user_id: 2, language_id: 1, language: Language.new(id: 1, name: "Spanish", countries: [ Country.new(language_id: 1, id: 1, name: "Argentina", country_population: 40000000)])), 
+                  Post.new(id: 2, title: "Another post", body: "...", user_id: 1, language_id: 1, language: Language.new(id: 1, name: "Spanish", countries: [ Country.new(language_id: 1, id: 1, name: "Argentina", country_population: 40000000)])),
+                  Post.new(id: 3, title: "Best post", body: "...", user_id: 4, language_id: 1, language: Language.new(id: 1, name: "Spanish", countries: [ Country.new(language_id: 1, id: 1, name: "Argentina", country_population: 40000000)]))
+                ]
+  end
+
+  it 'Graph with sub queries many to many' do
+  end
+
   describe 'Select computed attributes' do
     it 'With join' do
       db[:comments].insert post_id: 1, user_id: 5, text: 'Comment 4'

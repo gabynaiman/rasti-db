@@ -19,7 +19,7 @@ module Rasti
           @relation_data_source_name ||= options[:relation_data_source_name] || source_collection_class.data_source_name
         end
 
-        def fetch_graph(environment, rows, selected_attributes=nil, excluded_attributes=nil, relations_graph=nil)
+        def fetch_graph(environment, rows, selected_attributes=nil, excluded_attributes=nil, sub_queries=nil, relations_graph=nil)
           pks = rows.map { |row| row[source_collection_class.primary_key] }
 
           if target_collection_class.data_source_name == relation_data_source_name
