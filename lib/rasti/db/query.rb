@@ -53,8 +53,8 @@ module Rasti
         build_query relations_graph: relations_graph.merge(excluded_attributes: excluded_attributes)
       end
 
-      def with_sub_queries(sub_queries)
-        build_query relations_graph: relations_graph.merge(sub_queries: sub_queries)
+      def graph_queries(queries)
+        build_query relations_graph: relations_graph.merge(queries: queries)
       end
 
       def all_graph_attributes(*relations)
@@ -146,12 +146,6 @@ module Rasti
         query = query.join(*dependency_tables) unless dependency_tables.empty?
 
         query.where sentence.filter_condition(collection_class)
-      end
-
-      def execute_subquery(query, sub_query)
-        if collection_class.queries.keys.include?(sub_query)
-          query.send(sub_query)
-        end
       end
 
       private

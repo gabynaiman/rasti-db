@@ -149,7 +149,7 @@ describe 'Query' do
 
   it 'Graph with sub-queries many to one' do
     posts_query.graph('comments.user')
-               .with_sub_queries('comments.user' => [:with_birth_date])
+               .graph_queries('comments.user' => [:with_birth_date])
                .all
                .must_equal [
                   Post.new(id: 1, title: "Sample post", body: "...", user_id: 2, comments: [ Comment.new(post_id: 1, id: 1, text: "Comment 1", user_id: 5, user: User.new(id: 5, name: "User 5", user_birth_date: Date.parse('2020-04-24')) , tags: []), Comment.new(post_id: 1, id: 2, text: "Comment 2", user_id: 7, user: User.new(id: 7, name: "User 7", user_birth_date: Date.parse('2020-04-24')), tags: []) ], language_id: 1),
@@ -160,7 +160,7 @@ describe 'Query' do
 
   it 'Graph with sub-queries one to many' do
     posts_query.graph('language.countries')
-               .with_sub_queries('language.countries' => [:with_country_population])
+               .graph_queries('language.countries' => [:with_country_population])
                .all
                .must_equal [
                   Post.new(id: 1, title: "Sample post", body: "...", user_id: 2, language_id: 1, language: Language.new(id: 1, name: "Spanish", countries: [ Country.new(language_id: 1, id: 1, name: "Argentina", country_population: 40000000)])), 
@@ -172,12 +172,21 @@ describe 'Query' do
   it 'Graph with sub-queries many to many' do
     posts_query.graph('categories')
                .where(id: 1)
-               .with_sub_queries('categories' => [:with_category_name])
+               .graph_queries('categories' => [:with_category_name])
                .all
                .must_equal [
                   Post.new(id: 1, title: "Sample post", body: "...", user_id: 2, categories: [Category.new(id: 1, name: "Category 1"), Category.new(id: 2, name: "Category 2")], language_id: 1)
                 ]
   end
+
+  # it 'Graph query missing' do
+  #   posts_query.graph('comments.user')
+  #              .graph_queries('comments.user' => [:with_non_existant])
+  #              .all
+  #              .must_raise NoMethodError
+  #   # posts_query.created_by(1).first.must_equal Post.new(db[:posts][user_id: 1])
+  #   # proc { posts_query.by_user(1) }.must_raise NoMethodError
+  # end
 
   describe 'Select computed attributes' do
     it 'With join' do

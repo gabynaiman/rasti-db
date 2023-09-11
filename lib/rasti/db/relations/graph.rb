@@ -3,22 +3,22 @@ module Rasti
     module Relations
       class Graph
 
-        def initialize(environment, collection_class, relations=[], selected_attributes={}, excluded_attributes={}, sub_queries={})
+        def initialize(environment, collection_class, relations=[], selected_attributes={}, excluded_attributes={}, queries={})
           @environment = environment
           @collection_class = collection_class
           @graph = build_graph relations,
                                Hash::Indifferent.new(selected_attributes),
                                Hash::Indifferent.new(excluded_attributes),
-                               Hash::Indifferent.new(sub_queries)
+                               Hash::Indifferent.new(queries)
         end
 
-        def merge(relations:[], selected_attributes:{}, excluded_attributes:{}, sub_queries: {})
+        def merge(relations:[], selected_attributes:{}, excluded_attributes:{}, queries: {})
           Graph.new environment,
                     collection_class,
                     (flat_relations | relations),
                     flat_selected_attributes.merge(selected_attributes),
                     flat_excluded_attributes.merge(excluded_attributes),
-                    flat_sub_queries.merge(sub_queries)
+                    flat_queries.merge(queries)
         end
 
         def with_all_attributes_for(relations)
@@ -32,7 +32,7 @@ module Rasti
           query.graph(*flat_relations)
                .select_graph_attributes(flat_selected_attributes)
                .exclude_graph_attributes(flat_excluded_attributes)
-               .with_sub_queries(flat_sub_queries)
+               .graph_queries(flat_queries)
         end
 
         def fetch_graph(rows)
@@ -42,7 +42,7 @@ module Rasti
                                           rows,
                                           node[:selected_attributes],
                                           node[:excluded_attributes],
-                                          node[:sub_queries] ,
+                                          node[:queries] ,
                                           subgraph_of(node)
           end
         end
@@ -79,9 +79,9 @@ module Rasti
           end
         end
 
-        def flat_sub_queries
+        def flat_queries
           graph.each_with_object(Hash::Indifferent.new) do |node, hash|
-            hash[node.id] = node[:sub_queries]
+            hash[node.id] = node[:queries]
           end
         end
 
@@ -89,14 +89,14 @@ module Rasti
           relations = []
           selected = Hash::Indifferent.new
           excluded = Hash::Indifferent.new
-          sub_queries = Hash::Indifferent.new
+          queries = Hash::Indifferent.new
 
           node.descendants.each do |descendant|
             id = descendant.id[node[:name].length+1..-1]
             relations << id
             selected[id] = descendant[:selected_attributes]
             excluded[id] = descendant[:excluded_attributes]
-            sub_queries[id] = descendant[:sub_queries]
+            queries[id] = descendant[:queries]
           end
 
           Graph.new environment,
@@ -104,10 +104,10 @@ module Rasti
                     relations,
                     selected,
                     excluded,
-                    sub_queries
+                    queries
         end
 
-        def build_graph(relations, selected_attributes, excluded_attributes, sub_queries)
+        def build_graph(relations, selected_attributes, excluded_attributes, queries)
           HierarchicalGraph.new.tap do |graph|
             flatten(relations).each do |relation|
               sections = relation.split('.')
@@ -115,7 +115,7 @@ module Rasti
               graph.add_node relation, name: sections.last.to_sym,
                                        selected_attributes: selected_attributes[relation],
                                        excluded_attributes: excluded_attributes[relation],
-                                       sub_queries: sub_queries[relation]
+                                       queries: queries[relation]
 
               if sections.count > 1
                 parent_id = sections[0..-2].join('.')
