@@ -45,6 +45,8 @@ module Rasti
             query = query.exclude_attributes(*excluded_attributes) if excluded_attributes
             query = query.select_attributes(*selected_attributes) if selected_attributes
 
+            query = sub_queries.inject(query) { |new_query, sub_query| new_query.execute_subquery(query, sub_query) } if sub_queries
+
             join_rows = query.where(target_collection_class.primary_key => relation_index.keys).raw.flat_map do |row|
               relation_index[row[target_collection_class.primary_key]].map do |source_primary_key|
                 row.merge(source_foreign_key: source_primary_key)

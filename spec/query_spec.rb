@@ -6,7 +6,8 @@ describe 'Query' do
     custom_db[:languages].insert name: 'Spanish'
 
     1.upto(10) do |i|
-      db[:users].insert name: "User #{i}"
+      db[:users].insert name: "User #{i}",
+                        user_birth_date: Date.parse('2020-04-24')
 
       db[:people].insert user_id: i,
                          document_number: "document_#{i}",
@@ -118,7 +119,7 @@ describe 'Query' do
     post = Post.new db[:posts].where(id: 1).first.merge(user: user, categories: categories)
 
     excluded_attributes = {
-      user: [:name],
+      user: [:name, :user_birth_date],
       'user.person' => [:first_name, :last_name, :birth_date],
       'user.person.languages' => [:name],
       categories: [:name]
@@ -140,7 +141,7 @@ describe 'Query' do
 
     posts_query.where(id: 1)
                .graph('user.person')
-               .exclude_graph_attributes(user: [:name], 'user.person' => [:birth_date, :first_name, :last_name])
+               .exclude_graph_attributes(user: [:name, :user_birth_date], 'user.person' => [:birth_date, :first_name, :last_name])
                .all_graph_attributes('user.person')
                .all
                .must_equal [post]
@@ -148,18 +149,18 @@ describe 'Query' do
 
   it 'Graph with sub-queries many to one' do
     posts_query.graph('comments.user')
-               .with_sub_queries('comments.user' => [:with_birth_date ])
+               .with_sub_queries('comments.user' => [:with_birth_date])
                .all
                .must_equal [
-                  Post.new(id: 1, title: "Sample post", body: "...", user_id: 2, comments: [ Comment.new(post_id: 1, id: 1, text: "Comment 1", user_id: 5, user: User.new(id: 5, name: "User 5", user_birth_day: Date.parse('2020-04-24')) , tags: []), Comment.new(post_id: 1, id: 2, text: "Comment 2", user_id: 7, user: User.new(id: 7, name: "User 7", user_birth_day: Date.parse('2020-04-24')), tags: []) ], language_id: 1),
-                  Post.new(id: 2, title: "Another post", body: "...", user_id: 1, comments: [ Comment.new(post_id: 2, id: 3, text: "Comment 3", user_id: 2, user: User.new(id: 2, name: "User 2", user_birth_day: Date.parse('2020-04-24')), tags: [])], language_id: 1),
+                  Post.new(id: 1, title: "Sample post", body: "...", user_id: 2, comments: [ Comment.new(post_id: 1, id: 1, text: "Comment 1", user_id: 5, user: User.new(id: 5, name: "User 5", user_birth_date: Date.parse('2020-04-24')) , tags: []), Comment.new(post_id: 1, id: 2, text: "Comment 2", user_id: 7, user: User.new(id: 7, name: "User 7", user_birth_date: Date.parse('2020-04-24')), tags: []) ], language_id: 1),
+                  Post.new(id: 2, title: "Another post", body: "...", user_id: 1, comments: [ Comment.new(post_id: 2, id: 3, text: "Comment 3", user_id: 2, user: User.new(id: 2, name: "User 2", user_birth_date: Date.parse('2020-04-24')), tags: [])], language_id: 1),
                   Post.new(id: 3, title: "Best post", body: "...", user_id: 4, comments: [], language_id: 1), 
                 ]
   end
 
   it 'Graph with sub-queries one to many' do
     posts_query.graph('language.countries')
-               .with_sub_queries('language.countries' => [:with_country_population ])
+               .with_sub_queries('language.countries' => [:with_country_population])
                .all
                .must_equal [
                   Post.new(id: 1, title: "Sample post", body: "...", user_id: 2, language_id: 1, language: Language.new(id: 1, name: "Spanish", countries: [ Country.new(language_id: 1, id: 1, name: "Argentina", country_population: 40000000)])), 
@@ -168,7 +169,14 @@ describe 'Query' do
                 ]
   end
 
-  it 'Graph with sub queries many to many' do
+  it 'Graph with sub-queries many to many' do
+    posts_query.graph('categories')
+               .where(id: 1)
+               .with_sub_queries('categories' => [:with_category_name])
+               .all
+               .must_equal [
+                  Post.new(id: 1, title: "Sample post", body: "...", user_id: 2, categories: [Category.new(id: 1, name: "Category 1"), Category.new(id: 2, name: "Category 2")], language_id: 1)
+                ]
   end
 
   describe 'Select computed attributes' do
@@ -177,7 +185,7 @@ describe 'Query' do
       users_query.select_computed_attributes(:comments_count)
                  .where(id: 5)
                  .all
-                 .must_equal [User.new(id: 5, name: 'User 5', comments_count: 2)]
+                 .must_equal [User.new(id: 5, name: 'User 5', comments_count: 2, user_birth_date: Date.parse('2020-04-24'))]
     end
 
     it 'Without join' do
@@ -219,7 +227,7 @@ describe 'Query' do
   end
 
   it 'Detect' do
-    users_query.detect(id: 3).must_equal User.new(id: 3, name: 'User 3')
+    users_query.detect(id: 3).must_equal User.new(id: 3, name: 'User 3', user_birth_date: Date.parse('2020-04-24'))
   end
 
   describe 'Each' do
@@ -233,7 +241,7 @@ describe 'Query' do
 
       users.size.must_equal 10
       users.each_with_index do |user, i|
-        user.must_equal User.new(id: i+1, name: "User #{i+1}")
+        user.must_equal User.new(id: i+1, name: "User #{i+1}", user_birth_date: Date.parse('2020-04-24'))
       end
     end
 
@@ -245,7 +253,7 @@ describe 'Query' do
 
       users.size.must_equal 10
       users.each_with_index do |user, i|
-        user.must_equal User.new(id: i+1, name: "User #{i+1}")
+        user.must_equal User.new(id: i+1, name: "User #{i+1}", user_birth_date: Date.parse('2020-04-24'))
       end
     end
 
@@ -260,27 +268,27 @@ describe 'Query' do
     users_batch.size.must_equal 5
     i = 1
     users_batch.each do |user_page|
-      user_page.must_equal [User.new(id: i, name: "User #{i}"), User.new(id: i+1, name: "User #{i+1}")]
+      user_page.must_equal [User.new(id: i, name: "User #{i}", user_birth_date: Date.parse('2020-04-24')), User.new(id: i+1, name: "User #{i+1}", user_birth_date: Date.parse('2020-04-24'))]
       i += 2
     end
   end
 
   it 'Where' do
-    users_query.where(id: 3).all.must_equal [User.new(id: 3, name: 'User 3')]
+    users_query.where(id: 3).all.must_equal [User.new(id: 3, name: 'User 3', user_birth_date: Date.parse('2020-04-24'))]
   end
 
   it 'Exclude' do
-    users_query.exclude(id: [1,2,3,4,5,6,7,8,9]).all.must_equal [User.new(id: 10, name: 'User 10')]
+    users_query.exclude(id: [1,2,3,4,5,6,7,8,9]).all.must_equal [User.new(id: 10, name: 'User 10', user_birth_date: Date.parse('2020-04-24'))]
   end
 
   it 'And' do
-    users_query.where(id: [1,2]).where(name: 'User 2').all.must_equal [User.new(id: 2, name: 'User 2')]
+    users_query.where(id: [1,2]).where(name: 'User 2').all.must_equal [User.new(id: 2, name: 'User 2', user_birth_date: Date.parse('2020-04-24'))]
   end
 
   it 'Or' do
     users_query.where(id: 1).or(name: 'User 2').all.must_equal [
-      User.new(id: 1, name: 'User 1'),
-      User.new(id: 2, name: 'User 2')
+      User.new(id: 1, name: 'User 1', user_birth_date: Date.parse('2020-04-24')),
+      User.new(id: 2, name: 'User 2', user_birth_date: Date.parse('2020-04-24'))
     ]
   end
 
@@ -301,19 +309,19 @@ describe 'Query' do
   end
 
   it 'Limit and offset' do
-    users_query.limit(1).offset(1).all.must_equal [User.new(id: 2, name: 'User 2')]
+    users_query.limit(1).offset(1).all.must_equal [User.new(id: 2, name: 'User 2', user_birth_date: Date.parse('2020-04-24'))]
   end
 
   it 'First' do
-    users_query.first.must_equal User.new(id: 1, name: 'User 1')
+    users_query.first.must_equal User.new(id: 1, name: 'User 1', user_birth_date: Date.parse('2020-04-24'))
   end
 
   it 'Last' do
-    users_query.order(:id).last.must_equal User.new(id: 10, name: 'User 10')
+    users_query.order(:id).last.must_equal User.new(id: 10, name: 'User 10', user_birth_date: Date.parse('2020-04-24'))
   end
 
   it 'Graph' do
-    users_query.graph(:posts).where(id: 1).first.must_equal User.new(id: 1, name: 'User 1', posts: [Post.new(id: 2, user_id: 1, title: 'Another post', body: '...', language_id: 1)])
+    users_query.graph(:posts).where(id: 1).first.must_equal User.new(id: 1, name: 'User 1', posts: [Post.new(id: 2, user_id: 1, title: 'Another post', body: '...', language_id: 1)], user_birth_date: Date.parse('2020-04-24'))
   end
 
   it 'Graph with multiple data sources' do
@@ -328,7 +336,8 @@ describe 'Query' do
 
     user = User.new id: 2,
                     name: 'User 2',
-                    person: person
+                    person: person,
+                    user_birth_date: Date.parse('2020-04-24')
 
     post = Post.new id: 1,
                     user_id: 2,
@@ -374,7 +383,7 @@ describe 'Query' do
   describe 'Join' do
 
     it 'One to Many' do
-      users_query.join(:posts).where(Sequel[:posts][:title] => 'Sample post').all.must_equal [User.new(id: 2, name: 'User 2')]
+      users_query.join(:posts).where(Sequel[:posts][:title] => 'Sample post').all.must_equal [User.new(id: 2, name: 'User 2', user_birth_date: Date.parse('2020-04-24'))]
     end
 
     it 'Many to One' do
@@ -382,7 +391,7 @@ describe 'Query' do
     end
 
     it 'One to One' do
-      users_query.join(:person).where(Sequel[:person][:document_number] => 'document_1').all.must_equal [User.new(id: 1, name: 'User 1')]
+      users_query.join(:person).where(Sequel[:person][:document_number] => 'document_1').all.must_equal [User.new(id: 1, name: 'User 1', user_birth_date: Date.parse('2020-04-24'))]
     end
 
     it 'Many to Many' do
@@ -471,13 +480,13 @@ describe 'Query' do
 
       it 'Filter relation computed attribute' do
         db[:comments].insert post_id: 1, user_id: 5, text: 'Comment 4'
-        users_query.nql('comments_count = 2').all.must_equal [User.new(id: 5, name: 'User 5')]
+        users_query.nql('comments_count = 2').all.must_equal [User.new(id: 5, name: 'User 5', user_birth_date: Date.parse('2020-04-24'))]
       end
 
       it 'Filter with relation computed attribute with "and" combined' do
         db[:comments].insert post_id: 1, user_id: 5, text: 'Comment 4'
         db[:comments].insert post_id: 1, user_id: 4, text: 'Comment 3'
-        users_query.nql('(comments_count > 1) & (id = 5)').all.must_equal [User.new(id: 5, name: 'User 5')]
+        users_query.nql('(comments_count > 1) & (id = 5)').all.must_equal [User.new(id: 5, name: 'User 5', user_birth_date: Date.parse('2020-04-24'))]
       end
 
       it 'Filter relation computed attribute with "or" combined' do
@@ -485,7 +494,7 @@ describe 'Query' do
         users_query.nql('(comments_count = 2) | (id = 5)')
                   .order(:id)
                   .all
-                  .must_equal [ User.new(id: 2, name: 'User 2'), User.new(id: 5, name: 'User 5') ]
+                  .must_equal [ User.new(id: 2, name: 'User 2', user_birth_date: Date.parse('2020-04-24')), User.new(id: 5, name: 'User 5', user_birth_date: Date.parse('2020-04-24')) ]
       end
 
       it 'Filter relation computed attribute with "and" and "or" combined' do
@@ -493,7 +502,7 @@ describe 'Query' do
         users_query.nql('((comments_count = 2) | (id = 5)) & (name: User 5)')
                   .order(:id)
                   .all
-                  .must_equal [ User.new(id: 5, name: 'User 5') ]
+                  .must_equal [ User.new(id: 5, name: 'User 5', user_birth_date: Date.parse('2020-04-24')) ]
       end
 
       it 'Filter simple computed attribute' do

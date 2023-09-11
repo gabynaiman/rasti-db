@@ -14,7 +14,7 @@ Rasti::DB.configure do |config|
   config.nql_filter_condition_strategy = Rasti::DB::NQL::FilterConditionStrategies::SQLite.new
 end
 
-User     = Rasti::DB::Model[:id, :name, :posts, :comments, :person, :comments_count, :user_birth_day]
+User     = Rasti::DB::Model[:id, :name, :posts, :comments, :person, :comments_count, :user_birth_date]
 Post     = Rasti::DB::Model[:id, :title, :body, :user_id, :user, :comments, :categories, :language_id, :language, :notice, :author]
 Comment  = Rasti::DB::Model[:id, :text, :user_id, :user, :post_id, :post, :tags]
 Category = Rasti::DB::Model[:id, :name, :posts]
@@ -31,7 +31,7 @@ class Users < Rasti::DB::Collection
   query :with_birth_date do
     chainable do
       dataset.join(qualify(:people), :user_id => :id )
-             .select_append(Sequel[:people][:birth_date].as(:user_birth_day))
+             .select_append(Sequel[:people][:birth_date].as(:user_birth_date))
              .distinct
     end
   end
@@ -94,6 +94,12 @@ end
 
 class Categories < Rasti::DB::Collection
   many_to_many :posts
+
+  query :with_category_name do
+    chainable do
+        dataset.select_append(Sequel[:name])
+    end
+  end
 end
 
 class People < Rasti::DB::Collection
@@ -158,6 +164,7 @@ class Minitest::Spec
       db.create_table :users do
         primary_key :id
         String :name, null: false, unique: true
+        Date :user_birth_date, null: false
       end
 
       db.create_table :posts do
