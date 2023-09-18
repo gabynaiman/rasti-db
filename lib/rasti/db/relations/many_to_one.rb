@@ -13,10 +13,6 @@ module Rasti
           target_collection = target_collection_class.new environment
 
           query = target_collection.where(source_collection_class.primary_key => fks)
-          # query = query.exclude_attributes(*excluded_attributes) if excluded_attributes
-          # query = query.select_attributes(*selected_attributes) if selected_attributes
-
-          # query = queries.inject(query) { |new_query, sub_query| new_query.send(sub_query) } if queries
 
           query = query.exclude_attributes(*excluded_attributes) unless excluded_attributes.nil?
           query = query.select_attributes(*selected_attributes) unless selected_attributes.nil?

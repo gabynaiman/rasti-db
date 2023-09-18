@@ -36,6 +36,12 @@ class Users < Rasti::DB::Collection
     end
   end
 
+  query :with_user_name do
+    chainable do
+      dataset.select_append(Sequel[:name])
+    end
+  end
+
   computed_attribute :comments_count do
     Rasti::DB::ComputedAttribute.new(Sequel[:comments_count][:value]) do |dataset|
       subquery = dataset.db.from(:comments)

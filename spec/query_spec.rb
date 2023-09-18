@@ -147,7 +147,7 @@ describe 'Query' do
                .must_equal [post]
   end
 
-  it 'Graph with sub-queries many to one' do
+  it 'Graph with query many to one' do
     posts_query.graph('comments.user')
                .graph_queries('comments.user' => [:with_birth_date])
                .all
@@ -158,7 +158,7 @@ describe 'Query' do
                 ]
   end
 
-  it 'Graph with sub-queries one to many' do
+  it 'Graph with query one to many' do
     posts_query.graph('language.countries')
                .graph_queries('language.countries' => [:with_country_population])
                .all
@@ -169,7 +169,7 @@ describe 'Query' do
                 ]
   end
 
-  it 'Graph with sub-queries many to many' do
+  it 'Graph with query many to many' do
     posts_query.graph('categories')
                .where(id: 1)
                .graph_queries('categories' => [:with_category_name])
@@ -179,14 +179,28 @@ describe 'Query' do
                 ]
   end
 
-  # it 'Graph query missing' do
-  #   posts_query.graph('comments.user')
-  #              .graph_queries('comments.user' => [:with_non_existant])
-  #              .all
-  #              .must_raise NoMethodError
-  #   # posts_query.created_by(1).first.must_equal Post.new(db[:posts][user_id: 1])
-  #   # proc { posts_query.by_user(1) }.must_raise NoMethodError
-  # end
+  it 'Graph with n queries' do
+    posts_query.graph('comments.user')
+               .graph_queries('comments.user' => [:with_birth_date, :with_user_name])
+               .all
+               .must_equal [
+                  Post.new(id: 1, title: "Sample post", body: "...", user_id: 2, comments: [ Comment.new(post_id: 1, id: 1, text: "Comment 1", user_id: 5, user: User.new(id: 5, name: "User 5", user_birth_date: Date.parse('2020-04-24')) , tags: []), Comment.new(post_id: 1, id: 2, text: "Comment 2", user_id: 7, user: User.new(id: 7, name: "User 7", user_birth_date: Date.parse('2020-04-24')), tags: []) ], language_id: 1),
+                  Post.new(id: 2, title: "Another post", body: "...", user_id: 1, comments: [ Comment.new(post_id: 2, id: 3, text: "Comment 3", user_id: 2, user: User.new(id: 2, name: "User 2", user_birth_date: Date.parse('2020-04-24')), tags: [])], language_id: 1),
+                  Post.new(id: 3, title: "Best post", body: "...", user_id: 4, comments: [], language_id: 1), 
+                ]
+  end
+
+  it 'Graph query missing must raise error' do
+    proc { posts_query.graph('comments.user')
+                      .graph_queries('comments.user' => [:with_not_exists_query])
+                      .all }.must_raise NoMethodError
+  end
+
+  it 'Graph with query params must raise error' do
+    proc { users_query.graph('posts')
+                      .graph_queries('posts' => [:created_by])
+                      .all }.must_raise ArgumentError
+  end
 
   describe 'Select computed attributes' do
     it 'With join' do
