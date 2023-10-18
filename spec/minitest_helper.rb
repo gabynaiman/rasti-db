@@ -14,33 +14,19 @@ Rasti::DB.configure do |config|
   config.nql_filter_condition_strategy = Rasti::DB::NQL::FilterConditionStrategies::SQLite.new
 end
 
-User     = Rasti::DB::Model[:id, :name, :posts, :comments, :person, :comments_count, :user_birth_date]
+User     = Rasti::DB::Model[:id, :name, :posts, :comments, :person, :comments_count]
 Post     = Rasti::DB::Model[:id, :title, :body, :user_id, :user, :comments, :categories, :language_id, :language, :notice, :author]
 Comment  = Rasti::DB::Model[:id, :text, :user_id, :user, :post_id, :post, :tags]
 Category = Rasti::DB::Model[:id, :name, :posts]
 Person   = Rasti::DB::Model[:document_number, :first_name, :last_name, :birth_date, :user_id, :user, :languages, :full_name]
 Language = Rasti::DB::Model[:id, :name, :people, :countries]
-Country  = Rasti::DB::Model[:id, :name, :country_population, :language_id]
+Country  = Rasti::DB::Model[:id, :name, :population, :language_id]
 
 
 class Users < Rasti::DB::Collection
   one_to_many :posts
   one_to_many :comments
   one_to_one :person
-
-  query :with_birth_date do
-    chainable do
-      dataset.join(qualify(:people), :user_id => :id )
-             .select_append(Sequel[:people][:birth_date].as(:user_birth_date))
-             .distinct
-    end
-  end
-
-  query :with_user_name do
-    chainable do
-      dataset.select_append(Sequel[:name])
-    end
-  end
 
   computed_attribute :comments_count do
     Rasti::DB::ComputedAttribute.new(Sequel[:comments_count][:value]) do |dataset|
@@ -76,6 +62,19 @@ class Posts < Rasti::DB::Collection
     end
   end
 
+  query :only_title do
+    chainable do
+        dataset.select(:title).select_append(:id, :user_id)
+        # dataset.select(:title)
+    end
+  end
+
+  query :append_body do
+    chainable do
+        dataset.select_append(:body)
+    end
+  end
+
   computed_attribute :notice do
     Rasti::DB::ComputedAttribute.new Sequel.join([:title, ': ', :body])
   end
@@ -101,11 +100,6 @@ end
 class Categories < Rasti::DB::Collection
   many_to_many :posts
 
-  query :with_category_name do
-    chainable do
-        dataset.select_append(Sequel[:name])
-    end
-  end
 end
 
 class People < Rasti::DB::Collection
@@ -133,11 +127,6 @@ end
 class Countries < Rasti::DB::Collection
   many_to_one :language
 
-  query :with_country_population do
-    chainable do
-      dataset.select_append(Sequel[:population].as(:country_population))
-    end
-  end
 end
 
 
@@ -170,7 +159,6 @@ class Minitest::Spec
       db.create_table :users do
         primary_key :id
         String :name, null: false, unique: true
-        Date :user_birth_date, null: false
       end
 
       db.create_table :posts do
