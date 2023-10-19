@@ -171,9 +171,10 @@ describe 'Query' do
   it 'Graph with query many to many' do
     categories_query.graph('posts')
                     .graph_queries('posts' => [:only_title])
+                    .where(id: 1)
                     .all
                     .must_equal [
-                      Category.new(id: 1, name: 'Category 1', posts: [Post.new(title: 'Sample post')])
+                      Category.new(id: 1, name: 'Category 1', posts: [Post.new(user_id: 1, id: 2, title: 'Sample post')])
                     ]
   end
 

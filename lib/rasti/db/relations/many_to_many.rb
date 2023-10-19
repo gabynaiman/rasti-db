@@ -21,7 +21,7 @@ module Rasti
 
         def fetch_graph(environment, rows, selected_attributes=nil, excluded_attributes=nil, queries=nil, relations_graph=nil)
           pks = rows.map { |row| row[source_collection_class.primary_key] }
-
+          
           if target_collection_class.data_source_name == relation_data_source_name
             target_data_source = environment.data_source_of target_collection_class
 
@@ -33,12 +33,13 @@ module Rasti
             selected_attributes ||= target_collection_class.collection_attributes - excluded_attributes unless excluded_attributes.nil?
             dataset = dataset.select(*selected_attributes.map { |a| Sequel[target_collection_class.collection_name][a] }) unless selected_attributes.nil?
 
-            dataset = dataset.select_append(Sequel[relation_collection_name][source_foreign_key].as(:source_foreign_key))
+            dataset = dataset.select_append(Sequel[relation_collection_name][source_foreign_key])
 
             query = Query.new collection_class: target_collection_class, dataset: dataset, environment: environment
             query = queries.inject(query) { |new_query, sub_query| new_query.send(sub_query) } unless queries.nil?
 
-            join_rows = query.raw
+            join_rows = query.send(:dataset).select_append(Sequel[relation_collection_name][source_foreign_key].as(:source_foreign_key)).all
+
           else
             relation_data_source = environment.data_source relation_data_source_name
 
