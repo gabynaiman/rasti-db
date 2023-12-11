@@ -65,7 +65,6 @@ class Posts < Rasti::DB::Collection
   query :only_title do
     chainable do
         dataset.select(:title).select_append(:id, :user_id)
-        # dataset.select(:title)
     end
   end
 
