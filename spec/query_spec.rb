@@ -174,7 +174,7 @@ describe 'Query' do
                     .where(id: 1)
                     .all
                     .must_equal [
-                      Category.new(id: 1, name: 'Category 1', posts: [Post.new(user_id: 1, id: 2, title: 'Sample post')])
+                      Category.new(id: 1, name: 'Category 1', posts: [Post.new(user_id: 2, id: 1, title: 'Sample post')])
                     ]
   end
 
