@@ -24,6 +24,7 @@ Country  = Rasti::DB::Model[:id, :name, :population, :language_id]
 
 
 class Users < Rasti::DB::Collection
+
   one_to_many :posts
   one_to_many :comments
   one_to_one :person
@@ -42,6 +43,7 @@ class Users < Rasti::DB::Collection
 end
 
 class Posts < Rasti::DB::Collection
+
   many_to_one :user
   many_to_one :language
   many_to_many :categories
@@ -64,13 +66,13 @@ class Posts < Rasti::DB::Collection
 
   query :only_title do
     chainable do
-        dataset.select(:title).select_append(:id, :user_id)
+      dataset.select(:title).select_append(:id, :user_id)
     end
   end
 
   query :append_body do
     chainable do
-        dataset.select_append(:body)
+      dataset.select_append(:body)
     end
   end
 
@@ -85,6 +87,7 @@ class Posts < Rasti::DB::Collection
 end
 
 class Comments < Rasti::DB::Collection
+
   many_to_one :user
   many_to_one :post
 
@@ -94,14 +97,17 @@ class Comments < Rasti::DB::Collection
            .select_all(:posts)
            .map { |row| Post.new row }
   end
+
 end
 
 class Categories < Rasti::DB::Collection
+
   many_to_many :posts
 
 end
 
 class People < Rasti::DB::Collection
+
   set_collection_name :people
   set_primary_key :document_number
   set_foreign_key :document_number
@@ -113,17 +119,21 @@ class People < Rasti::DB::Collection
   computed_attribute :full_name do |db|
     Rasti::DB::ComputedAttribute.new Sequel.join([:first_name, ' ', :last_name])
   end
+
 end
 
 class Languages < Rasti::DB::Collection
+
   set_data_source_name :custom
 
   many_to_many :people, collection: People, relation_data_source_name: :default
   one_to_many :posts
   one_to_many :countries
+
 end
 
 class Countries < Rasti::DB::Collection
+
   many_to_one :language
 
 end
@@ -154,7 +164,6 @@ class Minitest::Spec
 
   let :db do
     Sequel.connect(driver).tap do |db|
-
       db.create_table :users do
         primary_key :id
         String :name, null: false, unique: true
@@ -207,18 +216,15 @@ class Minitest::Spec
         Integer :population, null: false
         Integer :language_id, null: false, index: true
       end
-
     end
   end
 
   let :custom_db do
     Sequel.connect(driver).tap do |db|
-
       db.create_table :languages do
         primary_key :id
         String :name, null: false, unique: true
       end
-
     end
   end
 
