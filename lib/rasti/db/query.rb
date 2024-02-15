@@ -53,6 +53,10 @@ module Rasti
         build_query relations_graph: relations_graph.merge(excluded_attributes: excluded_attributes)
       end
 
+      def graph_queries(queries)
+        build_query relations_graph: relations_graph.merge(queries: queries)
+      end
+
       def all_graph_attributes(*relations)
         build_query relations_graph: relations_graph.with_all_attributes_for(relations)
       end

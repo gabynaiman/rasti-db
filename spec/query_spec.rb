@@ -48,6 +48,8 @@ describe 'Query' do
 
   let(:countries_query) { Rasti::DB::Query.new collection_class: Countries, dataset: db[:countries], environment: environment }
 
+  let(:categories_query) { Rasti::DB::Query.new collection_class: Categories, dataset: db[:categories], environment: environment }
+
   it 'Count' do
     users_query.count.must_equal 10
   end
@@ -146,6 +148,59 @@ describe 'Query' do
                .must_equal [post]
   end
 
+  it 'Graph with query many to one' do
+    comments_query.graph('post')
+                  .graph_queries('post' => [:only_title])
+                  .where(id: 1)
+                  .all
+                  .must_equal [
+                    Comment.new(id: 1, text: 'Comment 1', user_id: 5, post_id: 1, post: Post.new(id: 1, user_id: 2, title: 'Sample post'), tags: [])
+                  ]
+  end
+
+  it 'Graph with query one to many' do
+    users_query.graph('posts')
+              .graph_queries('posts' => [:only_title])
+              .where(id: 1)
+              .all
+              .must_equal [
+                User.new(id: 1, name: 'User 1', posts: [Post.new(user_id: 1, id: 2, title: 'Another post')])
+              ]
+  end
+
+  it 'Graph with query many to many' do
+    categories_query.graph('posts')
+                    .graph_queries('posts' => [:only_title])
+                    .where(id: 1)
+                    .all
+                    .must_equal [
+                      Category.new(id: 1, name: 'Category 1', posts: [Post.new(user_id: 2, id: 1, title: 'Sample post')])
+                    ]
+  end
+
+  it 'Graph with n queries' do
+    comments_query.graph('post')
+                  .graph_queries('post' => [:only_title, :append_body])
+                  .where(id: 1)
+                  .all
+                  .must_equal [
+                    Comment.new(id: 1, text: 'Comment 1', user_id: 5, post_id: 1, post: Post.new(id: 1, user_id: 2, title: 'Sample post', body: '...'), tags: [])
+                  ]
+
+  end
+
+  it 'Graph query missing must raise error' do
+    proc { posts_query.graph('comments.user')
+                      .graph_queries('comments.user' => [:with_not_exists_query])
+                      .all }.must_raise NoMethodError
+  end
+
+  it 'Graph with query params must raise error' do
+    proc { users_query.graph('posts')
+                      .graph_queries('posts' => [:created_by])
+                      .all }.must_raise ArgumentError
+  end
+
   describe 'Select computed attributes' do
     it 'With join' do
       db[:comments].insert post_id: 1, user_id: 5, text: 'Comment 4'
@@ -179,12 +234,12 @@ describe 'Query' do
                                      language_id: 1
 
       [countries_query.detect(id: 1), countries_query.where(id: 1).order(:name).last, countries_query.all.first].each do |country|
-        country.must_equal Country.new(language_id: 1, id: 1, name: 'Argentina')
+        country.must_equal Country.new(language_id: 1, id: 1, name: 'Argentina', population: 40000000)
       end
     end
 
     it 'Graph nested' do
-      languages_query.graph(:countries).first.countries.must_equal [Country.new(language_id: 1, id: 1, name: 'Argentina')]
+      languages_query.graph(:countries).first.countries.must_equal [Country.new(language_id: 1, id: 1, name: 'Argentina', population: 40000000)]
     end
 
   end

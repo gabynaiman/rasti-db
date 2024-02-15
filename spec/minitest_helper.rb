@@ -20,7 +20,7 @@ Comment  = Rasti::DB::Model[:id, :text, :user_id, :user, :post_id, :post, :tags]
 Category = Rasti::DB::Model[:id, :name, :posts]
 Person   = Rasti::DB::Model[:document_number, :first_name, :last_name, :birth_date, :user_id, :user, :languages, :full_name]
 Language = Rasti::DB::Model[:id, :name, :people, :countries]
-Country  = Rasti::DB::Model[:id, :name, :language_id]
+Country  = Rasti::DB::Model[:id, :name, :population, :language_id]
 
 
 class Users < Rasti::DB::Collection
@@ -62,6 +62,18 @@ class Posts < Rasti::DB::Collection
     end
   end
 
+  query :only_title do
+    chainable do
+        dataset.select(:title).select_append(:id, :user_id)
+    end
+  end
+
+  query :append_body do
+    chainable do
+        dataset.select_append(:body)
+    end
+  end
+
   computed_attribute :notice do
     Rasti::DB::ComputedAttribute.new Sequel.join([:title, ': ', :body])
   end
@@ -86,6 +98,7 @@ end
 
 class Categories < Rasti::DB::Collection
   many_to_many :posts
+
 end
 
 class People < Rasti::DB::Collection
@@ -112,6 +125,7 @@ end
 
 class Countries < Rasti::DB::Collection
   many_to_one :language
+
 end
 
 
