@@ -40,6 +40,6 @@ Gem::Specification.new do |spec|
   if RUBY_ENGINE == 'jruby'
     spec.add_development_dependency 'jdbc-sqlite3', '~> 3.8'
   else
-    spec.add_development_dependency 'sqlite3', '~> 1.3'
+    spec.add_development_dependency 'sqlite3', '~> 1.5.0'
   end
 end
